@@ -3,6 +3,8 @@
 I'm Antonio Acquavia, a student of Artificial Intelligence and Data Engineering Master Degree.
 I'm graduated in Computer Science and I'm current enrolled in University of Pisa.
 
+[![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=thorongil05)](https://github.com/anuraghazra/github-readme-stats)
+
 <!--
 **thorongil05/thorongil05** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
