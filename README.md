@@ -1,5 +1,8 @@
 ### Hi there 👋
 
+I'm Antonio Acquavia, a student of Artificial Intelligence and Data Engineering Master Degree.
+I'm graduated in Computer Science and I'm current enrolled in University of Pisa.
+
 <!--
 **thorongil05/thorongil05** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
