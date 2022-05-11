@@ -1,7 +1,10 @@
 ### Hi there 👋
 
-I'm Antonio Acquavia, a student of Artificial Intelligence and Data Engineering Master Degree.
-I'm graduated in Computer Science and I'm current enrolled in University of Pisa.
+I'm Antonio Acquavia.
+## Education
+
+- Master's degree in Artificial Intelligence and Data Engineering at Università di Pisa
+- Bachelor's degree in Computer Science at Università della Basilicata
 
 [![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=thorongil05)](https://github.com/anuraghazra/github-readme-stats)
 
