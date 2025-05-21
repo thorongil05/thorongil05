@@ -1,4 +1,4 @@
-package it.antonio.training.exercises.binarysearchtree;
+package it.antonio.training.exercises.datastructures.binarysearchtree;
 
 import java.util.List;
 import java.util.ArrayList;

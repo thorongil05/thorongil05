@@ -1,4 +1,4 @@
-package it.antonio.training.exercises.binarysearchtree;
+package it.antonio.training.exercises.datastructures.binarysearchtree;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

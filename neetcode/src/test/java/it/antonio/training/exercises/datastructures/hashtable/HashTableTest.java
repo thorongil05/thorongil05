@@ -1,4 +1,4 @@
-package it.antonio.training.exercises.hashtable;
+package it.antonio.training.exercises.datastructures.hashtable;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

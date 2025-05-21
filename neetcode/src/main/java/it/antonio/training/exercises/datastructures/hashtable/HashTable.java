@@ -1,4 +1,4 @@
-package it.antonio.training.exercises.hashtable;
+package it.antonio.training.exercises.datastructures.hashtable;
 
 import java.util.Optional;
 
