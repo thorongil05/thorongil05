@@ -29,3 +29,7 @@
 - 🧙‍♂️ My nickname *Thorongil* comes from Tolkien's universe
 - 🎮 I love strategy games — especially the **Total War** series and **Paradox Interactive** titles like *Crusader Kings*, *Europa Universalis*, and *Hearts of Iron*
 - ⚽ I'm a huge fan of **Juventus**
+
+## Relevant Repositories
+
+- [Neetcode Exercises Solutions](https://github.com/thorongil05/neetcode)
