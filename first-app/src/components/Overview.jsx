@@ -21,6 +21,10 @@ function Overview() {
     setSelectedInstrument(element);
   }
 
+  const onInstrumentsSelected = (instruments) => {
+    setSelectedInstrument(instruments[0]);
+  };
+
   const x = selectedInstrument.prices.map((value) => value.date);
   const y = selectedInstrument.prices.map((value) => value.price);
 
@@ -28,13 +32,10 @@ function Overview() {
     <>
       <h1 className="text-lg">Bond Overview</h1>
       <div>
-        <SelectInstrument instruments={instruments}></SelectInstrument>
-        {instruments.map((element) => (
-          <div key={element.id}>
-            {element.id == selectedInstrument.id && <span>✅</span>}
-            <button onClick={() => onClick(element)}>{element.name}</button>
-          </div>
-        ))}
+        <SelectInstrument
+          instruments={instruments}
+          onInstrumentsSelected={onInstrumentsSelected}
+        ></SelectInstrument>
       </div>
       <div>
         <LineChart

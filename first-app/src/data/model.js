@@ -4,9 +4,43 @@ export const instruments = [
     "name": "BTP-1ST40 5%",
     "prices": [
       {
+        date: new Date("2025-01-03"),
+        price: 112.68
+      },
+      {
+        date: new Date("2025-02-03"),
+        price: 113.48
+      },
+      {
+        date: new Date("2025-03-03"),
+        price: 112.53
+      },
+      {
+        date: new Date("2025-04-02"),
+        price: 109.64
+      },
+      {
+        date: new Date("2025-05-05"),
+        price: 111.44
+      },
+      {
+        date: new Date("2025-06-03"),
+        price: 113.35
+      },
+      {
+        date: new Date("2025-07-03"),
+        price: 113.55
+      },
+    ]
+  },
+  {
+    "id": "2",
+    "name": "BTP-1AG34 5%",
+    "prices": [
+      {
         date: new Date("2025-01-02"),
         dateMonth: 202501,
-        price: 113.35
+        price: 112.38
       },
       {
         date: new Date("2025-02-02"),
@@ -36,7 +70,7 @@ export const instruments = [
     ]
   },
   {
-    "id": "2",
+    "id": "3",
     "name": "BTP-1AG34 5%",
     "prices": [
       {
