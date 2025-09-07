@@ -3,6 +3,7 @@ import { instruments } from "../data/model";
 import { useState } from "react";
 import { axisClasses } from "@mui/x-charts/ChartsAxis";
 import SelectInstrument from "./SelectInstrument";
+import InstrumentDetail from "./InstrumentDetail";
 
 function formatDate(value) {
   if (typeof value == "number") {
@@ -17,12 +18,9 @@ function formatDate(value) {
 function Overview() {
   const [selectedInstrument, setSelectedInstrument] = useState(instruments[0]);
 
-  function onClick(element) {
-    setSelectedInstrument(element);
-  }
-
   const onInstrumentsSelected = (instruments) => {
     setSelectedInstrument(instruments[0]);
+    console.log(selectedInstrument);
   };
 
   const x = selectedInstrument.prices.map((value) => value.date);
@@ -60,6 +58,9 @@ function Overview() {
           series={[{ data: y }]}
           height={300}
         />
+      </div>
+      <div>
+        <InstrumentDetail instrument={selectedInstrument}></InstrumentDetail>
       </div>
     </>
   );

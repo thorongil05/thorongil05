@@ -1,3 +1,5 @@
+import PropTypes from "prop-types";
+
 function SelectInstrument({ instruments, onInstrumentsSelected }) {
   return (
     <select
@@ -21,5 +23,10 @@ function SelectInstrument({ instruments, onInstrumentsSelected }) {
     </select>
   );
 }
+
+SelectInstrument.propTypes = {
+  instruments: PropTypes.array.isRequired,
+  onInstrumentsSelected: PropTypes.func.isRequired,
+};
 
 export default SelectInstrument;
