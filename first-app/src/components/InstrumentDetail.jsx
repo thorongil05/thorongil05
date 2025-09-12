@@ -1,10 +1,9 @@
 class Bond {
   static of(bondName) {
-    const match = bondName.match(/(^[^-]+)-([^\s]+) ((\d*|\d*.\d*)%)/);
     let bond = new Bond();
     bond.extractType(bondName);
     bond.extractExpirationDate(bondName);
-    bond.bondRate = match[4];
+    bond.extractCoupon(bondName);
     return bond;
   }
 
@@ -19,7 +18,10 @@ class Bond {
 
     let dateRegex = dateSubStr.match(/(\d*)(\D*)(\d*)/);
     const map = new Map();
-    map.set("ST", 9);
+    map.set("AG", 7);
+    map.set("ST", 8);
+    map.set("OT", 9);
+    map.set("NV", 10);
 
     let month = map.get(dateRegex[2]);
     let year = 2000 + Number(dateRegex[3]);
@@ -27,12 +29,20 @@ class Bond {
 
     this.bondExpiration = new Date(year, month, day);
   }
+
+  extractCoupon(bondName) {
+    let percentageStr = bondName.substring(bondName.indexOf(" "));
+    this.bondRate = Number.parseFloat(percentageStr);
+  }
 }
 
 function InstrumentDetail({ instrument }) {
   let bond = Bond.of(instrument.name);
-  console.log(JSON.stringify(bond));
-  console.log(bond.bondExpiration.year);
+
+  let expirationMonthDisplayValue = bond.bondExpiration.toLocaleString(
+    "en-US",
+    { month: "long" }
+  );
 
   return (
     <div>
@@ -40,7 +50,9 @@ function InstrumentDetail({ instrument }) {
         Type <span>{bond.bondType}</span>
       </div>
       <div>
-        Expiration <span>{bond.bondExpiration.getFullYear()}</span>
+        Expiration <span>{expirationMonthDisplayValue}</span>
+        <span> - </span>
+        <span>{bond.bondExpiration.getFullYear()}</span>
       </div>
       <div>
         Coupon <span>{bond.bondRate} %</span>
