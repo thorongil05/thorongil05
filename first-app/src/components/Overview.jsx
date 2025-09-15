@@ -16,15 +16,30 @@ function formatDate(value) {
 }
 
 function Overview() {
-  const [selectedInstrument, setSelectedInstrument] = useState(instruments[0]);
+  const [selectedInstruments, setSelectedInstruments] = useState([]);
+
+  let x = selectedInstruments
+    .map((instrument) => ({
+      name: instrument.name,
+      prices: instrument.prices,
+    }))
+    .map((entry) => {
+      return {
+        id: entry.name,
+        data: entry.prices.map((t) => t.date),
+        valueFormatter: (value) => formatDate(value),
+      };
+    });
+
+  let y = selectedInstruments
+    .map((instrument) => instrument.prices)
+    .map((value) => ({
+      data: value.map((t) => t.price),
+    }));
 
   const onInstrumentsSelected = (instruments) => {
-    setSelectedInstrument(instruments[0]);
-    console.log(selectedInstrument);
+    setSelectedInstruments(instruments);
   };
-
-  const x = selectedInstrument.prices.map((value) => value.date);
-  const y = selectedInstrument.prices.map((value) => value.price);
 
   return (
     <>
@@ -48,19 +63,18 @@ function Overview() {
               },
             },
           })}
-          xAxis={[
-            {
-              id: "date",
-              data: x,
-              valueFormatter: (value) => formatDate(value),
-            },
-          ]}
-          series={[{ data: y }]}
+          xAxis={x}
+          series={y}
           height={300}
         />
       </div>
       <div>
-        <InstrumentDetail instrument={selectedInstrument}></InstrumentDetail>
+        {selectedInstruments.map((instrument) => (
+          <InstrumentDetail
+            key={instrument.name}
+            instrument={instrument}
+          ></InstrumentDetail>
+        ))}
       </div>
     </>
   );
