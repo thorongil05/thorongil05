@@ -1,3 +1,5 @@
+import InstrumentPricesTable from "./InstrumentPricesTable";
+
 class Bond {
   static of(bondName) {
     let bond = new Bond();
@@ -57,6 +59,12 @@ function InstrumentDetail({ instrument }) {
       <div>
         Coupon <span>{bond.bondRate} %</span>
       </div>
+      <div>
+        <InstrumentPricesTable
+          key={instrument.name}
+          prices={instrument.prices}
+        />
+      </div>
     </div>
   );
 }
@@ -66,6 +74,7 @@ import PropTypes from "prop-types";
 InstrumentDetail.propTypes = {
   instrument: PropTypes.shape({
     name: PropTypes.string.isRequired,
+    prices: PropTypes.array.isRequired,
   }).isRequired,
 };
 

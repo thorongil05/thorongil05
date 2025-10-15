@@ -4,6 +4,7 @@ import { useState } from "react";
 import { axisClasses } from "@mui/x-charts/ChartsAxis";
 import SelectInstrument from "./SelectInstrument";
 import InstrumentDetail from "./InstrumentDetail";
+import "./Overview.css";
 
 function formatDate(value) {
   if (typeof value == "number") {
@@ -68,7 +69,7 @@ function Overview() {
           height={300}
         />
       </div>
-      <div>
+      <div className="price-details-container">
         {selectedInstruments.map((instrument) => (
           <InstrumentDetail
             key={instrument.name}
