@@ -1,4 +1,4 @@
-// import PropTypes from "prop-types";
+import PropTypes from "prop-types";
 
 function Card({ title, description, isVisited, imgUrl }) {
   return (
@@ -14,8 +14,11 @@ function Card({ title, description, isVisited, imgUrl }) {
   );
 }
 
-// Card.propTypes = {
-//   title: PropTypes.string.isRequired,
-// };
+Card.propTypes = {
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  isVisited: PropTypes.bool.isRequired,
+  imgUrl: PropTypes.string.isRequired,
+};
 
 export default Card;

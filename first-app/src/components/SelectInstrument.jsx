@@ -9,9 +9,9 @@ function SelectInstrument({ instruments, onInstrumentsSelected }) {
         const options = [...e.target.selectedOptions];
         const values = options.map((option) => option.index);
         let selectedInstruments = [];
-        values.forEach((index) => {
+        for (const index of values) {
           selectedInstruments.push(instruments[index]);
-        });
+        }
         onInstrumentsSelected(selectedInstruments);
       }}
     >
