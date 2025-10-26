@@ -1,0 +1,16 @@
+{
+  "name": "my-financial-backend",
+  "version": "1.0.0",
+  "description": "Backend that exposes REST API to retrieve data for the UI",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "pg": "^8.16.3"
+  }
+}

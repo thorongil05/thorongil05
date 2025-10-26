@@ -1,4 +1,4 @@
-CREATE TABLE instrument_price_history (
+CREATE TABLE IF NOT EXISTS instrument_price_history (
     id SERIAL PRIMARY KEY,
     instrument_id INT NOT NULL,                         -- riferimento allo strumento
     price_date DATE NOT NULL,                           -- data del prezzo
@@ -9,11 +9,12 @@ CREATE TABLE instrument_price_history (
     volume BIGINT,                                      -- volume scambiato
     currency CHAR(3),                                   -- valuta del prezzo (es. EUR, USD)
     created_at TIMESTAMP DEFAULT NOW(),
+
     updated_at TIMESTAMP DEFAULT NOW(),
 
     CONSTRAINT fk_instrument
         FOREIGN KEY (instrument_id)
-        REFERENCES financial_instrument (id)
+        REFERENCES financial_instruments (id)
         ON DELETE CASCADE,
 
     CONSTRAINT uq_instrument_date
