@@ -5,7 +5,7 @@ import { useState } from "react";
 function InstrumentSelector({ instrument, onSelect, onUnselect }) {
   const [selected, setSelected] = useState(false);
   return (
-    <div>
+    <div className="text-left">
       <button
         className={`clickable ${selected ? "selected" : ""}`}
         onClick={() => {
@@ -43,7 +43,7 @@ function SelectInstrument({ instruments, onInstrumentsSelected }) {
 
   return (
     <>
-      <h1>Instruments</h1>
+      <h1 className="text-left text-xl mb-2 font-medium">Instruments</h1>
       {instruments.map((element) => (
         <InstrumentSelector
           key={element.id}

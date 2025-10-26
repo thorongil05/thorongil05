@@ -44,7 +44,7 @@ function Home() {
 
   return (
     <>
-      <h1 className="text-lg">Bond Overview</h1>
+      <h1 className="text-xl font-medium">Bond Overview</h1>
       <div className="body">
         <div className="master-container">
           <SelectInstrument
