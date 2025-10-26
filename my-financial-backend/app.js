@@ -21,6 +21,7 @@ app.get("/status", (request, response) => {
 });
 
 app.get("/instruments", (request, response) => {
+  response.appendHeader("Access-Control-Allow-Origin", "*");
   instrumentsDao
     .fetchAllFinancialInstrumentsLight()
     .then((result) => {

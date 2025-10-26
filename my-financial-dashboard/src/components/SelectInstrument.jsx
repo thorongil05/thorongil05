@@ -30,7 +30,6 @@ function SelectInstrument({ instruments, onInstrumentsSelected }) {
 
   const onSelect = (selectedInstrument) => {
     setSelectedInstruments((prev) => [...prev, selectedInstrument]);
-    console.log(selectedInstruments);
   };
 
   const onUnselect = (unselectedInstrument) => {

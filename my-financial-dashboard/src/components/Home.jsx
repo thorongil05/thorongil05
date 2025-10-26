@@ -1,6 +1,6 @@
 import { LineChart } from "@mui/x-charts";
-import { instruments } from "../data/model";
-import { useState } from "react";
+import { mockInstruments } from "../data/model";
+import { useState, useEffect } from "react";
 import { axisClasses } from "@mui/x-charts/ChartsAxis";
 import SelectInstrument from "./SelectInstrument";
 import InstrumentDetail from "./InstrumentDetail";
@@ -18,6 +18,21 @@ function formatDate(value) {
 
 function Home() {
   const [selectedInstruments, setSelectedInstruments] = useState([]);
+  const [instruments, setInstruments] = useState([]);
+
+  useEffect(() => {
+    console.log("Eseguito solo al caricamento della pagina (mount)");
+    fetch("http://localhost:3000/instruments")
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        setInstruments(data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
 
   let x = selectedInstruments
     .map((instrument) => ({
@@ -38,19 +53,18 @@ function Home() {
       data: value.map((t) => t.price),
     }));
 
-  const onInstrumentsSelected = (instruments) => {
-    setSelectedInstruments(instruments);
-  };
-
   return (
     <>
       <h1 className="text-xl font-medium">Bond Overview</h1>
       <div className="body">
         <div className="master-container">
           <SelectInstrument
-            instruments={instruments}
-            onInstrumentsSelected={onInstrumentsSelected}
+            instruments={mockInstruments}
+            onInstrumentsSelected={setSelectedInstruments}
           ></SelectInstrument>
+          {instruments.map((element) => {
+            return <p>{element.name}</p>;
+          })}
         </div>
         <div className="detail-container">
           <div>
