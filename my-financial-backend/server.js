@@ -1,5 +1,6 @@
 const express = require("express");
 const postgres = require("./postgres");
+const mapper = require("./mapper");
 
 const app = express();
 app.use(express.json());
@@ -28,4 +29,36 @@ app.get("/instruments", (request, response) => {
       response.status(500);
       response.send(error);
     });
+});
+
+app.post("/instruments", (request, response) => {
+  if (request.body instanceof Object) {
+    let financialInstrument = mapper.mapToFinancialInstrument(request.body);
+    postgres
+      .insertFinancialInstrument(financialInstrument)
+      .then((result) => {
+        response.send(result);
+      })
+      .catch((error) => {
+        response.status(500);
+        response.send(error);
+        console.log(error);
+      });
+    return;
+  }
+  if (Array.isArray(request.body)) {
+    let financialInstruments = request.body.map((element) => {
+      return mapper.mapToFinancialInstrument(element);
+    });
+    postgres
+      .insertManyFinancialInstruments(financialInstruments)
+      .then((result) => {
+        response.send(result);
+      })
+      .catch((error) => {
+        response.status(500);
+        response.send(error);
+        console.log(error);
+      });
+  }
 });

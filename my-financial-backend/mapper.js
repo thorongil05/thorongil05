@@ -1,0 +1,14 @@
+module.exports = {
+  mapToFinancialInstrument: function (input) {
+    return {
+      isin: input.isin,
+      name: input.name,
+      issuer: input.issuer,
+      nominal_value: input.nominalValue,
+      type: input.type,
+      currency: input.currency,
+      issue_date: input.issue_date,
+      market_price: input.marketPrice,
+    };
+  },
+};
