@@ -6,8 +6,7 @@
     "nominalValue": 100.0,
     "type": "stock",
     "currency": "USD",
-    "issueDate": "1980-12-12",
-    "marketPrice": 230.45
+    "issueDate": "1980-12-12"
   },
   {
     "isin": "US5949181045",
@@ -16,8 +15,7 @@
     "nominalValue": 100.0,
     "type": "stock",
     "currency": "USD",
-    "issueDate": "1986-03-13",
-    "marketPrice": 405.2
+    "issueDate": "1986-03-13"
   },
   {
     "isin": "IT0000088853",
@@ -26,8 +24,7 @@
     "nominalValue": 1.0,
     "type": "stock",
     "currency": "EUR",
-    "issueDate": "1995-11-01",
-    "marketPrice": 15.38
+    "issueDate": "1995-11-01"
   },
   {
     "isin": "DE000BASF111",
@@ -36,8 +33,7 @@
     "nominalValue": 50.0,
     "type": "stock",
     "currency": "EUR",
-    "issueDate": "1990-07-10",
-    "marketPrice": 47.65
+    "issueDate": "1990-07-10"
   },
   {
     "isin": "FR0000131104",
@@ -46,8 +42,7 @@
     "nominalValue": 10.0,
     "type": "stock",
     "currency": "EUR",
-    "issueDate": "1991-05-16",
-    "marketPrice": 66.92
+    "issueDate": "1991-05-16"
   },
   {
     "isin": "US912828U816",
@@ -56,8 +51,7 @@
     "nominalValue": 1000.0,
     "type": "bond",
     "currency": "USD",
-    "issueDate": "2016-05-15",
-    "marketPrice": 985.25
+    "issueDate": "2016-05-15"
   },
   {
     "isin": "XS2010036980",
@@ -66,8 +60,7 @@
     "nominalValue": 1000.0,
     "type": "bond",
     "currency": "EUR",
-    "issueDate": "2019-05-17",
-    "marketPrice": 1012.5
+    "issueDate": "2019-05-17"
   },
   {
     "isin": "LU1681043599",
@@ -76,8 +69,7 @@
     "nominalValue": 100.0,
     "type": "etf",
     "currency": "EUR",
-    "issueDate": "2017-09-20",
-    "marketPrice": 472.15
+    "issueDate": "2017-09-20"
   },
   {
     "isin": "GB0009895292",
@@ -86,8 +78,7 @@
     "nominalValue": 1.0,
     "type": "fund",
     "currency": "GBP",
-    "issueDate": "2002-02-11",
-    "marketPrice": 135.4
+    "issueDate": "2002-02-11"
   },
   {
     "isin": "JP3902900004",
@@ -96,7 +87,6 @@
     "nominalValue": 50.0,
     "type": "stock",
     "currency": "JPY",
-    "issueDate": "1958-12-01",
-    "marketPrice": 12875.0
+    "issueDate": "1958-12-01"
   }
 ]

@@ -1,5 +1,6 @@
 const express = require("express");
-const postgres = require("./postgres");
+const instrumentsDao = require("./instruments_dao");
+const pricesDao = require("./prices_dao");
 const mapper = require("./mapper");
 
 const app = express();
@@ -20,7 +21,7 @@ app.get("/status", (request, response) => {
 });
 
 app.get("/instruments", (request, response) => {
-  postgres
+  instrumentsDao
     .fetchAllFinancialInstrumentsLight()
     .then((result) => {
       response.send(result);
@@ -36,7 +37,7 @@ app.post("/instruments", (request, response) => {
     let financialInstruments = request.body.map((element) => {
       return mapper.mapToFinancialInstrument(element);
     });
-    postgres
+    instrumentsDao
       .insertManyFinancialInstruments(financialInstruments)
       .then((result) => {
         response.send(result);
@@ -48,7 +49,7 @@ app.post("/instruments", (request, response) => {
       });
   } else {
     let financialInstrument = mapper.mapToFinancialInstrument(request.body);
-    postgres
+    instrumentsDao
       .insertFinancialInstrument(financialInstrument)
       .then((result) => {
         response.send(result);
@@ -58,5 +59,24 @@ app.post("/instruments", (request, response) => {
         response.send(error);
         console.log(error);
       });
+  }
+});
+
+app.post("/instruments/:id/prices", (request, response) => {
+  let id = request.params["id"];
+  if (Array.isArray(request.body)) {
+    let prices = request.body.map(mapper.mapToPrice);
+    pricesDao
+      .insertManyPrices(id, prices)
+      .then((result) => {
+        response.send(result);
+      })
+      .catch((error) => {
+        response.status(500);
+        response.send(error);
+        console.log(error);
+      });
+  } else {
+    throw new Error("Error");
   }
 });

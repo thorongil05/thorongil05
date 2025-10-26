@@ -7,7 +7,6 @@ CREATE TABLE IF NOT EXISTS instrument_price_history (
     high_price NUMERIC(18, 4),                          -- massimo giornaliero
     low_price NUMERIC(18, 4),                           -- minimo giornaliero
     volume BIGINT,                                      -- volume scambiato
-    currency CHAR(3),                                   -- valuta del prezzo (es. EUR, USD)
     created_at TIMESTAMP DEFAULT NOW(),
 
     updated_at TIMESTAMP DEFAULT NOW(),

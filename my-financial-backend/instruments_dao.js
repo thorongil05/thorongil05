@@ -36,7 +36,7 @@ module.exports = {
     const pool = new Pool(poolConfig);
     const result = await pool.query(
       `INSERT INTO financial_instruments
-       (isin, symbol, name, type, currency, issue_date, maturity_date, issuer, nominal_value, market_price)
+       (isin, symbol, name, type, currency, issue_date, maturity_date, issuer, nominal_value)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
        RETURNING *`,
       [
@@ -45,18 +45,17 @@ module.exports = {
         financialInstrument.name,
         financialInstrument.type,
         financialInstrument.currency,
-        financialInstrument.issue_date,
-        financialInstrument.maturity_date,
+        financialInstrument.issueDate,
+        financialInstrument.maturityDate,
         financialInstrument.issuer,
-        financialInstrument.nominal_value,
-        financialInstrument.market_price,
+        financialInstrument.nominalValue,
       ]
     );
     return result;
   },
   insertManyFinancialInstruments: async function (financialInstruments) {
-    financialInstruments.forEach((element) => {
-      this.insertFinancialInstrument(element);
-    });
+    for (const element of financialInstruments) {
+      await this.insertFinancialInstrument(element);
+    }
   },
 };

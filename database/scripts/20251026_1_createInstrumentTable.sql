@@ -9,7 +9,6 @@ CREATE TABLE IF NOT EXISTS financial_instruments (
     maturity_date DATE,                             -- Data di scadenza (se applicabile)
     issuer VARCHAR(255),                            -- Nome dell’emittente
     nominal_value NUMERIC(18, 4),                   -- Valore nominale
-    market_price NUMERIC(18, 4),                    -- Prezzo corrente di mercato
     created_at TIMESTAMP DEFAULT NOW(),             -- Timestamp di creazione
     updated_at TIMESTAMP DEFAULT NOW()              -- Timestamp ultimo aggiornamento
 );

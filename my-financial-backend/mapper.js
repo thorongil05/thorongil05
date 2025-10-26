@@ -4,11 +4,20 @@ module.exports = {
       isin: input.isin,
       name: input.name,
       issuer: input.issuer,
-      nominal_value: input.nominalValue,
+      nominalValue: input.nominalValue,
       type: input.type,
       currency: input.currency,
-      issue_date: input.issue_date,
-      market_price: input.marketPrice,
+      issueDate: input.issue_date,
+    };
+  },
+  mapToPrice: function (input) {
+    return {
+      priceDate: input.priceDate,
+      openPrice: input.openPrice,
+      closePrice: input.closePrice,
+      highPrice: input.highPrice,
+      lowPrice: input.lowPrice,
+      volume: input.volume,
     };
   },
 };
