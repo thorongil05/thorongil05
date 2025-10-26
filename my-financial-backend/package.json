@@ -5,9 +5,11 @@
   "license": "ISC",
   "author": "",
   "type": "commonjs",
-  "main": "server.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js",
+    "dev": "node --watch --env-file=.env app.js",
+    "test": "node --test"
   },
   "dependencies": {
     "express": "^5.1.0",

@@ -28,6 +28,7 @@ app.get("/instruments", (request, response) => {
     })
     .catch((error) => {
       response.status(500);
+      console.log(error);
       response.send(error);
     });
 });

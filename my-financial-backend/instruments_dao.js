@@ -16,6 +16,7 @@ module.exports = {
 
     return res?.rows.map((value) => {
       return {
+        id: value.id,
         isin: value.isin,
         name: value.name,
       };
