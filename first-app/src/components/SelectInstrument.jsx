@@ -1,32 +1,70 @@
 import PropTypes from "prop-types";
+import "./SelectInstrument.css";
+import { useState } from "react";
+
+function InstrumentSelector({ instrument, onSelect, onUnselect }) {
+  const [selected, setSelected] = useState(false);
+  return (
+    <div>
+      <button
+        className={`clickable ${selected ? "selected" : ""}`}
+        onClick={() => {
+          let newSelectionValue = !selected;
+          setSelected(newSelectionValue);
+          if (newSelectionValue) {
+            onSelect(instrument);
+          } else {
+            onUnselect(instrument);
+          }
+        }}
+      >
+        {instrument.name}
+      </button>
+      {selected}
+    </div>
+  );
+}
 
 function SelectInstrument({ instruments, onInstrumentsSelected }) {
+  const [selectedInstruments, setSelectedInstruments] = useState([]);
+
+  const onSelect = (selectedInstrument) => {
+    setSelectedInstruments((prev) => [...prev, selectedInstrument]);
+    console.log(selectedInstruments);
+  };
+
+  const onUnselect = (unselectedInstrument) => {
+    setSelectedInstruments((prev) =>
+      prev.filter((element) => element != unselectedInstrument)
+    );
+  };
+
+  onInstrumentsSelected(selectedInstruments);
+
   return (
-    <select
-      className="bg-gray-800"
-      multiple={true}
-      onChange={(e) => {
-        const options = [...e.target.selectedOptions];
-        const values = options.map((option) => option.index);
-        let selectedInstruments = [];
-        for (const index of values) {
-          selectedInstruments.push(instruments[index]);
-        }
-        onInstrumentsSelected(selectedInstruments);
-      }}
-    >
-      {instruments.map((element, index) => (
-        <option className="m-2" key={element.id} value={index}>
-          {element.name}
-        </option>
+    <>
+      <h1>Instruments</h1>
+      {instruments.map((element) => (
+        <InstrumentSelector
+          key={element.id}
+          instrument={element}
+          onSelect={onSelect}
+          onUnselect={onUnselect}
+        />
       ))}
-    </select>
+    </>
   );
 }
 
 SelectInstrument.propTypes = {
   instruments: PropTypes.array.isRequired,
   onInstrumentsSelected: PropTypes.func.isRequired,
+};
+
+InstrumentSelector.propTypes = {
+  instrument: PropTypes.element.isRequired,
+  onSelect: PropTypes.func.isRequired,
+  onUnselect: PropTypes.func.isRequired,
 };
 
 export default SelectInstrument;

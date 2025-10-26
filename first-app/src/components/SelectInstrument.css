@@ -1,0 +1,8 @@
+.clickable {
+    cursor: pointer;
+}
+
+.selected {
+    background-color: var(--color-gray-300);
+    color: var(--color-gray-600)
+}

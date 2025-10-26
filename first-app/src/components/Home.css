@@ -4,3 +4,12 @@
     flex-wrap: wrap;
     justify-content: space-around;
 }
+
+.body {
+    display: flex;
+    flex-direction: row;
+}
+
+.detail-container {
+    flex-grow: 1;
+}
