@@ -32,10 +32,12 @@ app.get("/instruments", (request, response) => {
 });
 
 app.post("/instruments", (request, response) => {
-  if (request.body instanceof Object) {
-    let financialInstrument = mapper.mapToFinancialInstrument(request.body);
+  if (Array.isArray(request.body)) {
+    let financialInstruments = request.body.map((element) => {
+      return mapper.mapToFinancialInstrument(element);
+    });
     postgres
-      .insertFinancialInstrument(financialInstrument)
+      .insertManyFinancialInstruments(financialInstruments)
       .then((result) => {
         response.send(result);
       })
@@ -44,14 +46,10 @@ app.post("/instruments", (request, response) => {
         response.send(error);
         console.log(error);
       });
-    return;
-  }
-  if (Array.isArray(request.body)) {
-    let financialInstruments = request.body.map((element) => {
-      return mapper.mapToFinancialInstrument(element);
-    });
+  } else {
+    let financialInstrument = mapper.mapToFinancialInstrument(request.body);
     postgres
-      .insertManyFinancialInstruments(financialInstruments)
+      .insertFinancialInstrument(financialInstrument)
       .then((result) => {
         response.send(result);
       })

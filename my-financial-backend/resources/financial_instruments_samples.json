@@ -3,100 +3,100 @@
     "isin": "US0378331005",
     "name": "Apple Inc. Common Stock",
     "issuer": "Apple Inc.",
-    "nominal_value": 100.0,
+    "nominalValue": 100.0,
     "type": "stock",
     "currency": "USD",
-    "issue_date": "1980-12-12",
-    "market_price": 230.45
+    "issueDate": "1980-12-12",
+    "marketPrice": 230.45
   },
   {
     "isin": "US5949181045",
     "name": "Microsoft Corporation Common Stock",
     "issuer": "Microsoft Corporation",
-    "nominal_value": 100.0,
+    "nominalValue": 100.0,
     "type": "stock",
     "currency": "USD",
-    "issue_date": "1986-03-13",
-    "market_price": 405.2
+    "issueDate": "1986-03-13",
+    "marketPrice": 405.2
   },
   {
     "isin": "IT0000088853",
     "name": "ENI S.p.A. Ord.",
     "issuer": "ENI S.p.A.",
-    "nominal_value": 1.0,
+    "nominalValue": 1.0,
     "type": "stock",
     "currency": "EUR",
-    "issue_date": "1995-11-01",
-    "market_price": 15.38
+    "issueDate": "1995-11-01",
+    "marketPrice": 15.38
   },
   {
     "isin": "DE000BASF111",
     "name": "BASF SE",
     "issuer": "BASF SE",
-    "nominal_value": 50.0,
+    "nominalValue": 50.0,
     "type": "stock",
     "currency": "EUR",
-    "issue_date": "1990-07-10",
-    "market_price": 47.65
+    "issueDate": "1990-07-10",
+    "marketPrice": 47.65
   },
   {
     "isin": "FR0000131104",
     "name": "TotalEnergies SE",
     "issuer": "TotalEnergies SE",
-    "nominal_value": 10.0,
+    "nominalValue": 10.0,
     "type": "stock",
     "currency": "EUR",
-    "issue_date": "1991-05-16",
-    "market_price": 66.92
+    "issueDate": "1991-05-16",
+    "marketPrice": 66.92
   },
   {
     "isin": "US912828U816",
     "name": "U.S. Treasury Bond 2.50% 15-May-2046",
     "issuer": "U.S. Department of the Treasury",
-    "nominal_value": 1000.0,
+    "nominalValue": 1000.0,
     "type": "bond",
     "currency": "USD",
-    "issue_date": "2016-05-15",
-    "market_price": 985.25
+    "issueDate": "2016-05-15",
+    "marketPrice": 985.25
   },
   {
     "isin": "XS2010036980",
     "name": "Intesa Sanpaolo 3.625% 2029",
     "issuer": "Intesa Sanpaolo S.p.A.",
-    "nominal_value": 1000.0,
+    "nominalValue": 1000.0,
     "type": "bond",
     "currency": "EUR",
-    "issue_date": "2019-05-17",
-    "market_price": 1012.5
+    "issueDate": "2019-05-17",
+    "marketPrice": 1012.5
   },
   {
     "isin": "LU1681043599",
     "name": "Amundi MSCI World UCITS ETF",
     "issuer": "Amundi Asset Management",
-    "nominal_value": 100.0,
+    "nominalValue": 100.0,
     "type": "etf",
     "currency": "EUR",
-    "issue_date": "2017-09-20",
-    "market_price": 472.15
+    "issueDate": "2017-09-20",
+    "marketPrice": 472.15
   },
   {
     "isin": "GB0009895292",
     "name": "HSBC FTSE 100 Index Fund",
     "issuer": "HSBC Global Asset Management",
-    "nominal_value": 1.0,
+    "nominalValue": 1.0,
     "type": "fund",
     "currency": "GBP",
-    "issue_date": "2002-02-11",
-    "market_price": 135.4
+    "issueDate": "2002-02-11",
+    "marketPrice": 135.4
   },
   {
     "isin": "JP3902900004",
     "name": "Sony Group Corporation",
     "issuer": "Sony Group Corporation",
-    "nominal_value": 50.0,
+    "nominalValue": 50.0,
     "type": "stock",
     "currency": "JPY",
-    "issue_date": "1958-12-01",
-    "market_price": 12875.0
+    "issueDate": "1958-12-01",
+    "marketPrice": 12875.0
   }
 ]
