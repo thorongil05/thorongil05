@@ -1,28 +1,18 @@
-import { LineChart } from "@mui/x-charts";
 import { mockInstruments } from "../data/model";
 import { useState, useEffect } from "react";
-import { axisClasses } from "@mui/x-charts/ChartsAxis";
 import SelectInstrument from "./SelectInstrument";
 import InstrumentDetail from "./InstrumentDetail";
 import "./Home.css";
-
-function formatDate(value) {
-  if (typeof value == "number") {
-    value = new Date(value);
-  }
-  return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}`;
-}
+import InstrumentsLineChart from "./Chart";
 
 function Home() {
   const [selectedInstruments, setSelectedInstruments] = useState([]);
   const [instruments, setInstruments] = useState([]);
 
   useEffect(() => {
+    const apiUrl = `${import.meta.env.SERVER_URL}/api/instruments`;
     console.log("Eseguito solo al caricamento della pagina (mount)");
-    fetch("http://localhost:3000/instruments")
+    fetch(apiUrl)
       .then((response) => {
         return response.json();
       })
@@ -34,25 +24,6 @@ function Home() {
       });
   }, []);
 
-  let x = selectedInstruments
-    .map((instrument) => ({
-      name: instrument.name,
-      prices: instrument.prices,
-    }))
-    .map((entry) => {
-      return {
-        id: entry.name,
-        data: entry.prices.map((t) => t.date),
-        valueFormatter: (value) => formatDate(value),
-      };
-    });
-
-  let y = selectedInstruments
-    .map((instrument) => instrument.prices)
-    .map((value) => ({
-      data: value.map((t) => t.price),
-    }));
-
   return (
     <>
       <h1 className="text-xl font-medium">Bond Overview</h1>
@@ -63,27 +34,14 @@ function Home() {
             onInstrumentsSelected={setSelectedInstruments}
           ></SelectInstrument>
           {instruments.map((element) => {
-            return <p>{element.name}</p>;
+            return <p key={element.key}>{element.name}</p>;
           })}
         </div>
         <div className="detail-container">
           <div>
-            <LineChart
-              // sx is used to overwrite classes of the line chart component
-              sx={() => ({
-                [`.${axisClasses.root}`]: {
-                  [`.${axisClasses.tick}, .${axisClasses.line}`]: {
-                    stroke: "#FFFFFF",
-                  },
-                  [`.${axisClasses.tickLabel}`]: {
-                    fill: "#FFFFFF",
-                  },
-                },
-              })}
-              xAxis={x}
-              series={y}
-              height={300}
-            />
+            <InstrumentsLineChart
+              instrumentsToDisplay={selectedInstruments}
+            ></InstrumentsLineChart>
           </div>
           <div className="price-details-container">
             {selectedInstruments.map((instrument) => (

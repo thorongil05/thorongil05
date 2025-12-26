@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import "./SelectInstrument.css";
 import { useState } from "react";
+import { useEffect } from "react";
 
 function InstrumentSelector({ instrument, onSelect, onUnselect }) {
   const [selected, setSelected] = useState(false);
@@ -38,7 +39,9 @@ function SelectInstrument({ instruments, onInstrumentsSelected }) {
     );
   };
 
-  onInstrumentsSelected(selectedInstruments);
+  useEffect(() => {
+    onInstrumentsSelected(selectedInstruments);
+  });
 
   return (
     <>
