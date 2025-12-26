@@ -3,10 +3,16 @@ const instrumentsDao = require("./instruments_dao");
 const pricesDao = require("./prices_dao");
 const mapper = require("./mapper");
 
+const swaggerUI = require("swagger-ui-express");
+const swaggerSpec = require("./swagger");
+
 const app = express();
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
+
+// Serve Swagger documentation
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 app.listen(PORT, () => {
   console.log("Server Listening on PORT:", PORT);
