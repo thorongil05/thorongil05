@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const instrumentsDao = require("./instruments_dao");
-const pricesDao = require("./prices_dao");
-const mapper = require("./mapper");
+const instrumentsDao = require("../features/instruments_dao");
+const pricesDao = require("../features/prices_dao");
+const mapper = require("../features/mapper");
 
 router.get("/", (request, response) => {
   response.appendHeader("Access-Control-Allow-Origin", "*");
