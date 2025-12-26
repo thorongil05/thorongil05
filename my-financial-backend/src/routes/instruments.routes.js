@@ -48,7 +48,7 @@ router.post("/", (request, response) => {
   }
 });
 
-router.post("/instruments/:id/prices", (request, response) => {
+router.post("/{id}/prices", (request, response) => {
   let id = request.params["id"];
   if (Array.isArray(request.body)) {
     let prices = request.body.map(mapper.mapToPrice);
