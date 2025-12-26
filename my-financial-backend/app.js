@@ -79,6 +79,6 @@ app.post("/instruments/:id/prices", (request, response) => {
         console.log(error);
       });
   } else {
-    throw new Error("Error");
+    throw new TypeError("Error");
   }
 });
