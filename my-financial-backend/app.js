@@ -12,12 +12,54 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 // Serve Swagger documentation
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+app.use("/swagger", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 app.listen(PORT, () => {
   console.log("Server Listening on PORT:", PORT);
 });
 
+/**
+ * @swagger
+ * /api/status:
+ *   get:
+ *     summary: Application status
+ *     description: Returns the current status of the application and its main services.
+ *     tags:
+ *       - System
+ *     responses:
+ *       200:
+ *         description: Application status retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: Overall application status
+ *                   example: OK
+ *                 uptime:
+ *                   type: number
+ *                   description: Application uptime in seconds
+ *                   example: 123456
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                   description: Response timestamp
+ *                   example: 2025-12-26T10:15:30.000Z
+ *                 services:
+ *                   type: object
+ *                   description: Internal services status
+ *                   properties:
+ *                     database:
+ *                       type: string
+ *                       example: UP
+ *                     cache:
+ *                       type: string
+ *                       example: UP
+ *       500:
+ *         description: Internal server error
+ */
 app.get("/status", (request, response) => {
   const status = {
     Status: "Running",
