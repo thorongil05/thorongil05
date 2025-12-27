@@ -18,4 +18,18 @@ router.post("/", (request, response) => {
     });
 });
 
+router.get("/", (request, response) => {
+  console.log("Received request");
+  realEstateDao
+    .retrieve()
+    .then((result) => {
+      response.send(result);
+    })
+    .catch((error) => {
+      response.status(500);
+      response.send(error);
+      console.error(error);
+    });
+});
+
 module.exports = router;

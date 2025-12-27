@@ -42,5 +42,14 @@
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/RealEstateInfo'
- *
+ *      responses:
+ *       200:
+ *         description: Real Estate Info added
+ *   get:
+ *      summary: Retrieve real estate info
+ *      tags:
+ *       - User
+ *      responses:
+ *       200:
+ *         description: Real Estate info retrieved
  */

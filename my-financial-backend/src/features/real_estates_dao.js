@@ -1,5 +1,20 @@
 const pool = require("./database");
 
+async function retrieve() {
+  const res = await pool.query("SELECT * FROM real_estates_info");
+
+  return res?.rows.map((value) => {
+    return {
+      type: value.type,
+      address: value.address,
+      city: value.city,
+      area: value.size_sqm,
+      price: value.price,
+      referenceDate: value.reference_date,
+    };
+  });
+}
+
 async function insertRealEstateInfo(realEstateEntry) {
   const query = `
     INSERT INTO real_estates_info
@@ -23,4 +38,7 @@ async function insertRealEstateInfo(realEstateEntry) {
   return rows[0];
 }
 
-module.exports = { insertRealEstateInfo: insertRealEstateInfo };
+module.exports = {
+  insertRealEstateInfo: insertRealEstateInfo,
+  retrieve: retrieve,
+};
