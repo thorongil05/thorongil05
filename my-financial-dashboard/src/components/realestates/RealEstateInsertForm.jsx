@@ -3,8 +3,9 @@ import Autocomplete from "@mui/material/Autocomplete";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import { useState } from "react";
+import PropTypes from "prop-types";
 
-function submit(e, formData) {
+function submit(e, formData, onSubmitAction) {
   e.preventDefault();
   const apiUrl = `${import.meta.env.VITE_SERVER_URL}/api/real-estates/`;
   console.log("Calling submit on url", apiUrl);
@@ -18,7 +19,9 @@ function submit(e, formData) {
   console.log(JSON.stringify(options));
   fetch(apiUrl, options)
     .then((response) => {
-      return response.json();
+      console.log(response.json());
+      console.log("Success, executing on submit action");
+      onSubmitAction();
     })
     .then((data) => {
       console.log(data);
@@ -28,7 +31,7 @@ function submit(e, formData) {
     });
 }
 
-function RealEstateInsertForm() {
+function RealEstateInsertForm({ onInsert }) {
   const [formData, setFormData] = useState({
     type: "",
     address: "",
@@ -96,12 +99,16 @@ function RealEstateInsertForm() {
           value={formData.area}
           onChange={handleChange}
         ></TextField>
-        <Button type="submit" onClick={(e) => submit(e, formData)}>
+        <Button type="submit" onClick={(e) => submit(e, formData, onInsert)}>
           Add
         </Button>
       </Stack>
     </form>
   );
 }
+
+RealEstateInsertForm.propTypes = {
+  onInsert: PropTypes.func.isRequired,
+};
 
 export default RealEstateInsertForm;

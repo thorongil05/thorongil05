@@ -10,7 +10,8 @@ import RealEstateInsertForm from "./RealEstateInsertForm";
 
 function RealEstatesView() {
   const [realEstatesInfo, setRealEstatesInfo] = useState([]);
-  useEffect(() => {
+
+  const fetchRealEstatesInfo = () => {
     const apiUrl = `${import.meta.env.VITE_SERVER_URL}/api/real-estates`;
     console.log("Eseguito solo al caricamento della pagina (mount)");
     fetch(apiUrl)
@@ -35,10 +36,14 @@ function RealEstatesView() {
       .catch((error) => {
         console.error(error);
       });
-  }, []);
+  };
+
+  useEffect(fetchRealEstatesInfo, []);
   return (
     <>
-      <RealEstateInsertForm></RealEstateInsertForm>
+      <RealEstateInsertForm
+        onInsert={fetchRealEstatesInfo}
+      ></RealEstateInsertForm>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
           <TableHead>
