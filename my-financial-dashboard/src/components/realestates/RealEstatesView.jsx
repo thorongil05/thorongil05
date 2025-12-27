@@ -6,6 +6,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { useState, useEffect } from "react";
+import RealEstateInsertForm from "./RealEstateInsertForm";
 
 function RealEstatesView() {
   const [realEstatesInfo, setRealEstatesInfo] = useState([]);
@@ -36,41 +37,44 @@ function RealEstatesView() {
       });
   }, []);
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell></TableCell>
-            <TableCell align="right">Street</TableCell>
-            <TableCell align="right">City</TableCell>
-            <TableCell align="right">Price</TableCell>
-            <TableCell align="right">Area</TableCell>
-            <TableCell align="right">€/m2</TableCell>
-            <TableCell align="right">Date</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {realEstatesInfo.map((row) => (
-            <TableRow
-              key={row.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                {row.type}
-              </TableCell>
-              <TableCell align="right">{row.street}</TableCell>
-              <TableCell align="right">{row.location}</TableCell>
-              <TableCell align="right">{row.price}</TableCell>
-              <TableCell align="right">{row.area}</TableCell>
-              <TableCell align="right">
-                {(row.price / row.area).toFixed(2)}
-              </TableCell>
-              <TableCell align="right">{row.date}</TableCell>
+    <>
+      <RealEstateInsertForm></RealEstateInsertForm>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell></TableCell>
+              <TableCell align="right">Street</TableCell>
+              <TableCell align="right">City</TableCell>
+              <TableCell align="right">Price</TableCell>
+              <TableCell align="right">Area</TableCell>
+              <TableCell align="right">€/m2</TableCell>
+              <TableCell align="right">Date</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {realEstatesInfo.map((row) => (
+              <TableRow
+                key={row.id}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {row.type}
+                </TableCell>
+                <TableCell align="right">{row.street}</TableCell>
+                <TableCell align="right">{row.location}</TableCell>
+                <TableCell align="right">{row.price}</TableCell>
+                <TableCell align="right">{row.area}</TableCell>
+                <TableCell align="right">
+                  {(row.price / row.area).toFixed(2)}
+                </TableCell>
+                <TableCell align="right">{row.date}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </>
   );
 }
 
