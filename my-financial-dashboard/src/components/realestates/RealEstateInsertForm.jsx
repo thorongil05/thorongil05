@@ -49,7 +49,7 @@ function RealEstateInsertForm({ onInsert }) {
 
   return (
     <form>
-      <Stack direction="row" className="m-3">
+      <Stack direction="row" className="m-3" spacing={2}>
         <Autocomplete
           size="small"
           disablePortal
