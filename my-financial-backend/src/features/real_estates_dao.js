@@ -5,8 +5,10 @@ async function retrieve() {
 
   return res?.rows.map((value) => {
     return {
+      id: value.id,
       type: value.type,
       address: value.address,
+      location: value.location,
       city: value.city,
       area: value.size_sqm,
       price: value.price,

@@ -5,71 +5,36 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-
-function createData(type, street, location, area, price, date) {
-  return { type, street, location, area, price, date };
-}
-
-const rows = [
-  createData(
-    "Villa",
-    "Via delle Eriche, 48",
-    "Tirrenia, Pisa",
-    90,
-    289000,
-    "27/12/2025"
-  ),
-  createData(
-    "Appartamento",
-    "Via Emilia",
-    "Porta Fiorentina, Pisa",
-    82,
-    175000,
-    "27/12/2025"
-  ),
-  createData(
-    "Appartamento",
-    "Via G. Notari, 34",
-    "Santa Maria, Pisa",
-    125,
-    319000,
-    "27/12/2025"
-  ),
-  createData(
-    "Appartamento",
-    "Via San Paolo",
-    "Sant'Antonio, Pisa",
-    50,
-    156000,
-    "27/12/2025"
-  ),
-  createData(
-    "Appartamento",
-    "Via Filippo Turati",
-    "San Martino, Pisa",
-    68,
-    229000,
-    "27/12/2025"
-  ),
-  createData(
-    "Appartamento",
-    "Via Antonio Ceci",
-    "San Martino, Pisa",
-    50,
-    175000,
-    "27/12/2025"
-  ),
-  createData(
-    "Villa",
-    "Via San Giusto",
-    "San Giusto, Pisa",
-    510,
-    540000,
-    "27/12/2025"
-  ),
-];
+import { useState, useEffect } from "react";
 
 function RealEstatesView() {
+  const [realEstatesInfo, setRealEstatesInfo] = useState([]);
+  useEffect(() => {
+    const apiUrl = `${import.meta.env.VITE_SERVER_URL}/api/real-estates`;
+    console.log("Eseguito solo al caricamento della pagina (mount)");
+    fetch(apiUrl)
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        setRealEstatesInfo(
+          data.map((element) => {
+            return {
+              id: element.id,
+              type: element.type,
+              street: element.address,
+              location: `${element.location} - ${element.city}`,
+              price: element.price,
+              area: element.area,
+              date: element.referenceDate,
+            };
+          })
+        );
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
@@ -85,9 +50,9 @@ function RealEstatesView() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
+          {realEstatesInfo.map((row) => (
             <TableRow
-              key={row.name}
+              key={row.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell component="th" scope="row">

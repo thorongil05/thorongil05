@@ -20,6 +20,7 @@ router.post("/", (request, response) => {
 
 router.get("/", (request, response) => {
   console.log("Received request");
+  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   realEstateDao
     .retrieve()
     .then((result) => {
