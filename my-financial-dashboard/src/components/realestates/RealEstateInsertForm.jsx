@@ -47,13 +47,15 @@ function RealEstateInsertForm({ onInsert }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const options = ["Villa", "Appartamento", "Terratetto"];
+
   return (
     <form>
       <Stack direction="row" className="m-3" spacing={2}>
         <Autocomplete
           size="small"
           disablePortal
-          options={["Villa", "Appartamento"]}
+          options={options}
           sx={{ width: 300 }}
           name="type"
           value={formData.type}
