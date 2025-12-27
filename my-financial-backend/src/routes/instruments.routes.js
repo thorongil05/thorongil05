@@ -32,7 +32,7 @@ router.post("/", (request, response) => {
       .catch((error) => {
         response.status(500);
         response.send(error);
-        console.log(error);
+        console.error(error);
       });
   } else {
     let financialInstrument = mapper.mapToFinancialInstrument(request.body);
