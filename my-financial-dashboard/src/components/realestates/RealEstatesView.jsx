@@ -73,7 +73,9 @@ function RealEstatesView() {
                 <TableCell align="right">
                   {(row.price / row.area).toFixed(2)}
                 </TableCell>
-                <TableCell align="right">{row.date}</TableCell>
+                <TableCell align="right">
+                  {new Date(row.date).toLocaleDateString()}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
