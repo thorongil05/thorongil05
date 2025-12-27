@@ -10,7 +10,7 @@ function Home() {
   const [instruments, setInstruments] = useState([]);
 
   useEffect(() => {
-    const apiUrl = `${import.meta.env.SERVER_URL}/api/instruments`;
+    const apiUrl = `${import.meta.env.VITE_SERVER_URL}/api/instruments`;
     console.log("Eseguito solo al caricamento della pagina (mount)");
     fetch(apiUrl)
       .then((response) => {
