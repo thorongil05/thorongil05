@@ -37,6 +37,7 @@ router.get("/", (request, response) => {
   realEstateDao
     .retrieve()
     .then((result) => {
+      console.log(`Retrieved ${result.length} elements`);
       response.send(result);
     })
     .catch((error) => {
