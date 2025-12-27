@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const realEstateDao = require("../features/real_estates_dao");
 
+const logger = require("pino")();
+
 router.post("/", (request, response) => {
-  console.log("Received request", request.body);
+  logger.info("Received request", request.body);
   response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   let realEstateInfo = request.body;
 
@@ -14,30 +16,29 @@ router.post("/", (request, response) => {
     })
     .catch((error) => {
       response.status(500);
-      console.log(response);
+      logger.error(error);
       response.send(error);
-      console.error(error);
     });
 });
 
 router.options("/", (request, response) => {
-  console.log("Received options");
+  logger.info("Received options");
   response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   response.appendHeader("Access-Control-Allow-Methods", "POST");
   response.appendHeader("Access-Control-Allow-Headers", "Content-Type");
   response.statusCode = 204;
 
-  console.log(response);
+  logger.info(response);
   response.send();
 });
 
 router.get("/", (request, response) => {
-  console.log("Received get request");
+  logger.info("Received get request");
   response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   realEstateDao
     .retrieve()
     .then((result) => {
-      console.log(`Retrieved ${result.length} elements`);
+      logger.info(`Retrieved ${result.length} elements`);
       response.send(result);
     })
     .catch((error) => {
