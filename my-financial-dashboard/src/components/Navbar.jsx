@@ -14,6 +14,17 @@ const navigation = [
   { id: "item-3", name: "Real Estates", href: "/real-estates", current: false },
 ];
 
+function updateNavigationItems(selectedElement, elements) {
+  elements.map((element) => {
+    if (element.id == selectedElement.id) {
+      element.current = true;
+    } else {
+      element.current = false;
+    }
+  });
+  return elements;
+}
+
 export default function Navbar() {
   const [navigationItems, setNavigationItems] = useState(navigation);
   let navigate = useNavigate();
@@ -34,8 +45,14 @@ export default function Navbar() {
             return (
               <MenuItem
                 key={element.id}
+                selected={element.current}
                 onClick={() => {
                   navigate(element.href);
+                  let updatedNavigationItems = updateNavigationItems(
+                    element,
+                    navigationItems
+                  );
+                  setNavigationItems(updatedNavigationItems);
                 }}
               >
                 <Typography sx={{ textAlign: "center" }}>
