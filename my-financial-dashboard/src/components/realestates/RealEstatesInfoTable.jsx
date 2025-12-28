@@ -6,8 +6,28 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import { useState, useEffect } from "react";
 
 function RealEstatesInfoTable({ realEstatesInfo }) {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "ArrowDown") {
+        setSelectedIndex((prev) =>
+          Math.min(prev + 1, realEstatesInfo.length - 1)
+        );
+      }
+
+      if (e.key === "ArrowUp") {
+        setSelectedIndex((prev) => Math.max(prev - 1, 0));
+      }
+    };
+
+    globalThis.addEventListener("keydown", handleKeyDown);
+    return () => globalThis.removeEventListener("keydown", handleKeyDown);
+  }, [realEstatesInfo]);
+
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
@@ -23,9 +43,10 @@ function RealEstatesInfoTable({ realEstatesInfo }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {realEstatesInfo.map((row) => (
+          {realEstatesInfo.map((row, index) => (
             <TableRow
               key={row.id}
+              selected={index === selectedIndex}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell component="th" scope="row">
