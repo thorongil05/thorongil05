@@ -1,12 +1,7 @@
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
 import { useState, useEffect } from "react";
 import RealEstateInsertForm from "./RealEstateInsertForm";
+import RealEstateHeader from "./RealEstateHeader";
+import RealEstatesInfoTable from "./RealEstatesInfoTable";
 
 function RealEstatesView() {
   const [realEstatesInfo, setRealEstatesInfo] = useState([]);
@@ -24,7 +19,7 @@ function RealEstatesView() {
             return {
               id: element.id,
               type: element.type,
-              street: element.address,
+              address: element.address,
               location: `${element.location} - ${element.city}`,
               price: element.price,
               area: element.area,
@@ -41,46 +36,13 @@ function RealEstatesView() {
   useEffect(fetchRealEstatesInfo, []);
   return (
     <>
+      <RealEstateHeader></RealEstateHeader>
       <RealEstateInsertForm
         onInsert={fetchRealEstatesInfo}
       ></RealEstateInsertForm>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell></TableCell>
-              <TableCell align="right">Street</TableCell>
-              <TableCell align="right">City</TableCell>
-              <TableCell align="right">Price</TableCell>
-              <TableCell align="right">Area</TableCell>
-              <TableCell align="right">€/m2</TableCell>
-              <TableCell align="right">Date</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {realEstatesInfo.map((row) => (
-              <TableRow
-                key={row.id}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  {row.type}
-                </TableCell>
-                <TableCell align="right">{row.street}</TableCell>
-                <TableCell align="right">{row.location}</TableCell>
-                <TableCell align="right">{row.price}</TableCell>
-                <TableCell align="right">{row.area}</TableCell>
-                <TableCell align="right">
-                  {(row.price / row.area).toFixed(2)}
-                </TableCell>
-                <TableCell align="right">
-                  {new Date(row.date).toLocaleDateString()}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <RealEstatesInfoTable
+        realEstatesInfo={realEstatesInfo}
+      ></RealEstatesInfoTable>
     </>
   );
 }
