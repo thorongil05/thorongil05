@@ -31,7 +31,7 @@ jobs:
           NEW_VERSION=`npm version patch -m "chore: bump patch to %s"`
           echo "Version updated to ${NEW_VERSION}"
           # Set a variable to use it in another step
-          echo "new_version=NEW_VERSION" >> "$GITHUB_ENV"
+          echo "new_version=${NEW_VERSION}" >> "$GITHUB_ENV"
 
       # Push commit e tag
       - name: Commit changes
