@@ -1,4 +1,4 @@
-import { mockInstruments } from "../data/model";
+import { mockInstruments } from "../../data/model";
 import { useState, useEffect } from "react";
 import SelectInstrument from "./SelectInstrument";
 import InstrumentDetail from "./InstrumentDetail";

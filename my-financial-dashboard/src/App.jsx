@@ -1,5 +1,5 @@
 import "./App.css";
-import Home from "./components/Home";
+import Home from "./components/instruments/Home";
 import { Route, Routes } from "react-router";
 import RealEstatesView from "./components/realestates/RealEstatesView";
 import MortgagesView from "./components/mortgages/MortgagesView";
