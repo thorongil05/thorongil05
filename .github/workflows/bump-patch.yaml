@@ -46,8 +46,8 @@ jobs:
         run: |
           git config --global user.email "a.acquavia@studenti.unipi.com"
           git config --global user.name "thorongil05"
-          git add ./my-financial-dashboard/*.js
-          git add ./my-financial-backend/*.js
+          git add ./my-financial-dashboard/*.json
+          git add ./my-financial-backend/*.json
           git commit -m "build: update to version $new_frontend_version - $new_backend_version"
       - name: Push changes
         uses: ad-m/github-push-action@master
