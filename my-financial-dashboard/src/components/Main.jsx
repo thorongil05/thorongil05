@@ -1,5 +1,6 @@
 import { Outlet } from "react-router";
-import Navbar from "./Navbar";
+import Navbar from "./core/Navbar";
+import Footer from "./core/Footer";
 
 const layoutStyle = {
   display: "flex",
@@ -16,7 +17,7 @@ function Main() {
       <div style={mainStyle}>
         <Outlet></Outlet>
       </div>
-      <div>Lo zanda</div>
+      <Footer></Footer>
     </div>
   );
 }

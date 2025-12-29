@@ -9,7 +9,7 @@ export default defineConfig({
     allowedHosts: ["my-financial-dashboard.up.railway.app"],
   },
   server: {
-    port: 5713,
+    port: 5173,
   },
   plugins: [react(), tailwindcss()],
 });
