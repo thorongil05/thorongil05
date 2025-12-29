@@ -23,23 +23,32 @@ jobs:
         with:
           node-version: '22'
 
-      # Incrementa la patch version
-      - name: Bump patch version
+      - name: Frontend bump patch version
         run: |
           cd ./my-financial-dashboard
           npm install
-          NEW_VERSION=`npm version patch -m "chore: bump patch to %s"`
+          NEW_VERSION=`npm version patch -m "build: bump patch to %s"`
           echo "Version updated to ${NEW_VERSION}"
           # Set a variable to use it in another step
-          echo "new_version=${NEW_VERSION}" >> "$GITHUB_ENV"
+          echo "new_frontend_version=${NEW_VERSION}" >> "$GITHUB_ENV"
+
+      - name: Frontend bump patch version
+        run: |
+          cd ./my-backend-dashboard
+          npm install
+          NEW_VERSION=`npm version patch -m "build: bump patch to %s"`
+          echo "Version updated to ${NEW_VERSION}"
+          # Set a variable to use it in another step
+          echo "new_backend_version=${NEW_VERSION}" >> "$GITHUB_ENV"
 
       # Push commit e tag
       - name: Commit changes
         run: |
           git config --global user.email "a.acquavia@studenti.unipi.com"
           git config --global user.name "thorongil05"
-          git add ./my-financial-dashboard/package.json
-          git commit -m "build: update to version $new_version"
+          git add ./my-financial-dashboard/*
+          git add ./my-financial-backend/*
+          git commit -m "build: update to version $new_frontend_version - $new_backend_version"
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
