@@ -18,10 +18,6 @@ function RealEstatesInfoTable({ realEstatesInfo }) {
   const ROWS_PER_PAGE = 10;
   let rows = realEstatesInfo;
 
-  // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * ROWS_PER_PAGE - rows.length) : 0;
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -81,14 +77,10 @@ function RealEstatesInfoTable({ realEstatesInfo }) {
                 </TableCell>
               </TableRow>
             ))}
-          {emptyRows > 0 && (
-            <TableRow style={{ height: 53 * emptyRows }}>
-              <TableCell colSpan={6} />
-            </TableRow>
-          )}
         </TableBody>
         <TableFooter>
           <TablePagination
+            rowsPerPageOptions={[ROWS_PER_PAGE]}
             colSpan={3}
             count={rows.length}
             rowsPerPage={ROWS_PER_PAGE}
