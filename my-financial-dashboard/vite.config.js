@@ -5,7 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 // https://vite.dev/config/
 export default defineConfig({
   preview: {
-    port: 5713,
+    port: 8080,
   },
   server: {
     port: 5713,

@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "start": "npm run build && npm run preview",
+    "start": "npm run build && npm run preview-containerized",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview --host"
+    "preview": "vite preview",
+    "preview-containerized": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
     "@base-ui-components/react": "^1.0.0-rc.0",
