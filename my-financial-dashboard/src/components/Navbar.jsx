@@ -29,7 +29,7 @@ export default function Navbar() {
   const [navigationItems, setNavigationItems] = useState(navigation);
   let navigate = useNavigate();
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{ flexGrow: 0, height: 60 }}>
       <AppBar position="static">
         <Toolbar>
           <IconButton

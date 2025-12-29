@@ -4,12 +4,12 @@ import Home from "./components/Home";
 import { Route, Routes } from "react-router";
 import RealEstatesView from "./components/realestates/RealEstatesView";
 import MortgagesView from "./components/mortgages/MortgagesView";
+import Main from "./components/Main";
 
 function App() {
   return (
-    <>
-      <Navbar></Navbar>
-      <Routes>
+    <Routes>
+      <Route path="/" element={<Main></Main>}>
         <Route path="/bonds" element={<Home></Home>}></Route>
         <Route
           path="/mortgages"
@@ -19,8 +19,8 @@ function App() {
           path="/real-estates"
           element={<RealEstatesView></RealEstatesView>}
         ></Route>
-      </Routes>
-    </>
+      </Route>
+    </Routes>
   );
 }
 
