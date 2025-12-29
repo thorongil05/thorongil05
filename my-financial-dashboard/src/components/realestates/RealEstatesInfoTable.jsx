@@ -25,9 +25,7 @@ function RealEstatesInfoTable({ realEstatesInfo }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "ArrowDown") {
-        setSelectedIndex((prev) =>
-          Math.min(prev + 1, realEstatesInfo.length - 1)
-        );
+        setSelectedIndex((prev) => Math.min(prev + 1, ROWS_PER_PAGE - 1));
       }
 
       if (e.key === "ArrowUp") {
