@@ -32,9 +32,9 @@ jobs:
           # Set a variable to use it in another step
           echo "new_frontend_version=${NEW_VERSION}" >> "$GITHUB_ENV"
 
-      - name: Frontend bump patch version
+      - name: Backend bump patch version
         run: |
-          cd ./my-backend-dashboard
+          cd ./my-financial-backend
           npm install
           NEW_VERSION=`npm version patch -m "build: bump patch to %s"`
           echo "Version updated to ${NEW_VERSION}"
