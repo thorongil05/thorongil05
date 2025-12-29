@@ -9,7 +9,7 @@ function RealEstateHeader({ realEstatesInfo }) {
   }));
   return (
     <ScatterChart
-      height={300}
+      height={200}
       series={[
         {
           label: "Series A",

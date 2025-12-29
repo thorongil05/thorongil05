@@ -8,7 +8,7 @@ const layoutStyle = {
   minHeight: "100vh",
 };
 
-const mainStyle = { flex: 1, padding: "2rem" };
+const mainStyle = { flex: 1, padding: "2rem 0 2rem 0" };
 
 function Main() {
   return (
