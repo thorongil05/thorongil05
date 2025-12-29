@@ -33,6 +33,6 @@ jobs:
       # Push commit e tag
       - name: Push changes
         run: |
-          git add package.json
+          git add ./my-financial-dashboard/package.json
           git commit -m "build: update to version %s"
           git push origin/develop
