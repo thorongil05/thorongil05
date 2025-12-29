@@ -31,10 +31,14 @@ jobs:
           npm version patch -m "chore: bump patch to %s"
 
       # Push commit e tag
-      - name: Push changes
+      - name: Commit changes
         run: |
           git config --global user.email "a.acquavia@studenti.unipi.com"
           git config --global user.name "thorongil05"
           git add ./my-financial-dashboard/package.json
           git commit -m "build: update to version %s"
-          git push origin/develop
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
