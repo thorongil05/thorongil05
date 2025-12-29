@@ -26,6 +26,7 @@ jobs:
       # Incrementa la patch version
       - name: Bump patch version
         run: |
+          cd /my-financial-dashboard
           npm install
           npm version patch -m "chore: bump patch to %s"
 
