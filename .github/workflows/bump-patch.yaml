@@ -32,7 +32,7 @@ jobs:
 
       # Push commit e tag
       - name: Push changes
-        uses: ad-m/github-push-action@v0.6.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+        run: |
+          git add package.json
+          git commit -m "build: update to version %s"
+          git push origin/develop
