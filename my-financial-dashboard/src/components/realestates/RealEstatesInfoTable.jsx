@@ -7,9 +7,24 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { useState, useEffect } from "react";
+import TableFooter from "@mui/material/TableFooter";
+import TablePagination from "@mui/material/TablePagination";
+import TablePaginationActions from "@mui/material/TablePaginationActions";
 
 function RealEstatesInfoTable({ realEstatesInfo }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [page, setPage] = useState(0);
+
+  const ROWS_PER_PAGE = 10;
+  let rows = realEstatesInfo;
+
+  // Avoid a layout jump when reaching the last page with empty rows.
+  const emptyRows =
+    page > 0 ? Math.max(0, (1 + page) * ROWS_PER_PAGE - rows.length) : 0;
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -43,28 +58,45 @@ function RealEstatesInfoTable({ realEstatesInfo }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {realEstatesInfo.map((row, index) => (
-            <TableRow
-              key={row.id}
-              selected={index === selectedIndex}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                {row.type}
-              </TableCell>
-              <TableCell align="right">{row.address}</TableCell>
-              <TableCell align="right">{row.location}</TableCell>
-              <TableCell align="right">{row.price}</TableCell>
-              <TableCell align="right">{row.area}</TableCell>
-              <TableCell align="right">
-                {(row.price / row.area).toFixed(2)}
-              </TableCell>
-              <TableCell align="right">
-                {new Date(row.date).toLocaleDateString()}
-              </TableCell>
+          {rows
+            .slice(page * ROWS_PER_PAGE, page * ROWS_PER_PAGE + ROWS_PER_PAGE)
+            .map((row, index) => (
+              <TableRow
+                key={row.id}
+                selected={index === selectedIndex}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {row.type}
+                </TableCell>
+                <TableCell align="right">{row.address}</TableCell>
+                <TableCell align="right">{row.location}</TableCell>
+                <TableCell align="right">{row.price}</TableCell>
+                <TableCell align="right">{row.area}</TableCell>
+                <TableCell align="right">
+                  {(row.price / row.area).toFixed(2)}
+                </TableCell>
+                <TableCell align="right">
+                  {new Date(row.date).toLocaleDateString()}
+                </TableCell>
+              </TableRow>
+            ))}
+          {emptyRows > 0 && (
+            <TableRow style={{ height: 53 * emptyRows }}>
+              <TableCell colSpan={6} />
             </TableRow>
-          ))}
+          )}
         </TableBody>
+        <TableFooter>
+          <TablePagination
+            colSpan={3}
+            count={rows.length}
+            rowsPerPage={ROWS_PER_PAGE}
+            page={page}
+            onPageChange={handleChangePage}
+            ActionsComponent={TablePaginationActions}
+          ></TablePagination>
+        </TableFooter>
       </Table>
     </TableContainer>
   );
