@@ -6,6 +6,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   preview: {
     port: 8080,
+    allowedHosts: ["my-financial-dashboard.up.railway.app"],
   },
   server: {
     port: 5713,
