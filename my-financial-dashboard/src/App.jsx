@@ -4,6 +4,7 @@ import { Route, Routes } from "react-router";
 import RealEstatesView from "./components/realestates/RealEstatesView";
 import MortgagesView from "./components/mortgages/MortgagesView";
 import Main from "./components/Main";
+import FootballArchiveView from "./components/football-archive/FootballArchiveView";
 
 function App() {
   return (
@@ -17,6 +18,10 @@ function App() {
         <Route
           path="/real-estates"
           element={<RealEstatesView></RealEstatesView>}
+        ></Route>
+        <Route
+          path="/football-archive"
+          element={<FootballArchiveView></FootballArchiveView>}
         ></Route>
       </Route>
     </Routes>
