@@ -19,10 +19,9 @@ function RealEstatesView() {
     );
     let params = {
       page: 0,
-      size: 10,
+      size: 100,
     };
-    apiUrl.search = new URLSearchParams(params).toString;
-    console.log("Eseguito solo al caricamento della pagina (mount)");
+    apiUrl.search = new URLSearchParams(params).toString();
     fetch(apiUrl)
       .then((response) => {
         return response.json();
