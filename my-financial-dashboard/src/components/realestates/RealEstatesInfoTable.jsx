@@ -77,15 +77,17 @@ function RealEstatesInfoTable({ realEstatesInfo }) {
             ))}
         </TableBody>
         <TableFooter>
-          <TablePagination
-            rowsPerPageOptions={[ROWS_PER_PAGE]}
-            colSpan={3}
-            count={rows.length}
-            rowsPerPage={ROWS_PER_PAGE}
-            page={page}
-            onPageChange={handleChangePage}
-            ActionsComponent={TablePaginationActions}
-          ></TablePagination>
+          <TableRow>
+            <TablePagination
+              rowsPerPageOptions={[ROWS_PER_PAGE]}
+              colSpan={3}
+              count={rows.length}
+              rowsPerPage={ROWS_PER_PAGE}
+              page={page}
+              onPageChange={handleChangePage}
+              ActionsComponent={TablePaginationActions}
+            ></TablePagination>
+          </TableRow>
         </TableFooter>
       </Table>
     </TableContainer>
