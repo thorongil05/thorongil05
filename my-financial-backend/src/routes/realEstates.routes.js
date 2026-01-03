@@ -10,14 +10,13 @@ router.post("/", (request, response) => {
   let realEstateInfo = request.body;
 
   realEstateDao
-    .insertRealEstateInfo(realEstateInfo)
+    .insert(realEstateInfo)
     .then((result) => {
       response.send(result);
     })
     .catch((error) => {
-      response.status(500);
+      response.status(500).send(error);
       logger.error(error);
-      response.send(error);
     });
 });
 
@@ -33,18 +32,19 @@ router.options("/", (request, response) => {
 });
 
 router.get("/", (request, response) => {
-  logger.info("Received get request");
+  const page = Number(request.query.page) || 0;
+  const size = Number(request.query.size) || 10;
+  logger.info(`Received get request. Page number: ${page}. Page size: ${size}`);
   response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   realEstateDao
-    .retrieve()
+    .retrieve(page, size)
     .then((result) => {
       logger.info(`Retrieved ${result.length} elements`);
       response.send(result);
     })
     .catch((error) => {
-      response.status(500);
-      response.send(error);
-      console.error(error);
+      response.status(500).send(error);
+      logger.error(error);
     });
 });
 

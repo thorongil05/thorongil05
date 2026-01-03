@@ -35,7 +35,7 @@
  *   post:
  *      summary: Create new real estate info
  *      tags:
- *       - User
+ *       - Real Estates
  *      requestBody:
  *       required: true
  *       content:
@@ -48,7 +48,22 @@
  *   get:
  *      summary: Retrieve real estate info
  *      tags:
- *       - User
+ *       - Real Estates
+ *      parameters:
+ *        - in: query
+ *          name: size
+ *          schema:
+ *            type: integer
+ *            default: 10
+ *          required: true
+ *          description: size of the page if you want paginated result
+ *        - in: query
+ *          name: page
+ *          schema:
+ *            type: integer
+ *            default: 0
+ *          required: true
+ *          description: page number if you want paginated result
  *      responses:
  *       200:
  *         description: Real Estate info retrieved

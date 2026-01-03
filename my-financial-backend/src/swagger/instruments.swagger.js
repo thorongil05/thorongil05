@@ -5,16 +5,16 @@
  *     summary: Retrieve instruments
  *     description: Returns the instruments.
  *     tags:
- *       - User
+ *       - Instruments
  *   post:
  *      summary: Create new instrument
  *      tags:
- *       - User
+ *       - Instruments
  * /api/instruments/{id}/prices:
  *   post:
  *    summary: Create prices
  *    tags:
- *     - User
+ *     - Instruments
  *    parameters:
  *       - in: path
  *         name: id
