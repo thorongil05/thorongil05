@@ -1,6 +1,7 @@
 const express = require("express");
 const routes = require("./routes");
 const cors = require("cors");
+const logger = require("pino")();
 
 const app = express();
 
@@ -13,6 +14,6 @@ app.use(
   })
 );
 
-console.log("App loaded");
+logger.info("App loaded");
 
 module.exports = app;
