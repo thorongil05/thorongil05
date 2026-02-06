@@ -20,4 +20,10 @@ module.exports = {
       volume: input.volume,
     };
   },
+  mapToTeam: function (input) {
+    return {
+      name: input.name,
+      city: input.city,
+    };
+  },
 };
