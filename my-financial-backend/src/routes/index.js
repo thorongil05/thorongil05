@@ -4,6 +4,7 @@ const instrumentRoutes = require("./instruments.routes");
 const realEstatesRoutes = require("./realEstates.routes");
 const teamsRoutes = require("./teams.routes");
 const matchesRoutes = require("./matches.routes");
+const competitionsRoutes = require("./competitions.routes");
 
 const router = express.Router();
 
@@ -12,5 +13,6 @@ router.use("/instruments", instrumentRoutes);
 router.use("/real-estates", realEstatesRoutes);
 router.use("/teams", teamsRoutes);
 router.use("/matches", matchesRoutes);
+router.use("/competitions", competitionsRoutes);
 
 module.exports = router;

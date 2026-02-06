@@ -37,4 +37,11 @@ module.exports = {
       stadium: input.stadium,
     };
   },
+  mapToCompetition: function (input) {
+    return {
+      name: input.name,
+      country: input.country,
+      type: input.type,
+    };
+  },
 };
