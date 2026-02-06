@@ -1,10 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const mapper = require("../features/mapper");
+const logger = require("pino")();
 
 const competitionsDao = require("../features/competitions_dao");
 
 router.get("/", (request, response) => {
+  logger.info("Competition resourece, received get request", request);
+  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   competitionsDao
     .retrieveAll()
     .then((result) => {
