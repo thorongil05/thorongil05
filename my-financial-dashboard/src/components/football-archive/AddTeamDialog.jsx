@@ -28,7 +28,7 @@ function submit(e, formData, onSubmitAction) {
     });
 }
 
-function AddTeamDialog({ onClose, open }) {
+function AddTeamDialog({ onClose, open, onInsert }) {
   let [formData, setFormData] = useState({
     name: "",
     city: "",
@@ -57,7 +57,14 @@ function AddTeamDialog({ onClose, open }) {
             value={formData.city}
             onChange={handleChange}
           ></TextField>
-          <Button type="submit" onClick={(e) => submit(e, formData, () => {})}>
+          <Button
+            type="submit"
+            onClick={(e) =>
+              submit(e, formData, () => {
+                onInsert();
+              })
+            }
+          >
             Submit
           </Button>
         </Stack>
@@ -68,6 +75,7 @@ function AddTeamDialog({ onClose, open }) {
 
 AddTeamDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
+  onInsert: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
 };
 
