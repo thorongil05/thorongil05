@@ -9,7 +9,9 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import PropTypes from "prop-types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
 
 function submit(e, formData, onSubmitAction) {
   e.preventDefault();
@@ -82,6 +84,29 @@ AddTeamDialog.propTypes = {
 
 function FootballArchiveView() {
   const [open, setOpen] = useState(false);
+  const [teams, setTeams] = useState([]);
+
+  const fetchTeams = () => {
+    const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/teams`);
+    fetch(apiUrl)
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        setTeams(
+          data.map((element) => {
+            return {
+              id: element.id,
+              name: element.name,
+              city: element.city,
+            };
+          }),
+        );
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -91,13 +116,24 @@ function FootballArchiveView() {
     setOpen(false);
   };
 
+  useEffect(fetchTeams, []);
+
   return (
-    <Stack direction="row">
-      <CompetitionSelector></CompetitionSelector>
-      <IconButton onClick={handleClickOpen}>
-        <AddIcon></AddIcon>
-      </IconButton>
-      <AddTeamDialog open={open} onClose={handleClose}></AddTeamDialog>
+    <Stack>
+      <Stack direction="row">
+        <CompetitionSelector></CompetitionSelector>
+        <IconButton onClick={handleClickOpen}>
+          <AddIcon></AddIcon>
+        </IconButton>
+        <AddTeamDialog open={open} onClose={handleClose}></AddTeamDialog>
+      </Stack>
+      <List>
+        {teams.map((element) => (
+          <ListItem key={element.id}>
+            {element.name} - {element.city}
+          </ListItem>
+        ))}
+      </List>
     </Stack>
   );
 }
