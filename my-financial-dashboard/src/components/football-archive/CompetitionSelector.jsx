@@ -1,4 +1,4 @@
-import { Stack, Card, CardHeader } from "@mui/material";
+import { Stack, List, ListItem } from "@mui/material";
 import { useEffect, useState } from "react";
 
 function CompetitionSelector() {
@@ -28,11 +28,11 @@ function CompetitionSelector() {
   };
   useEffect(fetchCompetitions, []);
   return (
-    <Stack direction={"row"}>
+    <Stack direction={"column"}>
       {competitions.map((element) => (
-        <Card key={element.id}>
-          <CardHeader title={element.name}></CardHeader>
-        </Card>
+        <List key={element.id}>
+          <ListItem>{element.name}</ListItem>
+        </List>
       ))}
     </Stack>
   );
