@@ -5,6 +5,7 @@ const mapper = require("../features/mapper");
 const teamsDao = require("../features/teams_dao");
 
 router.get("/", (request, response) => {
+  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   teamsDao
     .retrieveAll()
     .then((result) => {
