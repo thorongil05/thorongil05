@@ -1,7 +1,15 @@
 import CompetitionSelector from "./CompetitionSelector";
-import { Grid, Stack, Typography } from "@mui/material";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
+import {
+  Grid,
+  Paper,
+  Stack,
+  TableContainer,
+  Table,
+  Typography,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@mui/material";
 import TeamsView from "./TeamsView";
 
 function FootballArchiveView() {
@@ -16,15 +24,22 @@ function FootballArchiveView() {
         </Grid>
         <Grid size={8}>
           <Typography variant="h4">Matches</Typography>
-          <List>
-            <ListItem>Roma - Lazio 2 - 2</ListItem>
-            <ListItem>Roma - Lazio 2 - 2</ListItem>
-            <ListItem>Roma - Lazio 2 - 2</ListItem>
-            <ListItem>Roma - Lazio 2 - 2</ListItem>
-            <ListItem>Roma - Lazio 2 - 2</ListItem>
-            <ListItem>Roma - Lazio 2 - 2</ListItem>
-            <ListItem>Roma - Lazio 2 - 2</ListItem>
-          </List>
+          <TableContainer component={Paper}>
+            <Table
+              sx={{ minWidth: 650 }}
+              size="small"
+              aria-label="simple table"
+            >
+              <TableBody>
+                <TableRow>
+                  <TableCell>Roma</TableCell>
+                  <TableCell>Lazio</TableCell>
+                  <TableCell>2</TableCell>
+                  <TableCell>2</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Grid>
       </Grid>
     </Stack>

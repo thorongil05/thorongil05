@@ -105,7 +105,7 @@ RealEstatesInfoTable.propTypes = {
       area: PropTypes.number.isRequired,
       date: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
         .isRequired,
-    })
+    }),
   ).isRequired,
 };
 
