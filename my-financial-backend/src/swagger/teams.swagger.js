@@ -51,6 +51,11 @@
  *     responses:
  *       200:
  *         description: Team created successfully
+ *         headers:
+ *           Access-Control-Allow-Origin:
+ *             schema:
+ *               type: string
+ *             description: CORS origin allowed
  *         content:
  *           application/json:
  *             schema:
@@ -67,4 +72,33 @@
  *                   description: The city of the team
  *       500:
  *         description: Internal server error
+ *   options:
+ *     summary: Get allowed methods for teams resource
+ *     description: Returns the allowed HTTP methods and CORS headers for the teams resource.
+ *     tags:
+ *       - Teams
+ *     responses:
+ *       200:
+ *         description: Success - returns allowed methods
+ *         headers:
+ *           Allow:
+ *             schema:
+ *               type: string
+ *             description: Allowed HTTP methods
+ *           Access-Control-Allow-Origin:
+ *             schema:
+ *               type: string
+ *             description: CORS origin allowed
+ *           Access-Control-Allow-Methods:
+ *             schema:
+ *               type: string
+ *             description: CORS allowed methods
+ *           Access-Control-Allow-Headers:
+ *             schema:
+ *               type: string
+ *             description: CORS allowed headers
+ *           Access-Control-Max-Age:
+ *             schema:
+ *               type: string
+ *             description: CORS max age for preflight cache
  */

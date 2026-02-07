@@ -5,9 +5,10 @@ const options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "API Real Estate",
+      title: "Financial API",
       version: "1.0.0",
-      description: "API per la gestione degli immobili",
+      description:
+        "API for managing financial instruments, real estate, and sports data",
     },
   },
   apis: ["./src/swagger/*.js"],
