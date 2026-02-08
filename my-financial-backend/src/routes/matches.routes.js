@@ -7,8 +7,9 @@ const matchesDao = require("../features/matches_dao");
 
 router.get("/", (request, response) => {
   response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+  const competitionId = request.query.competitionId;
   matchesDao
-    .retrieveAll()
+    .findMatches(competitionId)
     .then((result) => {
       response.send(result);
     })

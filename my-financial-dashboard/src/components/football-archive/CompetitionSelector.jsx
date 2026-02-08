@@ -29,6 +29,22 @@ function CompetitionSelector({ onCompetitionSelect, selectedCompetitionId }) {
   useEffect(fetchCompetitions, []);
   return (
     <Stack direction={"column"}>
+      <ListItem
+        onClick={() => onCompetitionSelect && onCompetitionSelect(null)}
+        sx={{
+          cursor: "pointer",
+          backgroundColor:
+            selectedCompetitionId === null
+              ? "rgba(25, 118, 210, 0.08)"
+              : "transparent",
+          "&:hover": {
+            backgroundColor: "rgba(0, 0, 0, 0.04)",
+          },
+          marginBottom: "8px",
+        }}
+      >
+        All Competitions
+      </ListItem>
       {competitions.map((element) => (
         <List key={element.id}>
           <ListItem

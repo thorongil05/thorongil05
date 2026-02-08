@@ -24,9 +24,9 @@ async function insert(matchEntry) {
   return rows[0];
 }
 
-async function retrieveAll() {
-  logger.info("Retrieving all matches");
-  const query = `
+async function findMatches(competitionId = null) {
+  logger.info({ competitionId }, "Retrieving matches");
+  let query = `
     SELECT
       m.*,
       ht.name as home_team_name,
@@ -35,9 +35,16 @@ async function retrieveAll() {
       at.city as away_team_city
     FROM matches m
     JOIN teams ht ON m.home_team_id = ht.id
-    JOIN teams at ON m.away_team_id = at.id;
+    JOIN teams at ON m.away_team_id = at.id
   `;
-  const { rows } = await pool.query(query);
+
+  const values = [];
+  if (competitionId) {
+    query += ` WHERE m.competition_id = $1`;
+    values.push(competitionId);
+  }
+
+  const { rows } = await pool.query(query, values);
 
   const domainMatches = rows.map((row) => ({
     id: row.id,
@@ -65,5 +72,5 @@ async function retrieveAll() {
 
 module.exports = {
   insert: insert,
-  retrieveAll: retrieveAll,
+  findMatches: findMatches,
 };

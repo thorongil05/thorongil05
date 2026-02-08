@@ -44,11 +44,6 @@ function AddMatchForm({
       return;
     }
 
-    if (!selectedCompetition) {
-      setSubmitError("Please select a competition from the side menu");
-      return;
-    }
-
     if (match.homeTeamScore === null || match.awayTeamScore === null) {
       setSubmitError("Please enter scores for both teams");
       return;
@@ -63,7 +58,7 @@ function AddMatchForm({
       homeGoals: match.homeTeamScore,
       awayGoals: match.awayTeamScore,
       matchDate: new Date().toISOString(),
-      competitionId: selectedCompetition.id,
+      competitionId: selectedCompetition?.id || null,
     };
 
     try {
@@ -111,7 +106,7 @@ function AddMatchForm({
 
   return (
     <form onSubmit={handleSubmit}>
-      {selectedCompetition && (
+      {selectedCompetition ? (
         <div
           style={{
             marginBottom: "16px",
@@ -121,6 +116,19 @@ function AddMatchForm({
           }}
         >
           <strong>Competition:</strong> {selectedCompetition.name}
+        </div>
+      ) : (
+        <div
+          style={{
+            marginBottom: "16px",
+            padding: "8px",
+            backgroundColor: "#fff3cd",
+            borderRadius: "4px",
+            color: "#856404",
+          }}
+        >
+          <strong>Warning:</strong> No competition selected. Matches will be
+          added without competition context.
         </div>
       )}
       <Grid container spacing={1}>
