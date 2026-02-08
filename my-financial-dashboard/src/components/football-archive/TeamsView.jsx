@@ -1,33 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Stack, Typography, List, IconButton, ListItem } from "@mui/material";
 import AddTeamDialog from "./AddTeamDialog";
 import AddIcon from "@mui/icons-material/Add";
 
-function TeamsView() {
+function TeamsView({ teams, loading, onTeamAdded }) {
   const [open, setOpen] = useState(false);
-  const [teams, setTeams] = useState([]);
-
-  const fetchTeams = () => {
-    const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/teams`);
-    fetch(apiUrl)
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        setTeams(
-          data.map((element) => {
-            return {
-              id: element.id,
-              name: element.name,
-              city: element.city,
-            };
-          }),
-        );
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -39,10 +16,10 @@ function TeamsView() {
 
   const handleInsertCompleted = () => {
     setOpen(false);
-    fetchTeams();
+    if (onTeamAdded) {
+      onTeamAdded();
+    }
   };
-
-  useEffect(fetchTeams, []);
 
   return (
     <Stack>
@@ -58,11 +35,15 @@ function TeamsView() {
         ></AddTeamDialog>
       </Stack>
       <List>
-        {teams.map((element) => (
-          <ListItem key={element.id}>
-            {element.name} - {element.city}
-          </ListItem>
-        ))}
+        {loading ? (
+          <ListItem>Loading teams...</ListItem>
+        ) : (
+          teams.map((element) => (
+            <ListItem key={element.id}>
+              {element.name} - {element.city}
+            </ListItem>
+          ))
+        )}
       </List>
     </Stack>
   );

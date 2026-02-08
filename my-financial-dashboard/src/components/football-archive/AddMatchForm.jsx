@@ -1,8 +1,7 @@
 import { Autocomplete, Grid, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
-function AddMatchForm({ onMatchAdded }) {
-  let [availableTeams, setAvailableTeams] = useState([]);
+function AddMatchForm({ onMatchAdded, teams, teamsLoading }) {
   let [homeTeamOptions, setHomeTeamOptions] = useState([]);
   let [awayTeamOptions, setAwayTeamOptions] = useState([]);
   let [isSubmitting, setIsSubmitting] = useState(false);
@@ -15,51 +14,24 @@ function AddMatchForm({ onMatchAdded }) {
     awayTeamScore: null,
   });
 
-  // TODO: receive the teams as input?
-  const fetchTeams = () => {
-    const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/teams`);
-    fetch(apiUrl)
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        let retrievedTeams = data.map((element) => {
-          return {
-            id: element.id,
-            name: element.name,
-            city: element.city,
-          };
-        });
-        setAvailableTeams(retrievedTeams);
-        // Options will be initialized automatically by useEffect when availableTeams changes
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
-
-  useEffect(() => {
-    fetchTeams();
-  }, []);
-
   // Update options when team selections change
   useEffect(() => {
     // Filter out the selected away team from home options
     setHomeTeamOptions(
-      availableTeams.filter(
+      teams.filter(
         (team) => !match.awayTeam || team.id !== match.awayTeam.id,
       ),
     );
-  }, [match.awayTeam, availableTeams]);
+  }, [match.awayTeam, teams]);
 
   useEffect(() => {
     // Filter out the selected home team from away options
     setAwayTeamOptions(
-      availableTeams.filter(
+      teams.filter(
         (team) => !match.homeTeam || team.id !== match.homeTeam.id,
       ),
     );
-  }, [match.homeTeam, availableTeams]);
+  }, [match.homeTeam, teams]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -145,6 +117,8 @@ function AddMatchForm({ onMatchAdded }) {
             sx={{ width: 300 }}
             name="homeTeam"
             value={match.homeTeam}
+            loading={teamsLoading}
+            disabled={teamsLoading}
             onChange={(_event, newValue) => {
               setMatch((prev) => ({ ...prev, homeTeam: newValue }));
             }}
@@ -163,6 +137,8 @@ function AddMatchForm({ onMatchAdded }) {
             sx={{ width: 300 }}
             name="awayTeam"
             value={match.awayTeam}
+            loading={teamsLoading}
+            disabled={teamsLoading}
             onChange={(_event, newValue) => {
               setMatch((prev) => ({ ...prev, awayTeam: newValue }));
             }}

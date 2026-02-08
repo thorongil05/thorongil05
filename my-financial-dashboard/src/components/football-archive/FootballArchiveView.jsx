@@ -23,6 +23,8 @@ function FootballArchiveView() {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [teams, setTeams] = useState([]);
+  const [teamsLoading, setTeamsLoading] = useState(true);
 
   const fetchMatches = () => {
     const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/matches`);
@@ -44,8 +46,32 @@ function FootballArchiveView() {
       });
   };
 
+  const fetchTeams = () => {
+    const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/teams`);
+    fetch(apiUrl)
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        let retrievedTeams = data.map((element) => {
+          return {
+            id: element.id,
+            name: element.name,
+            city: element.city,
+          };
+        });
+        setTeams(retrievedTeams);
+        setTeamsLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching teams:", error);
+        setTeamsLoading(false);
+      });
+  };
+
   useEffect(() => {
     fetchMatches();
+    fetchTeams();
   }, []);
 
   const toggleDrawer = (newOpen) => () => {
@@ -64,7 +90,7 @@ function FootballArchiveView() {
       <Stack>
         <Grid container spacing={2}>
           <Grid size={4}>
-            <TeamsView></TeamsView>
+            <TeamsView teams={teams} loading={teamsLoading} onTeamAdded={fetchTeams}></TeamsView>
           </Grid>
           <Grid size={8}>
             <Typography variant="h4">Matches</Typography>
@@ -126,7 +152,7 @@ function FootballArchiveView() {
                 </TableBody>
               </Table>
             </TableContainer>
-            <AddMatchForm onMatchAdded={fetchMatches}></AddMatchForm>
+            <AddMatchForm onMatchAdded={fetchMatches} teams={teams} teamsLoading={teamsLoading}></AddMatchForm>
           </Grid>
         </Grid>
       </Stack>
