@@ -83,13 +83,14 @@ function FootballArchiveView() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {loading ? (
+                  {loading && (
                     <TableRow>
                       <TableCell colSpan={4} align="center">
                         Loading matches...
                       </TableCell>
                     </TableRow>
-                  ) : error ? (
+                  )}
+                  {error && !loading && (
                     <TableRow>
                       <TableCell
                         colSpan={4}
@@ -99,30 +100,33 @@ function FootballArchiveView() {
                         Error: {error}
                       </TableCell>
                     </TableRow>
-                  ) : matches.length === 0 ? (
+                  )}
+                  {!loading && !error && matches.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={4} align="center">
                         No matches found
                       </TableCell>
                     </TableRow>
-                  ) : (
+                  )}
+                  {!loading &&
+                    !error &&
+                    matches.length > 0 &&
                     matches.map((match) => (
                       <TableRow key={match.id}>
                         <TableCell>
-                          {match.home_team?.name || "Unknown"}
+                          {match.homeTeam?.name || "Unknown"}
                         </TableCell>
                         <TableCell>
-                          {match.away_team?.name || "Unknown"}
+                          {match.awayTeam?.name || "Unknown"}
                         </TableCell>
-                        <TableCell>{match.home_score}</TableCell>
-                        <TableCell>{match.away_score}</TableCell>
+                        <TableCell>{match.homeScore}</TableCell>
+                        <TableCell>{match.awayScore}</TableCell>
                       </TableRow>
-                    ))
-                  )}
+                    ))}
                 </TableBody>
               </Table>
             </TableContainer>
-            <AddMatchForm></AddMatchForm>
+            <AddMatchForm onMatchAdded={fetchMatches}></AddMatchForm>
           </Grid>
         </Grid>
       </Stack>

@@ -11,7 +11,7 @@ app.use("/api", routes);
 app.use(
   cors({
     origin: "http://localhost:5173",
-  })
+  }),
 );
 
 logger.info("App loaded");

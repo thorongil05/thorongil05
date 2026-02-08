@@ -1,10 +1,13 @@
 import { Autocomplete, Grid, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
-function AddMatchForm() {
+function AddMatchForm({ onMatchAdded }) {
   let [availableTeams, setAvailableTeams] = useState([]);
   let [homeTeamOptions, setHomeTeamOptions] = useState([]);
   let [awayTeamOptions, setAwayTeamOptions] = useState([]);
+  let [isSubmitting, setIsSubmitting] = useState(false);
+  let [submitError, setSubmitError] = useState(null);
+  let [submitSuccess, setSubmitSuccess] = useState(false);
   let [match, setMatch] = useState({
     homeTeam: null,
     awayTeam: null,
@@ -58,29 +61,75 @@ function AddMatchForm() {
     );
   }, [match.homeTeam, availableTeams]);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setSubmitError(null);
+    setSubmitSuccess(false);
 
     if (!match.homeTeam || !match.awayTeam) {
-      alert("Please select both home and away teams");
+      setSubmitError("Please select both home and away teams");
       return;
     }
 
-    // Now we can access the full team objects with id, name, city
-    console.log("Selected home team:", match.homeTeam); // {id: 1, name: "Milan", city: "Milano"}
-    console.log("Selected away team:", match.awayTeam); // {id: 2, name: "Juventus", city: "Torino"}
+    if (match.homeTeamScore === null || match.awayTeamScore === null) {
+      setSubmitError("Please enter scores for both teams");
+      return;
+    }
 
-    // For API submission, extract the IDs
+    setIsSubmitting(true);
+
+    // Prepare match data for API submission
     const matchData = {
       homeTeamId: match.homeTeam.id,
       awayTeamId: match.awayTeam.id,
       homeGoals: match.homeTeamScore,
       awayGoals: match.awayTeamScore,
+      matchDate: new Date(),
+      competitionId: 4,
+      // TODO: Add matchDate, competitionId, and stadium when form is updated
     };
 
-    console.log("Submitting match data:", matchData);
-    // TODO: Add API call here
-    alert("Match data prepared for submission!");
+    try {
+      const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/matches`);
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(matchData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("Match created successfully:", result);
+      setSubmitSuccess(true);
+
+      // Reset form after successful submission
+      setMatch({
+        homeTeam: null,
+        awayTeam: null,
+        homeTeamScore: null,
+        awayTeamScore: null,
+      });
+
+      // Notify parent component that a match was added
+      if (onMatchAdded) {
+        onMatchAdded();
+      }
+
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSubmitSuccess(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Error creating match:", error);
+      setSubmitError(error.message || "Failed to create match");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -158,10 +207,25 @@ function AddMatchForm() {
           <button
             type="submit"
             style={{ padding: "8px 16px", marginTop: "16px" }}
+            disabled={isSubmitting}
           >
-            Add Match
+            {isSubmitting ? "Adding Match..." : "Add Match"}
           </button>
         </Grid>
+        {submitError && (
+          <Grid size={12}>
+            <div style={{ color: "red", marginTop: "8px" }}>
+              Error: {submitError}
+            </div>
+          </Grid>
+        )}
+        {submitSuccess && (
+          <Grid size={12}>
+            <div style={{ color: "green", marginTop: "8px" }}>
+              Match added successfully!
+            </div>
+          </Grid>
+        )}
       </Grid>
     </form>
   );

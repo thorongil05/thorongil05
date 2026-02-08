@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const mapper = require("../features/mapper");
+const logger = require("pino")();
 
 const matchesDao = require("../features/matches_dao");
 
@@ -19,6 +20,8 @@ router.get("/", (request, response) => {
 });
 
 router.post("/", (request, response) => {
+  logger.info({ body: request.body }, "Received request");
+  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   if (Array.isArray(request.body)) {
     throw new Exception("Not supported operation");
   }

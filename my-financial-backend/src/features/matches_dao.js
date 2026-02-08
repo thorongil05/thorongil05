@@ -1,4 +1,5 @@
 const pool = require("./database");
+const logger = require("pino")();
 
 async function insert(matchEntry) {
   const query = `
@@ -19,13 +20,14 @@ async function insert(matchEntry) {
   ];
 
   const { rows } = await pool.query(query, values);
-  console.log("Inserted match:", rows[0]);
+  logger.info({ match: rows[0] }, "Match inserted");
   return rows[0];
 }
 
 async function retrieveAll() {
+  logger.info("Retrieving all matches");
   const query = `
-    SELECT 
+    SELECT
       m.*,
       ht.name as home_team_name,
       ht.city as home_team_city,
@@ -36,7 +38,29 @@ async function retrieveAll() {
     JOIN teams at ON m.away_team_id = at.id;
   `;
   const { rows } = await pool.query(query);
-  return rows;
+
+  const domainMatches = rows.map((row) => ({
+    id: row.id,
+    matchDate: row.match_date,
+    competitionId: row.competition_id,
+    homeScore: row.home_goals,
+    awayScore: row.away_goals,
+    stadium: row.stadium,
+    homeTeam: {
+      id: row.home_team_id,
+      name: row.home_team_name,
+      city: row.home_team_city,
+    },
+    awayTeam: {
+      id: row.away_team_id,
+      name: row.away_team_name,
+      city: row.away_team_city,
+    },
+  }));
+
+  logger.info({ matches: rows }, "Retrieved matches");
+
+  return domainMatches;
 }
 
 module.exports = {
