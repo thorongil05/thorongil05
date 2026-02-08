@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PropTypes from "prop-types";
 import { Stack, Typography, List, IconButton, ListItem } from "@mui/material";
 import AddTeamDialog from "./AddTeamDialog";
 import AddIcon from "@mui/icons-material/Add";
@@ -48,5 +49,17 @@ function TeamsView({ teams, loading, onTeamAdded }) {
     </Stack>
   );
 }
+
+TeamsView.propTypes = {
+  teams: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      name: PropTypes.string.isRequired,
+      city: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
+  loading: PropTypes.bool.isRequired,
+  onTeamAdded: PropTypes.func,
+};
 
 export default TeamsView;
