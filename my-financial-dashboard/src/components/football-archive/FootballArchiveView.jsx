@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import TeamsView from "./TeamsView";
 import AddMatchForm from "./AddMatchForm";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
 function FootballArchiveView() {
@@ -27,8 +27,10 @@ function FootballArchiveView() {
   const [teamsLoading, setTeamsLoading] = useState(true);
   const [selectedCompetition, setSelectedCompetition] = useState(null);
 
-  const fetchMatches = () => {
-    if (!selectedCompetition) {
+  const fetchMatches = useCallback((competition) => {
+    setError(null);
+
+    if (!competition) {
       console.error("Cannot fetch matches: No competition selected");
       setError("Please select a competition first");
       setLoading(false);
@@ -52,7 +54,7 @@ function FootballArchiveView() {
         setError(error.message);
         setLoading(false);
       });
-  };
+  }, []);
 
   const fetchTeams = () => {
     const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/teams`);
@@ -79,16 +81,20 @@ function FootballArchiveView() {
 
   const handleCompetitionSelect = (competition) => {
     setSelectedCompetition(competition);
+    setError(null);
     // Close the drawer after selection
     setOpen(false);
-    // Refetch matches for the selected competition
-    setTimeout(() => fetchMatches(), 0);
   };
 
   useEffect(() => {
-    fetchMatches();
     fetchTeams();
   }, []);
+
+  useEffect(() => {
+    if (selectedCompetition) {
+      fetchMatches(selectedCompetition);
+    }
+  }, [selectedCompetition, fetchMatches]);
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
@@ -178,7 +184,7 @@ function FootballArchiveView() {
                 </Table>
               </TableContainer>
               <AddMatchForm
-                onMatchAdded={fetchMatches}
+                onMatchAdded={() => fetchMatches(selectedCompetition)}
                 teams={teams}
                 teamsLoading={teamsLoading}
                 selectedCompetition={selectedCompetition}
