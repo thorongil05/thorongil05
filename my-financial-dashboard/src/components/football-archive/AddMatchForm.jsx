@@ -1,7 +1,12 @@
 import { Autocomplete, Grid, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
-function AddMatchForm({ onMatchAdded, teams, teamsLoading }) {
+function AddMatchForm({
+  onMatchAdded,
+  teams,
+  teamsLoading,
+  selectedCompetition,
+}) {
   let [homeTeamOptions, setHomeTeamOptions] = useState([]);
   let [awayTeamOptions, setAwayTeamOptions] = useState([]);
   let [isSubmitting, setIsSubmitting] = useState(false);
@@ -18,18 +23,14 @@ function AddMatchForm({ onMatchAdded, teams, teamsLoading }) {
   useEffect(() => {
     // Filter out the selected away team from home options
     setHomeTeamOptions(
-      teams.filter(
-        (team) => !match.awayTeam || team.id !== match.awayTeam.id,
-      ),
+      teams.filter((team) => !match.awayTeam || team.id !== match.awayTeam.id),
     );
   }, [match.awayTeam, teams]);
 
   useEffect(() => {
     // Filter out the selected home team from away options
     setAwayTeamOptions(
-      teams.filter(
-        (team) => !match.homeTeam || team.id !== match.homeTeam.id,
-      ),
+      teams.filter((team) => !match.homeTeam || team.id !== match.homeTeam.id),
     );
   }, [match.homeTeam, teams]);
 
@@ -40,6 +41,11 @@ function AddMatchForm({ onMatchAdded, teams, teamsLoading }) {
 
     if (!match.homeTeam || !match.awayTeam) {
       setSubmitError("Please select both home and away teams");
+      return;
+    }
+
+    if (!selectedCompetition) {
+      setSubmitError("Please select a competition from the side menu");
       return;
     }
 
@@ -56,9 +62,8 @@ function AddMatchForm({ onMatchAdded, teams, teamsLoading }) {
       awayTeamId: match.awayTeam.id,
       homeGoals: match.homeTeamScore,
       awayGoals: match.awayTeamScore,
-      matchDate: new Date(),
-      competitionId: 4,
-      // TODO: Add matchDate, competitionId, and stadium when form is updated
+      matchDate: new Date().toISOString(),
+      competitionId: selectedCompetition.id,
     };
 
     try {
@@ -106,6 +111,18 @@ function AddMatchForm({ onMatchAdded, teams, teamsLoading }) {
 
   return (
     <form onSubmit={handleSubmit}>
+      {selectedCompetition && (
+        <div
+          style={{
+            marginBottom: "16px",
+            padding: "8px",
+            backgroundColor: "#f5f5f5",
+            borderRadius: "4px",
+          }}
+        >
+          <strong>Competition:</strong> {selectedCompetition.name}
+        </div>
+      )}
       <Grid container spacing={1}>
         <Grid size={4}>
           <Autocomplete

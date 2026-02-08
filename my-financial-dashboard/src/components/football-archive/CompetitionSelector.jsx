@@ -1,7 +1,7 @@
 import { Stack, List, ListItem } from "@mui/material";
 import { useEffect, useState } from "react";
 
-function CompetitionSelector() {
+function CompetitionSelector({ onCompetitionSelect, selectedCompetitionId }) {
   const [competitions, setCompetitions] = useState([]);
 
   const fetchCompetitions = () => {
@@ -31,7 +31,21 @@ function CompetitionSelector() {
     <Stack direction={"column"}>
       {competitions.map((element) => (
         <List key={element.id}>
-          <ListItem>{element.name}</ListItem>
+          <ListItem
+            onClick={() => onCompetitionSelect && onCompetitionSelect(element)}
+            sx={{
+              cursor: "pointer",
+              backgroundColor:
+                selectedCompetitionId === element.id
+                  ? "rgba(25, 118, 210, 0.08)"
+                  : "transparent",
+              "&:hover": {
+                backgroundColor: "rgba(0, 0, 0, 0.04)",
+              },
+            }}
+          >
+            {element.name}
+          </ListItem>
         </List>
       ))}
     </Stack>

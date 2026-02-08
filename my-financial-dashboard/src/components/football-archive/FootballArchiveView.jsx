@@ -25,6 +25,7 @@ function FootballArchiveView() {
   const [error, setError] = useState(null);
   const [teams, setTeams] = useState([]);
   const [teamsLoading, setTeamsLoading] = useState(true);
+  const [selectedCompetition, setSelectedCompetition] = useState(null);
 
   const fetchMatches = () => {
     const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/matches`);
@@ -69,6 +70,12 @@ function FootballArchiveView() {
       });
   };
 
+  const handleCompetitionSelect = (competition) => {
+    setSelectedCompetition(competition);
+    // Close the drawer after selection
+    setOpen(false);
+  };
+
   useEffect(() => {
     fetchMatches();
     fetchTeams();
@@ -80,11 +87,15 @@ function FootballArchiveView() {
   return (
     <>
       <Drawer open={open} onClose={toggleDrawer(false)}>
-        <CompetitionSelector></CompetitionSelector>
+        <CompetitionSelector
+          onCompetitionSelect={handleCompetitionSelect}
+          selectedCompetitionId={selectedCompetition?.id}
+        ></CompetitionSelector>
       </Drawer>
       <Stack direction="row">
-        <Button onClick={toggleDrawer(true)}>
+        <Button onClick={toggleDrawer(true)} variant="outlined">
           <KeyboardArrowRightIcon></KeyboardArrowRightIcon>
+          {selectedCompetition ? selectedCompetition.name : "Select Competition"}
         </Button>
       </Stack>
       <Stack>
@@ -152,7 +163,12 @@ function FootballArchiveView() {
                 </TableBody>
               </Table>
             </TableContainer>
-            <AddMatchForm onMatchAdded={fetchMatches} teams={teams} teamsLoading={teamsLoading}></AddMatchForm>
+            <AddMatchForm
+              onMatchAdded={fetchMatches}
+              teams={teams}
+              teamsLoading={teamsLoading}
+              selectedCompetition={selectedCompetition}
+            ></AddMatchForm>
           </Grid>
         </Grid>
       </Stack>
