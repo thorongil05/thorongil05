@@ -36,9 +36,12 @@ function FootballArchiveView() {
       setLoading(false);
       return;
     }
+    const urlSearchParams = new URLSearchParams({
+      competitionId: competition.id,
+    });
 
     const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/matches`);
-    fetch(apiUrl)
+    fetch(apiUrl + "?" + urlSearchParams)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
