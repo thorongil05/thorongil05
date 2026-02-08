@@ -1,6 +1,6 @@
 {
   "name": "my-financial-backend",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "Backend that exposes REST API to retrieve data for the UI",
   "license": "ISC",
   "author": "",
