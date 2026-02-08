@@ -9,16 +9,44 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  TableHead,
   Drawer,
   Button,
 } from "@mui/material";
 import TeamsView from "./TeamsView";
 import AddMatchForm from "./AddMatchForm";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
 function FootballArchiveView() {
   const [open, setOpen] = useState(false);
+  const [matches, setMatches] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchMatches = () => {
+    const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/matches`);
+    fetch(apiUrl)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setMatches(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching matches:", error);
+        setError(error.message);
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    fetchMatches();
+  }, []);
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
@@ -46,19 +74,57 @@ function FootballArchiveView() {
                 size="small"
                 aria-label="simple table"
               >
-                <TableBody>
+                <TableHead>
                   <TableRow>
-                    <TableCell>Roma</TableCell>
-                    <TableCell>Lazio</TableCell>
-                    <TableCell>2</TableCell>
-                    <TableCell>2</TableCell>
+                    <TableCell>Home Team</TableCell>
+                    <TableCell>Away Team</TableCell>
+                    <TableCell>Home Score</TableCell>
+                    <TableCell>Away Score</TableCell>
                   </TableRow>
+                </TableHead>
+                <TableBody>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center">
+                        Loading matches...
+                      </TableCell>
+                    </TableRow>
+                  ) : error ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={4}
+                        align="center"
+                        style={{ color: "red" }}
+                      >
+                        Error: {error}
+                      </TableCell>
+                    </TableRow>
+                  ) : matches.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center">
+                        No matches found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    matches.map((match) => (
+                      <TableRow key={match.id}>
+                        <TableCell>
+                          {match.home_team?.name || "Unknown"}
+                        </TableCell>
+                        <TableCell>
+                          {match.away_team?.name || "Unknown"}
+                        </TableCell>
+                        <TableCell>{match.home_score}</TableCell>
+                        <TableCell>{match.away_score}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
+            <AddMatchForm></AddMatchForm>
           </Grid>
         </Grid>
-        <AddMatchForm></AddMatchForm>
       </Stack>
     </>
   );

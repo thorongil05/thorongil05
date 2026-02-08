@@ -5,6 +5,7 @@ const mapper = require("../features/mapper");
 const matchesDao = require("../features/matches_dao");
 
 router.get("/", (request, response) => {
+  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   matchesDao
     .retrieveAll()
     .then((result) => {
@@ -32,6 +33,17 @@ router.post("/", (request, response) => {
       response.send(error);
       console.log(error);
     });
+});
+
+router.options("/", (request, response) => {
+  response.set({
+    Allow: "GET, POST, OPTIONS",
+    "Access-Control-Allow-Origin": "http://localhost:5173",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Max-Age": "86400", // 24 hours
+  });
+  response.status(200).send();
 });
 
 module.exports = router;
