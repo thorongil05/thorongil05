@@ -12,11 +12,13 @@ import {
   TableHead,
   Drawer,
   Button,
+  Box,
 } from "@mui/material";
 import TeamsView from "./TeamsView";
-import AddMatchForm from "./AddMatchForm";
+import AddMatchDialog from "./AddMatchDialog";
 import { useState, useEffect, useCallback } from "react";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import AddIcon from "@mui/icons-material/Add";
 
 function FootballArchiveView() {
   const [open, setOpen] = useState(false);
@@ -26,6 +28,7 @@ function FootballArchiveView() {
   const [teams, setTeams] = useState([]);
   const [teamsLoading, setTeamsLoading] = useState(true);
   const [selectedCompetition, setSelectedCompetition] = useState(null);
+  const [matchDialogOpen, setMatchDialogOpen] = useState(false);
 
   const fetchMatches = useCallback((competition) => {
     setError(null);
@@ -111,6 +114,7 @@ function FootballArchiveView() {
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
+
   return (
     <>
       <Drawer open={open} onClose={toggleDrawer(false)}>
@@ -126,9 +130,9 @@ function FootballArchiveView() {
         </Button>
       </Stack>
       {selectedCompetition ? (
-        <Stack>
+        <Stack spacing={2}>
           <Grid container spacing={2}>
-            <Grid size={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <TeamsView
                 teams={teams}
                 loading={teamsLoading}
@@ -136,8 +140,22 @@ function FootballArchiveView() {
                 competitionId={selectedCompetition?.id}
               ></TeamsView>
             </Grid>
-            <Grid size={8}>
-              <Typography variant="h4">Matches</Typography>
+            <Grid size={{ xs: 12, md: 8 }}>
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{ mb: 2 }}
+              >
+                <Typography variant="h4">Matches</Typography>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => setMatchDialogOpen(true)}
+                >
+                  Add Match
+                </Button>
+              </Stack>
               <TableContainer component={Paper}>
                 <Table
                   sx={{ minWidth: 650 }}
@@ -196,12 +214,14 @@ function FootballArchiveView() {
                   </TableBody>
                 </Table>
               </TableContainer>
-              <AddMatchForm
+              <AddMatchDialog
+                open={matchDialogOpen}
+                onClose={() => setMatchDialogOpen(false)}
                 onMatchAdded={() => fetchMatches(selectedCompetition)}
                 teams={teams}
                 teamsLoading={teamsLoading}
                 selectedCompetition={selectedCompetition}
-              ></AddMatchForm>
+              ></AddMatchDialog>
             </Grid>
           </Grid>
         </Stack>

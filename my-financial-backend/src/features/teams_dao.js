@@ -1,4 +1,5 @@
 const pool = require("./database");
+const logger = require("pino")();
 
 async function insert(teamEntry) {
   const client = await pool.connect();
@@ -17,7 +18,7 @@ async function insert(teamEntry) {
     ]);
     const teamRow = insertResult.rows[0];
     const teamId = teamRow.id;
-    console.log("Inserted team:", teamRow);
+    logger.info({team: teamRow }, "Inserted team");
 
     // Link to competition if competitionId is provided
     if (teamEntry.competitionId) {
@@ -27,7 +28,7 @@ async function insert(teamEntry) {
       const linkQuery =
           "INSERT INTO competition_teams (competition_id, team_id) VALUES ($1, $2)";
       await client.query(linkQuery, [teamEntry.competitionId, teamId]);
-      console.log(
+      logger.info(
         `Linked team ${teamId} to competition ${teamEntry.competitionId}`,
       );
     }
