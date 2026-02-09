@@ -1,66 +1,22 @@
 import CompetitionSelector from "./CompetitionSelector";
 import {
   Grid,
-  Paper,
   Stack,
-  TableContainer,
-  Table,
   Typography,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableHead,
   Drawer,
   Button,
   Box,
 } from "@mui/material";
 import TeamsView from "./TeamsView";
-import AddMatchDialog from "./AddMatchDialog";
+import MatchesView from "./MatchesView";
 import { useState, useEffect, useCallback } from "react";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import AddIcon from "@mui/icons-material/Add";
 
 function FootballArchiveView() {
   const [open, setOpen] = useState(false);
-  const [matches, setMatches] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [teams, setTeams] = useState([]);
   const [teamsLoading, setTeamsLoading] = useState(true);
   const [selectedCompetition, setSelectedCompetition] = useState(null);
-  const [matchDialogOpen, setMatchDialogOpen] = useState(false);
-
-  const fetchMatches = useCallback((competition) => {
-    setError(null);
-
-    if (!competition) {
-      console.error("Cannot fetch matches: No competition selected");
-      setError("Please select a competition first");
-      setLoading(false);
-      return;
-    }
-    const urlSearchParams = new URLSearchParams({
-      competitionId: competition.id,
-    });
-
-    const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/matches`);
-    fetch(apiUrl + "?" + urlSearchParams)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setMatches(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching matches:", error);
-        setError(error.message);
-        setLoading(false);
-      });
-  }, []);
 
   const fetchTeams = useCallback((competition) => {
     let apiUrl;
@@ -106,10 +62,9 @@ function FootballArchiveView() {
 
   useEffect(() => {
     if (selectedCompetition) {
-      fetchMatches(selectedCompetition);
       fetchTeams(selectedCompetition);
     }
-  }, [selectedCompetition, fetchMatches, fetchTeams]);
+  }, [selectedCompetition, fetchTeams]);
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
@@ -141,87 +96,11 @@ function FootballArchiveView() {
               ></TeamsView>
             </Grid>
             <Grid size={{ xs: 12, md: 8 }}>
-              <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="center"
-                sx={{ mb: 2 }}
-              >
-                <Typography variant="h4">Matches</Typography>
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  onClick={() => setMatchDialogOpen(true)}
-                >
-                  Add Match
-                </Button>
-              </Stack>
-              <TableContainer component={Paper}>
-                <Table
-                  sx={{ minWidth: 650 }}
-                  size="small"
-                  aria-label="simple table"
-                >
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Home Team</TableCell>
-                      <TableCell>Away Team</TableCell>
-                      <TableCell>Home Score</TableCell>
-                      <TableCell>Away Score</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {loading && (
-                      <TableRow>
-                        <TableCell colSpan={4} align="center">
-                          Loading matches...
-                        </TableCell>
-                      </TableRow>
-                    )}
-                    {error && !loading && (
-                      <TableRow>
-                        <TableCell
-                          colSpan={4}
-                          align="center"
-                          style={{ color: "red" }}
-                        >
-                          Error: {error}
-                        </TableCell>
-                      </TableRow>
-                    )}
-                    {!loading && !error && matches.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={4} align="center">
-                          No matches found
-                        </TableCell>
-                      </TableRow>
-                    )}
-                    {!loading &&
-                      !error &&
-                      matches.length > 0 &&
-                      matches.map((match) => (
-                        <TableRow key={match.id}>
-                          <TableCell>
-                            {match.homeTeam?.name || "Unknown"}
-                          </TableCell>
-                          <TableCell>
-                            {match.awayTeam?.name || "Unknown"}
-                          </TableCell>
-                          <TableCell>{match.homeScore}</TableCell>
-                          <TableCell>{match.awayScore}</TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              <AddMatchDialog
-                open={matchDialogOpen}
-                onClose={() => setMatchDialogOpen(false)}
-                onMatchAdded={() => fetchMatches(selectedCompetition)}
+              <MatchesView
+                selectedCompetition={selectedCompetition}
                 teams={teams}
                 teamsLoading={teamsLoading}
-                selectedCompetition={selectedCompetition}
-              ></AddMatchDialog>
+              />
             </Grid>
           </Grid>
         </Stack>
