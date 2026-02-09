@@ -25,8 +25,8 @@ async function insert(matchEntry) {
   return rows[0];
 }
 
-async function findMatches(competitionId = null) {
-  logger.info({ competitionId }, "Retrieving matches");
+async function findMatches(competitionId = null, round = null) {
+  logger.info({ competitionId, round }, "Retrieving matches");
   let query = `
     SELECT
       m.*,
@@ -40,10 +40,23 @@ async function findMatches(competitionId = null) {
   `;
 
   const values = [];
+  let whereClause = [];
+  
   if (competitionId) {
-    query += ` WHERE m.competition_id = $1`;
     values.push(competitionId);
+    whereClause.push(`m.competition_id = $${values.length}`);
   }
+
+  if (round) {
+    values.push(round);
+    whereClause.push(`m.round = $${values.length}`);
+  }
+
+  if (whereClause.length > 0) {
+    query += " WHERE " + whereClause.join(" AND ");
+  }
+  
+  query += " ORDER BY m.match_date DESC";
 
   const { rows } = await pool.query(query, values);
 
@@ -70,6 +83,18 @@ async function findMatches(competitionId = null) {
   logger.info({ matches: rows }, "Retrieved matches");
 
   return domainMatches;
+}
+
+async function findRounds(competitionId) {
+  logger.info({ competitionId }, "Retrieving rounds");
+  const query = `
+    SELECT DISTINCT round
+    FROM matches
+    WHERE competition_id = $1
+    ORDER BY round
+  `;
+  const { rows } = await pool.query(query, [competitionId]);
+  return rows.map(r => r.round).filter(r => r);
 }
 
 async function update(id, match) {
@@ -108,4 +133,5 @@ module.exports = {
   insert: insert,
   findMatches: findMatches,
   update: update,
+  findRounds: findRounds,
 };

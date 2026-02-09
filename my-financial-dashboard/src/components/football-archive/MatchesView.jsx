@@ -10,6 +10,10 @@ import {
   TableHead,
   Button,
   IconButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -23,6 +27,24 @@ function MatchesView({ selectedCompetition, teams, teamsLoading }) {
   const [error, setError] = useState(null);
   const [matchDialogOpen, setMatchDialogOpen] = useState(false);
   const [matchToEdit, setMatchToEdit] = useState(null);
+  const [rounds, setRounds] = useState([]);
+  const [selectedRound, setSelectedRound] = useState("All");
+
+  const fetchRounds = useCallback(() => {
+    if (!selectedCompetition) {
+      setRounds([]);
+      return;
+    }
+
+    const urlSearchParams = new URLSearchParams({
+      competitionId: selectedCompetition.id,
+    });
+    const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/matches/rounds`);
+    fetch(apiUrl + "?" + urlSearchParams)
+      .then((response) => response.json())
+      .then((data) => setRounds(data))
+      .catch((err) => console.error("Error fetching rounds:", err));
+  }, [selectedCompetition]);
 
   const fetchMatches = useCallback(() => {
     setError(null);
@@ -34,9 +56,14 @@ function MatchesView({ selectedCompetition, teams, teamsLoading }) {
       return;
     }
 
-    const urlSearchParams = new URLSearchParams({
+    const params = {
       competitionId: selectedCompetition.id,
-    });
+    };
+    if (selectedRound && selectedRound !== "All") {
+      params.round = selectedRound;
+    }
+
+    const urlSearchParams = new URLSearchParams(params);
 
     const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/matches`);
     fetch(apiUrl + "?" + urlSearchParams)
@@ -55,7 +82,12 @@ function MatchesView({ selectedCompetition, teams, teamsLoading }) {
         setError(error.message);
         setLoading(false);
       });
-  }, [selectedCompetition]);
+  }, [selectedCompetition, selectedRound]);
+
+  useEffect(() => {
+    fetchRounds();
+    setSelectedRound("All");
+  }, [fetchRounds]);
 
   useEffect(() => {
     fetchMatches();
@@ -70,17 +102,37 @@ function MatchesView({ selectedCompetition, teams, teamsLoading }) {
         sx={{ mb: 2 }}
       >
         <Typography variant="h4">Matches</Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => {
-            setMatchToEdit(null);
-            setMatchDialogOpen(true);
-          }}
-          disabled={!selectedCompetition}
-        >
-          Add Match
-        </Button>
+        <Stack direction="row" spacing={2}>
+          <FormControl size="small" sx={{ minWidth: 120 }}>
+            <InputLabel id="round-select-label">Round</InputLabel>
+            <Select
+              labelId="round-select-label"
+              id="round-select"
+              value={selectedRound}
+              label="Round"
+              onChange={(e) => setSelectedRound(e.target.value)}
+              disabled={!selectedCompetition}
+            >
+              <MenuItem value="All">All Rounds</MenuItem>
+              {rounds.map((round) => (
+                <MenuItem key={round} value={round}>
+                  {round}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => {
+              setMatchToEdit(null);
+              setMatchDialogOpen(true);
+            }}
+            disabled={!selectedCompetition}
+          >
+            Add Match
+          </Button>
+        </Stack>
       </Stack>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
@@ -146,7 +198,10 @@ function MatchesView({ selectedCompetition, teams, teamsLoading }) {
           setMatchDialogOpen(false);
           setMatchToEdit(null);
         }}
-        onMatchAdded={fetchMatches}
+        onMatchAdded={() => {
+          fetchMatches();
+          fetchRounds();
+        }}
         teams={teams}
         teamsLoading={teamsLoading}
         selectedCompetition={selectedCompetition}

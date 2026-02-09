@@ -8,8 +8,28 @@ const matchesDao = require("../features/matches_dao");
 router.get("/", (request, response) => {
   response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   const competitionId = request.query.competitionId;
+  const round = request.query.round;
   matchesDao
-    .findMatches(competitionId)
+    .findMatches(competitionId, round)
+    .then((result) => {
+      response.send(result);
+    })
+    .catch((error) => {
+      response.status(500);
+      response.send(error);
+      console.log(error);
+    });
+});
+
+router.get("/rounds", (request, response) => {
+  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+  const competitionId = request.query.competitionId;
+  if (!competitionId) {
+    response.status(400).send({ error: "competitionId is required" });
+    return;
+  }
+  matchesDao
+    .findRounds(competitionId)
     .then((result) => {
       response.send(result);
     })
