@@ -7,6 +7,8 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
@@ -23,6 +25,7 @@ function AddMatchDialog({
   let [awayTeamOptions, setAwayTeamOptions] = useState([]);
   let [isSubmitting, setIsSubmitting] = useState(false);
   let [submitError, setSubmitError] = useState(null);
+  let [addAnother, setAddAnother] = useState(false);
   let [match, setMatch] = useState({
     homeTeam: null,
     awayTeam: null,
@@ -100,7 +103,10 @@ function AddMatchDialog({
       if (onMatchAdded) {
         onMatchAdded();
       }
-      onClose();
+      
+      if (!addAnother) {
+        onClose();
+      }
     } catch (error) {
       console.error("Error creating match:", error);
       setSubmitError(error.message || "Failed to create match");
@@ -230,6 +236,15 @@ function AddMatchDialog({
           </Grid>
         </DialogContent>
         <DialogActions>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={addAnother}
+                onChange={(e) => setAddAnother(e.target.checked)}
+              />
+            }
+            label="Add another"
+          />
           <Button onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
