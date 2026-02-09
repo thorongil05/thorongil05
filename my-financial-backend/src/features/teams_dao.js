@@ -1,18 +1,45 @@
 const pool = require("./database");
 
 async function insert(teamEntry) {
-  const query = `
-        INSERT INTO teams
-            (name, city)
-        VALUES($1, $2)
-        RETURNING *;
-    `;
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
 
-  const values = [teamEntry.name, teamEntry.city];
+    // Insert Team (Allow duplicates)
+    const insertTeamQuery = `
+            INSERT INTO teams (name, city)
+            VALUES($1, $2)
+            RETURNING *;
+        `;
+    const insertResult = await client.query(insertTeamQuery, [
+      teamEntry.name,
+      teamEntry.city,
+    ]);
+    const teamRow = insertResult.rows[0];
+    const teamId = teamRow.id;
+    console.log("Inserted team:", teamRow);
 
-  const { rows } = await pool.query(query, values);
-  console.log("Inserted rows:", rows);
-  return rows[0];
+    // Link to competition if competitionId is provided
+    if (teamEntry.competitionId) {
+      // Check if link already exists - technically redundant if team is new, 
+      // but good defensive practice if API allows providing an existing ID in future (though currently it creates new).
+      // Since we just created a NEW team ID, it cannot be linked. So we can just insert.
+      const linkQuery =
+          "INSERT INTO competition_teams (competition_id, team_id) VALUES ($1, $2)";
+      await client.query(linkQuery, [teamEntry.competitionId, teamId]);
+      console.log(
+        `Linked team ${teamId} to competition ${teamEntry.competitionId}`,
+      );
+    }
+
+    await client.query("COMMIT");
+    return teamRow;
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
 }
 
 async function retrieveAll() {

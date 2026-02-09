@@ -59,8 +59,16 @@ function FootballArchiveView() {
       });
   }, []);
 
-  const fetchTeams = () => {
-    const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/teams`);
+  const fetchTeams = useCallback((competition) => {
+    let apiUrl;
+    if (competition) {
+      apiUrl = new URL(
+        `${import.meta.env.VITE_SERVER_URL}/api/competitions/${competition.id}/teams`,
+      );
+    } else {
+      apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/teams`);
+    }
+
     fetch(apiUrl)
       .then((response) => {
         return response.json();
@@ -80,7 +88,7 @@ function FootballArchiveView() {
         console.error("Error fetching teams:", error);
         setTeamsLoading(false);
       });
-  };
+  }, []);
 
   const handleCompetitionSelect = (competition) => {
     setSelectedCompetition(competition);
@@ -96,8 +104,9 @@ function FootballArchiveView() {
   useEffect(() => {
     if (selectedCompetition) {
       fetchMatches(selectedCompetition);
+      fetchTeams(selectedCompetition);
     }
-  }, [selectedCompetition, fetchMatches]);
+  }, [selectedCompetition, fetchMatches, fetchTeams]);
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
@@ -123,7 +132,8 @@ function FootballArchiveView() {
               <TeamsView
                 teams={teams}
                 loading={teamsLoading}
-                onTeamAdded={fetchTeams}
+                onTeamAdded={() => fetchTeams(selectedCompetition)}
+                competitionId={selectedCompetition?.id}
               ></TeamsView>
             </Grid>
             <Grid size={8}>

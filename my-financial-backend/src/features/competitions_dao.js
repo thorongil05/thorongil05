@@ -25,7 +25,19 @@ async function retrieveAll() {
   return rows;
 }
 
+async function retrieveTeams(competitionId) {
+  const query = `
+    SELECT t.*
+    FROM teams t
+    JOIN competition_teams ct ON t.id = ct.team_id
+    WHERE ct.competition_id = $1;
+  `;
+  const { rows } = await pool.query(query, [competitionId]);
+  return rows;
+}
+
 module.exports = {
   insert: insert,
   retrieveAll: retrieveAll,
+  retrieveTeams: retrieveTeams,
 };

@@ -24,6 +24,7 @@ module.exports = {
     return {
       name: input.name,
       city: input.city,
+      competitionId: input.competitionId,
     };
   },
   mapToMatch: function (input) {

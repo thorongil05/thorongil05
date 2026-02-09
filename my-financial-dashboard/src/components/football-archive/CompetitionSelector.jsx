@@ -1,4 +1,6 @@
-import { Stack, List, ListItem } from "@mui/material";
+import { Stack, List, ListItem, Typography, IconButton } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import AddCompetitionDialog from "./AddCompetitionDialog";
 import { useEffect, useState } from "react";
 
 function CompetitionSelector({ onCompetitionSelect, selectedCompetitionId }) {
@@ -26,9 +28,35 @@ function CompetitionSelector({ onCompetitionSelect, selectedCompetitionId }) {
         console.error(error);
       });
   };
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleInsertCompleted = () => {
+    setOpen(false);
+    fetchCompetitions();
+  };
+
   useEffect(fetchCompetitions, []);
   return (
     <Stack direction={"column"}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
+        <Typography variant="h6" sx={{ pl: 2 }}>Competitions</Typography>
+        <IconButton onClick={handleClickOpen} size="small">
+          <AddIcon />
+        </IconButton>
+      </Stack>
+      <AddCompetitionDialog
+        open={open}
+        onClose={handleClose}
+        onInsert={handleInsertCompleted}
+      />
       <ListItem
         onClick={() => onCompetitionSelect && onCompetitionSelect(null)}
         sx={{

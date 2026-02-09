@@ -4,7 +4,7 @@ import { Stack, Typography, List, IconButton, ListItem } from "@mui/material";
 import AddTeamDialog from "./AddTeamDialog";
 import AddIcon from "@mui/icons-material/Add";
 
-function TeamsView({ teams, loading, onTeamAdded }) {
+function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
   const [open, setOpen] = useState(false);
 
   const handleClickOpen = () => {
@@ -33,6 +33,7 @@ function TeamsView({ teams, loading, onTeamAdded }) {
           open={open}
           onClose={handleClose}
           onInsert={handleInsertCompleted}
+          competitionId={competitionId}
         ></AddTeamDialog>
       </Stack>
       <List>
@@ -60,6 +61,7 @@ TeamsView.propTypes = {
   ).isRequired,
   loading: PropTypes.bool.isRequired,
   onTeamAdded: PropTypes.func,
+  competitionId: PropTypes.number,
 };
 
 export default TeamsView;

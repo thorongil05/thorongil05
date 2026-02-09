@@ -28,7 +28,7 @@ function submit(e, formData, onSubmitAction) {
     });
 }
 
-function AddTeamDialog({ onClose, open, onInsert }) {
+function AddTeamDialog({ onClose, open, onInsert, competitionId }) {
   let [formData, setFormData] = useState({
     name: "",
     city: "",
@@ -60,9 +60,13 @@ function AddTeamDialog({ onClose, open, onInsert }) {
           <Button
             type="submit"
             onClick={(e) =>
-              submit(e, formData, () => {
-                onInsert();
-              })
+              submit(
+                e,
+                { ...formData, competitionId: competitionId },
+                () => {
+                  onInsert();
+                },
+              )
             }
           >
             Submit
@@ -77,6 +81,7 @@ AddTeamDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
   onInsert: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
+  competitionId: PropTypes.number,
 };
 
 export default AddTeamDialog;
