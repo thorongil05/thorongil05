@@ -7,6 +7,7 @@ import {
   Card,
   CardContent,
   Grid,
+  Box
 } from "@mui/material";
 import AddTeamDialog from "./AddTeamDialog";
 import AddIcon from "@mui/icons-material/Add";
@@ -62,44 +63,50 @@ function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
       {loading ? (
         <Typography>Loading teams...</Typography>
       ) : (
-        <Grid container spacing={2}>
-          {teams.map((element) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={element.id}>
-              <Card
-                variant="outlined"
-                sx={{
-                  height: "100%",
-                  transition: "0.3s",
-                  "&:hover": {
-                    boxShadow: 3,
-                    borderColor: "primary.main",
-                  },
-                }}
-              >
-                <CardContent>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <GroupsIcon color="action" fontSize="large" />
-                    <Stack>
-                      <Typography variant="h6" component="div">
-                        {element.name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {element.city}
-                      </Typography>
+        <Box sx={{ maxHeight: "calc(100vh - 300px)", overflowY: "auto" }}>
+          <Grid container spacing={1}>
+            {teams.map((element) => (
+              <Grid size={12} key={element.id}>
+                <Card
+                  variant="outlined"
+                  sx={{
+                    transition: "0.3s",
+                    "&:hover": {
+                      boxShadow: 2,
+                      borderColor: "primary.main",
+                    },
+                  }}
+                >
+                  <CardContent sx={{ padding: "8px 16px !important" }}>
+                    <Stack direction="row" spacing={2} alignItems="center">
+                      <GroupsIcon color="action" />
+                      <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        sx={{ width: "100%" }}
+                      >
+                        <Typography variant="subtitle1" component="div">
+                          {element.name}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {element.city}
+                        </Typography>
+                      </Stack>
                     </Stack>
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-          {teams.length === 0 && (
-            <Grid size={12}>
-              <Typography variant="body1" color="text.secondary">
-                No teams found in this competition.
-              </Typography>
-            </Grid>
-          )}
-        </Grid>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+            {teams.length === 0 && (
+              <Grid size={12}>
+                <Typography variant="body1" color="text.secondary">
+                  No teams found in this competition.
+                </Typography>
+              </Grid>
+            )}
+          </Grid>
+        </Box>
       )}
     </Stack>
   );
