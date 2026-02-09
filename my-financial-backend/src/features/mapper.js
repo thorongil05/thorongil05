@@ -33,6 +33,7 @@ module.exports = {
       competitionId: input.competitionId,
       homeTeamId: input.homeTeamId,
       awayTeamId: input.awayTeamId,
+      homeGoals: input.homeGoals,
       awayGoals: input.awayGoals,
       stadium: input.stadium,
       round: input.round,

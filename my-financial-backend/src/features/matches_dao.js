@@ -72,7 +72,40 @@ async function findMatches(competitionId = null) {
   return domainMatches;
 }
 
+async function update(id, match) {
+  const query = `
+    UPDATE matches
+    SET match_date = $1, 
+        competition_id = $2, 
+        home_team_id = $3, 
+        away_team_id = $4, 
+        home_goals = $5, 
+        away_goals = $6, 
+        stadium = $7, 
+        round = $8
+    WHERE id = $9
+    RETURNING *;
+  `;
+
+  const values = [
+    match.matchDate,
+    match.competitionId,
+    match.homeTeamId,
+    match.awayTeamId,
+    match.homeGoals,
+    match.awayGoals,
+    match.stadium,
+    match.round,
+    id,
+  ];
+
+  const { rows } = await pool.query(query, values);
+  logger.info({ match: rows[0] }, "Match updated");
+  return rows[0];
+}
+
 module.exports = {
   insert: insert,
   findMatches: findMatches,
+  update: update,
 };

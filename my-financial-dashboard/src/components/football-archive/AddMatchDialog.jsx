@@ -20,6 +20,7 @@ function AddMatchDialog({
   selectedCompetition,
   open,
   onClose,
+  matchToEdit,
 }) {
   let [homeTeamOptions, setHomeTeamOptions] = useState([]);
   let [awayTeamOptions, setAwayTeamOptions] = useState([]);
@@ -33,6 +34,31 @@ function AddMatchDialog({
     awayTeamScore: null,
     round: "",
   });
+
+  useEffect(() => {
+    if (open) {
+      if (matchToEdit) {
+        setMatch({
+          homeTeam: matchToEdit.homeTeam,
+          awayTeam: matchToEdit.awayTeam,
+          homeTeamScore: matchToEdit.homeScore,
+          awayTeamScore: matchToEdit.awayScore,
+          round: matchToEdit.round,
+        });
+        setAddAnother(false);
+      } else {
+        setMatch({
+          homeTeam: null,
+          awayTeam: null,
+          homeTeamScore: null,
+          awayTeamScore: null,
+          round: "",
+        });
+        setAddAnother(false);
+      }
+      setSubmitError(null);
+    }
+  }, [open, matchToEdit]);
 
   // Update options when team selections change
   useEffect(() => {
@@ -77,9 +103,21 @@ function AddMatchDialog({
     };
 
     try {
-      const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/matches`);
+      let apiUrl;
+      let method;
+
+      if (matchToEdit) {
+        apiUrl = new URL(
+          `${import.meta.env.VITE_SERVER_URL}/api/matches/${matchToEdit.id}`,
+        );
+        method = "PUT";
+      } else {
+        apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/matches`);
+        method = "POST";
+      }
+
       const response = await fetch(apiUrl, {
-        method: "POST",
+        method: method,
         headers: {
           "Content-Type": "application/json",
         },
@@ -91,28 +129,31 @@ function AddMatchDialog({
       }
 
       const result = await response.json();
-      console.log("Match created successfully:", result);
+      console.log(
+        `Match ${matchToEdit ? "updated" : "created"} successfully:`,
+        result,
+      );
 
-      // Reset form after successful submission
-      setMatch({
-        homeTeam: null,
-        awayTeam: null,
-        homeTeamScore: null,
-        awayTeamScore: null,
-        round: match.round, // Keep round for convenience in batch entry
-      });
-
-      // Notify parent component that a match was added
+      // Notify parent component that a match was added/updated
       if (onMatchAdded) {
         onMatchAdded();
       }
-      
-      if (!addAnother) {
+
+      if (!addAnother || matchToEdit) {
         onClose();
+      } else {
+         // Reset form after successful submission only if adding another
+          setMatch({
+            homeTeam: null,
+            awayTeam: null,
+            homeTeamScore: null,
+            awayTeamScore: null,
+            round: match.round, // Keep round for convenience in batch entry
+          });
       }
     } catch (error) {
-      console.error("Error creating match:", error);
-      setSubmitError(error.message || "Failed to create match");
+      console.error(`Error ${matchToEdit ? "updating" : "creating"} match:`, error);
+      setSubmitError(error.message || `Failed to ${matchToEdit ? "update" : "create"} match`);
     } finally {
       setIsSubmitting(false);
     }
@@ -127,7 +168,7 @@ function AddMatchDialog({
       transitionDuration={0}
       disableRestoreFocus
     >
-      <DialogTitle>Add Match</DialogTitle>
+      <DialogTitle>{matchToEdit ? "Edit Match" : "Add Match"}</DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
           {selectedCompetition ? (
@@ -261,20 +302,22 @@ function AddMatchDialog({
           </Grid>
         </DialogContent>
         <DialogActions>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={addAnother}
-                onChange={(e) => setAddAnother(e.target.checked)}
-              />
-            }
-            label="Add another"
-          />
+          {!matchToEdit && (
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={addAnother}
+                  onChange={(e) => setAddAnother(e.target.checked)}
+                />
+              }
+              label="Add another"
+            />
+          )}
           <Button onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
           <Button type="submit" variant="contained" disabled={isSubmitting}>
-            {isSubmitting ? "Adding..." : "Add Match"}
+            {isSubmitting ? (matchToEdit ? "Updating..." : "Adding...") : (matchToEdit ? "Update Match" : "Add Match")}
           </Button>
         </DialogActions>
       </form>

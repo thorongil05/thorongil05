@@ -39,11 +39,39 @@ router.post("/", (request, response) => {
     });
 });
 
+router.put("/:id", (request, response) => {
+  logger.info({ body: request.body, id: request.params.id }, "Received update request");
+  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+  
+  let matchEntry = mapper.mapToMatch(request.body);
+  matchesDao
+    .update(request.params.id, matchEntry)
+    .then((result) => {
+      response.send(result);
+    })
+    .catch((error) => {
+      response.status(500);
+      response.send(error);
+      console.log(error);
+    });
+});
+
+router.options("/:id", (request, response) => {
+  response.set({
+    Allow: "PUT, OPTIONS",
+    "Access-Control-Allow-Origin": "http://localhost:5173",
+    "Access-Control-Allow-Methods": "PUT, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Max-Age": "86400", // 24 hours
+  });
+  response.status(200).send();
+});
+
 router.options("/", (request, response) => {
   response.set({
     Allow: "GET, POST, OPTIONS",
     "Access-Control-Allow-Origin": "http://localhost:5173",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Max-Age": "86400", // 24 hours
   });

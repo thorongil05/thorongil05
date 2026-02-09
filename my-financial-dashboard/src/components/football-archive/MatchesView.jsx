@@ -9,8 +9,10 @@ import {
   TableCell,
   TableHead,
   Button,
+  IconButton,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
 import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import AddMatchDialog from "./AddMatchDialog";
@@ -20,6 +22,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [matchDialogOpen, setMatchDialogOpen] = useState(false);
+  const [matchToEdit, setMatchToEdit] = useState(null);
 
   const fetchMatches = useCallback(() => {
     setError(null);
@@ -70,7 +73,10 @@ function MatchesView({ selectedCompetition, teams, teamsLoading }) {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => setMatchDialogOpen(true)}
+          onClick={() => {
+            setMatchToEdit(null);
+            setMatchDialogOpen(true);
+          }}
           disabled={!selectedCompetition}
         >
           Add Match
@@ -84,26 +90,27 @@ function MatchesView({ selectedCompetition, teams, teamsLoading }) {
               <TableCell>Home Team</TableCell>
               <TableCell>Away Team</TableCell>
               <TableCell colSpan={2} align="center">Score</TableCell>
+              <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading && (
               <TableRow>
-                <TableCell colSpan={5} align="center">
+                <TableCell colSpan={6} align="center">
                   Loading matches...
                 </TableCell>
               </TableRow>
             )}
             {error && !loading && (
               <TableRow>
-                <TableCell colSpan={5} align="center" style={{ color: "red" }}>
+                <TableCell colSpan={6} align="center" style={{ color: "red" }}>
                   Error: {error}
                 </TableCell>
               </TableRow>
             )}
             {!loading && !error && matches.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} align="center">
+                <TableCell colSpan={6} align="center">
                   No matches found
                 </TableCell>
               </TableRow>
@@ -117,6 +124,17 @@ function MatchesView({ selectedCompetition, teams, teamsLoading }) {
                   <TableCell>{match.homeTeam?.name || "Unknown"}</TableCell>
                   <TableCell>{match.awayTeam?.name || "Unknown"}</TableCell>
                   <TableCell colSpan={2} align="center">{match.homeScore} - {match.awayScore}</TableCell>
+                  <TableCell align="right">
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        setMatchToEdit(match);
+                        setMatchDialogOpen(true);
+                      }}
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               ))}
           </TableBody>
@@ -124,11 +142,15 @@ function MatchesView({ selectedCompetition, teams, teamsLoading }) {
       </TableContainer>
       <AddMatchDialog
         open={matchDialogOpen}
-        onClose={() => setMatchDialogOpen(false)}
+        onClose={() => {
+          setMatchDialogOpen(false);
+          setMatchToEdit(null);
+        }}
         onMatchAdded={fetchMatches}
         teams={teams}
         teamsLoading={teamsLoading}
         selectedCompetition={selectedCompetition}
+        matchToEdit={matchToEdit}
       ></AddMatchDialog>
     </Stack>
   );
