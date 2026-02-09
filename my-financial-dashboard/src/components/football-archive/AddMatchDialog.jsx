@@ -31,6 +31,7 @@ function AddMatchDialog({
     awayTeam: null,
     homeTeamScore: null,
     awayTeamScore: null,
+    round: "",
   });
 
   // Update options when team selections change
@@ -72,6 +73,7 @@ function AddMatchDialog({
       awayGoals: match.awayTeamScore,
       matchDate: new Date().toISOString(),
       competitionId: selectedCompetition?.id || null,
+      round: match.round,
     };
 
     try {
@@ -97,6 +99,7 @@ function AddMatchDialog({
         awayTeam: null,
         homeTeamScore: null,
         awayTeamScore: null,
+        round: match.round, // Keep round for convenience in batch entry
       });
 
       // Notify parent component that a match was added
@@ -116,7 +119,14 @@ function AddMatchDialog({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      transitionDuration={0}
+      disableRestoreFocus
+    >
       <DialogTitle>Add Match</DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
@@ -164,7 +174,7 @@ function AddMatchDialog({
                   setMatch((prev) => ({ ...prev, homeTeam: newValue }));
                 }}
                 renderInput={(params) => (
-                  <TextField {...params} label="Home Team" required />
+                  <TextField {...params} label="Home Team" required autoFocus />
                 )}
               />
             </Grid>
@@ -222,6 +232,21 @@ function AddMatchDialog({
                   setMatch((prev) => ({
                     ...prev,
                     awayTeamScore: value === "" ? null : parseInt(value),
+                  }));
+                }}
+              />
+            </Grid>
+            <Grid size={12}>
+              <TextField
+                size="small"
+                label="Round"
+                name="round"
+                fullWidth
+                value={match.round || ""}
+                onChange={(event) => {
+                  setMatch((prev) => ({
+                    ...prev,
+                    round: event.target.value,
                   }));
                 }}
               />

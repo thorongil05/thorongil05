@@ -4,8 +4,8 @@ const logger = require("pino")();
 async function insert(matchEntry) {
   const query = `
         INSERT INTO matches
-            (match_date, competition_id, home_team_id, away_team_id, home_goals, away_goals, stadium)
-        VALUES($1, $2, $3, $4, $5, $6, $7)
+            (match_date, competition_id, home_team_id, away_team_id, home_goals, away_goals, stadium, round)
+        VALUES($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *;
     `;
 
@@ -17,6 +17,7 @@ async function insert(matchEntry) {
     matchEntry.homeGoals,
     matchEntry.awayGoals,
     matchEntry.stadium,
+    matchEntry.round,
   ];
 
   const { rows } = await pool.query(query, values);
@@ -53,6 +54,7 @@ async function findMatches(competitionId = null) {
     homeScore: row.home_goals,
     awayScore: row.away_goals,
     stadium: row.stadium,
+    round: row.round,
     homeTeam: {
       id: row.home_team_id,
       name: row.home_team_name,

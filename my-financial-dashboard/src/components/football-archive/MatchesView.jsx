@@ -80,30 +80,30 @@ function MatchesView({ selectedCompetition, teams, teamsLoading }) {
         <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
           <TableHead>
             <TableRow>
+              <TableCell>Round</TableCell>
               <TableCell>Home Team</TableCell>
               <TableCell>Away Team</TableCell>
-              <TableCell>Home Score</TableCell>
-              <TableCell>Away Score</TableCell>
+              <TableCell colSpan={2} align="center">Score</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading && (
               <TableRow>
-                <TableCell colSpan={4} align="center">
+                <TableCell colSpan={5} align="center">
                   Loading matches...
                 </TableCell>
               </TableRow>
             )}
             {error && !loading && (
               <TableRow>
-                <TableCell colSpan={4} align="center" style={{ color: "red" }}>
+                <TableCell colSpan={5} align="center" style={{ color: "red" }}>
                   Error: {error}
                 </TableCell>
               </TableRow>
             )}
             {!loading && !error && matches.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} align="center">
+                <TableCell colSpan={5} align="center">
                   No matches found
                 </TableCell>
               </TableRow>
@@ -113,10 +113,10 @@ function MatchesView({ selectedCompetition, teams, teamsLoading }) {
               matches.length > 0 &&
               matches.map((match) => (
                 <TableRow key={match.id}>
+                  <TableCell>{match.round || "-"}</TableCell>
                   <TableCell>{match.homeTeam?.name || "Unknown"}</TableCell>
                   <TableCell>{match.awayTeam?.name || "Unknown"}</TableCell>
-                  <TableCell>{match.homeScore}</TableCell>
-                  <TableCell>{match.awayScore}</TableCell>
+                  <TableCell colSpan={2} align="center">{match.homeScore} - {match.awayScore}</TableCell>
                 </TableRow>
               ))}
           </TableBody>

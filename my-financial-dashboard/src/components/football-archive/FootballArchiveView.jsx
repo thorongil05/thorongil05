@@ -51,7 +51,6 @@ function FootballArchiveView() {
 
   const handleCompetitionSelect = (competition) => {
     setSelectedCompetition(competition);
-    setError(null);
     // Close the drawer after selection
     setOpen(false);
   };
