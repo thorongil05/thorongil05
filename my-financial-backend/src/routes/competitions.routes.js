@@ -35,6 +35,21 @@ router.get("/:id/teams", (request, response) => {
     });
 });
 
+router.get("/:id/standings", (request, response) => {
+  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+  const competitionId = request.params.id;
+  competitionsDao
+    .getStandings(competitionId)
+    .then((result) => {
+      response.send(result);
+    })
+    .catch((error) => {
+      response.status(500);
+      response.send(error);
+      console.log(error);
+    });
+});
+
 router.post("/", (request, response) => {
   response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   if (Array.isArray(request.body)) {

@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import TeamsView from "./TeamsView";
 import MatchesView from "./MatchesView";
+import StandingsView from "./StandingsView";
 import { useState, useEffect, useCallback } from "react";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
@@ -17,6 +18,7 @@ function FootballArchiveView() {
   const [teams, setTeams] = useState([]);
   const [teamsLoading, setTeamsLoading] = useState(true);
   const [selectedCompetition, setSelectedCompetition] = useState(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const fetchTeams = useCallback((competition) => {
     let apiUrl;
@@ -99,6 +101,12 @@ function FootballArchiveView() {
                 selectedCompetition={selectedCompetition}
                 teams={teams}
                 teamsLoading={teamsLoading}
+                onMatchAdded={() => setRefreshTrigger((prev) => prev + 1)}
+                refreshTrigger={refreshTrigger}
+              />
+              <StandingsView
+                selectedCompetition={selectedCompetition}
+                refreshTrigger={refreshTrigger}
               />
             </Grid>
           </Grid>

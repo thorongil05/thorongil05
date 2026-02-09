@@ -21,7 +21,7 @@ import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import AddMatchDialog from "./AddMatchDialog";
 
-function MatchesView({ selectedCompetition, teams, teamsLoading }) {
+function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, refreshTrigger }) {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -201,6 +201,9 @@ function MatchesView({ selectedCompetition, teams, teamsLoading }) {
         onMatchAdded={() => {
           fetchMatches();
           fetchRounds();
+          if (onMatchAdded) {
+            onMatchAdded();
+          }
         }}
         teams={teams}
         teamsLoading={teamsLoading}
@@ -218,6 +221,8 @@ MatchesView.propTypes = {
   }),
   teams: PropTypes.array.isRequired,
   teamsLoading: PropTypes.bool.isRequired,
+  onMatchAdded: PropTypes.func,
+  refreshTrigger: PropTypes.number,
 };
 
 export default MatchesView;
