@@ -75,7 +75,6 @@ export default function Navbar() {
           <Box sx={{ flexGrow: 1 }} />
           {user ? (
             <Stack direction="row" spacing={2} alignItems="center">
-              <Typography variant="body1">Welcome, {user.username}</Typography>
               <Button color="inherit" onClick={logout}>
                 Logout
               </Button>

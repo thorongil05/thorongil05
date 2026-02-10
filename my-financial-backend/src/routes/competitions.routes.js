@@ -8,7 +8,6 @@ const { authenticateToken } = require("../middleware/auth.middleware");
 
 router.get("/", (request, response) => {
   logger.info("Competition resourece, received get request", request);
-  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   competitionsDao
     .retrieveAll()
     .then((result) => {
@@ -22,7 +21,6 @@ router.get("/", (request, response) => {
 });
 
 router.get("/:id/teams", (request, response) => {
-  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   const competitionId = request.params.id;
   competitionsDao
     .retrieveTeams(competitionId)
@@ -37,7 +35,6 @@ router.get("/:id/teams", (request, response) => {
 });
 
 router.get("/:id/standings", (request, response) => {
-  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   const competitionId = request.params.id;
   competitionsDao
     .getStandings(competitionId)
@@ -52,7 +49,6 @@ router.get("/:id/standings", (request, response) => {
 });
 
 router.post("/", authenticateToken, (request, response) => {
-  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   if (Array.isArray(request.body)) {
     throw new Exception("Not supported operation");
   }
@@ -71,7 +67,6 @@ router.post("/", authenticateToken, (request, response) => {
 
 router.options("/", (request, response) => {
   response.set({
-    "Access-Control-Allow-Origin": "http://localhost:5173",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Max-Age": "86400",

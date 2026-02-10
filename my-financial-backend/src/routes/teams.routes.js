@@ -6,7 +6,6 @@ const teamsDao = require("../features/teams_dao");
 const { authenticateToken } = require("../middleware/auth.middleware");
 
 router.get("/", (request, response) => {
-  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   teamsDao
     .retrieveAll()
     .then((result) => {
@@ -20,7 +19,6 @@ router.get("/", (request, response) => {
 });
 
 router.post("/", authenticateToken, (request, response) => {
-  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   if (Array.isArray(request.body)) {
     throw new Exception("Not supported operation");
   }
@@ -40,7 +38,6 @@ router.post("/", authenticateToken, (request, response) => {
 router.options("/", (request, response) => {
   response.set({
     Allow: "GET, POST, OPTIONS",
-    "Access-Control-Allow-Origin": "http://localhost:5173",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Max-Age": "86400", // 24 hours

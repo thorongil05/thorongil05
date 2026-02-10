@@ -5,7 +5,6 @@ const logger = require("pino")();
 
 router.post("/register", async (req, res) => {
   try {
-    response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
     const { username, email, password } = req.body;
     if (!username || !email || !password) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -20,7 +19,6 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({ error: "Missing email or password" });
@@ -34,14 +32,14 @@ router.post("/login", async (req, res) => {
 });
 
 router.options("/", (req, res) => {
-  response.set({
-    Allow: "GET, POST, OPTIONS",
+  res.set({
+    Allow: "POST, OPTIONS",
     "Access-Control-Allow-Origin": "http://localhost:5173",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Max-Age": "86400", // 24 hours
   });
-  response.status(200).send();
+  res.status(200).send();
 });
 
 module.exports = router;

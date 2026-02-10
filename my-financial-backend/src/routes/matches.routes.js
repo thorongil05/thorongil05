@@ -7,7 +7,6 @@ const matchesDao = require("../features/matches_dao");
 const { authenticateToken } = require("../middleware/auth.middleware");
 
 router.get("/", (request, response) => {
-  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   const competitionId = request.query.competitionId;
   const round = request.query.round;
   matchesDao
@@ -23,7 +22,6 @@ router.get("/", (request, response) => {
 });
 
 router.get("/rounds", (request, response) => {
-  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   const competitionId = request.query.competitionId;
   if (!competitionId) {
     response.status(400).send({ error: "competitionId is required" });
@@ -43,7 +41,6 @@ router.get("/rounds", (request, response) => {
 
 router.post("/", authenticateToken, (request, response) => {
   logger.info({ body: request.body }, "Received request");
-  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   if (Array.isArray(request.body)) {
     throw new Exception("Not supported operation");
   }

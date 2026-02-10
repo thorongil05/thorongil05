@@ -6,7 +6,6 @@ const logger = require("pino")();
 
 router.post("/", (request, response) => {
   logger.info("Received request", request.body);
-  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   let realEstateInfo = request.body;
 
   realEstateDao
@@ -22,7 +21,6 @@ router.post("/", (request, response) => {
 
 router.options("/", (request, response) => {
   logger.info("Received options");
-  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   response.appendHeader("Access-Control-Allow-Methods", "POST");
   response.appendHeader("Access-Control-Allow-Headers", "Content-Type");
   response.statusCode = 204;
