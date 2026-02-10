@@ -1,6 +1,6 @@
 import "./App.css";
 import Home from "./components/instruments/Home";
-import { Route, Routes } from "react-router";
+import { Route, Routes, Navigate } from "react-router";
 import RealEstatesView from "./components/realestates/RealEstatesView";
 import MortgagesView from "./components/mortgages/MortgagesView";
 import Main from "./components/Main";
@@ -8,6 +8,14 @@ import FootballArchiveView from "./components/football-archive/FootballArchiveVi
 import BondsView from "./components/bonds/BondsView";
 import LoginView from "./components/auth/LoginView";
 import RegisterView from "./components/auth/RegisterView";
+import { useAuth } from "./context/AuthContext";
+
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
+  return children;
+};
 
 function App() {
   return (
@@ -27,7 +35,11 @@ function App() {
         ></Route>
         <Route
           path="/football-archive"
-          element={<FootballArchiveView></FootballArchiveView>}
+          element={
+            <ProtectedRoute>
+              <FootballArchiveView></FootballArchiveView>
+            </ProtectedRoute>
+          }
         ></Route>
       </Route>
     </Routes>

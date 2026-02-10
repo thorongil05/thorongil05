@@ -44,7 +44,7 @@ function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
         <Typography variant="h5" component="div" sx={{ fontWeight: "bold" }}>
           Teams
         </Typography>
-        {user && (
+        {user?.role === "admin" && (
           <>
             <IconButton
               onClick={handleClickOpen}

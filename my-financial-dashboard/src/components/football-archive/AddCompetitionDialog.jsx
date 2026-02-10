@@ -11,8 +11,9 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
+import { useAuth } from "../../context/AuthContext";
 
-function submit(e, formData, onSubmitAction) {
+function submit(e, formData, token, onSubmitAction) {
   e.preventDefault();
   const apiUrl = `${import.meta.env.VITE_SERVER_URL}/api/competitions/`;
   console.log("Calling submit on url", apiUrl);
@@ -20,6 +21,7 @@ function submit(e, formData, onSubmitAction) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...(token && { "Authorization": `Bearer ${token}` }),
     },
     body: JSON.stringify(formData),
   };
@@ -36,6 +38,7 @@ function submit(e, formData, onSubmitAction) {
 }
 
 function AddCompetitionDialog({ onClose, open, onInsert }) {
+  const { token } = useAuth();
   let [formData, setFormData] = useState({
     name: "",
     country: "",
@@ -87,7 +90,7 @@ function AddCompetitionDialog({ onClose, open, onInsert }) {
             variant="contained"
             type="submit"
             onClick={(e) =>
-              submit(e, formData, () => {
+              submit(e, formData, token, () => {
                 onInsert();
                 setFormData({ name: "", country: "", type: "LEAGUE" }); // Reset form
               })

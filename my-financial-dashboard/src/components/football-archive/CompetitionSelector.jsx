@@ -2,8 +2,10 @@ import { Stack, List, ListItem, Typography, IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import AddCompetitionDialog from "./AddCompetitionDialog";
 import { useEffect, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 function CompetitionSelector({ onCompetitionSelect, selectedCompetitionId }) {
+  const { user } = useAuth();
   const [competitions, setCompetitions] = useState([]);
 
   const fetchCompetitions = () => {
@@ -48,9 +50,11 @@ function CompetitionSelector({ onCompetitionSelect, selectedCompetitionId }) {
     <Stack direction={"column"}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
         <Typography variant="h6" sx={{ pl: 2 }}>Competitions</Typography>
-        <IconButton onClick={handleClickOpen} size="small">
-          <AddIcon />
-        </IconButton>
+        {user?.role === "admin" && (
+          <IconButton onClick={handleClickOpen} size="small">
+            <AddIcon />
+          </IconButton>
+        )}
       </Stack>
       <AddCompetitionDialog
         open={open}

@@ -52,26 +52,28 @@ export default function Navbar() {
           >
             <MenuIcon />
           </IconButton>
-          {navigationItems.map((element) => {
-            return (
-              <MenuItem
-                key={element.id}
-                selected={element.current}
-                onClick={() => {
-                  navigate(element.href);
-                  let updatedNavigationItems = updateNavigationItems(
-                    element,
-                    navigationItems
-                  );
-                  setNavigationItems(updatedNavigationItems);
-                }}
-              >
-                <Typography sx={{ textAlign: "center" }}>
-                  {element.name}
-                </Typography>
-              </MenuItem>
-            );
-          })}
+          {navigationItems
+            .filter((item) => item.id !== "item-4" || user)
+            .map((element) => {
+              return (
+                <MenuItem
+                  key={element.id}
+                  selected={element.current}
+                  onClick={() => {
+                    navigate(element.href);
+                    let updatedNavigationItems = updateNavigationItems(
+                      element,
+                      navigationItems
+                    );
+                    setNavigationItems(updatedNavigationItems);
+                  }}
+                >
+                  <Typography sx={{ textAlign: "center" }}>
+                    {element.name}
+                  </Typography>
+                </MenuItem>
+              );
+            })}
           <Box sx={{ flexGrow: 1 }} />
           {user ? (
             <Stack direction="row" spacing={2} alignItems="center">

@@ -129,7 +129,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
               ))}
             </Select>
           </FormControl>
-          {user && (
+          {user?.role === "admin" && (
             <Button
               variant="contained"
               startIcon={<AddIcon />}
@@ -152,7 +152,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
               <TableCell>Home Team</TableCell>
               <TableCell>Away Team</TableCell>
               <TableCell colSpan={2} align="center">Score</TableCell>
-              {user && <TableCell align="right">Actions</TableCell>}
+              {user?.role === "admin" && <TableCell align="right">Actions</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -186,7 +186,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
                   <TableCell>{match.homeTeam?.name || "Unknown"}</TableCell>
                   <TableCell>{match.awayTeam?.name || "Unknown"}</TableCell>
                   <TableCell colSpan={2} align="center">{match.homeScore} - {match.awayScore}</TableCell>
-                  {user && (
+                  {user?.role === "admin" && (
                     <TableCell align="right">
                       <IconButton
                         size="small"
