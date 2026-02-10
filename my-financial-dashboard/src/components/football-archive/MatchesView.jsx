@@ -14,6 +14,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  TableSortLabel,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -32,6 +33,9 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
   const [matchToEdit, setMatchToEdit] = useState(null);
   const [rounds, setRounds] = useState([]);
   const [selectedRound, setSelectedRound] = useState("All");
+  const [selectedTeamId, setSelectedTeamId] = useState("All");
+  const [sortBy, setSortBy] = useState("match_date");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const fetchRounds = useCallback(() => {
     if (!selectedCompetition) {
@@ -47,9 +51,9 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
       .then((response) => response.json())
       .then((data) => {
         setRounds(data);
-        if (data && data.length > 0) {
+        if (selectedRound === "All" && data && data.length > 0) {
           setSelectedRound(data[data.length - 1]);
-        } else {
+        } else if (!data || data.length === 0) {
           setSelectedRound("All");
         }
       })
@@ -72,6 +76,13 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
     if (selectedRound && selectedRound !== "All") {
       params.round = selectedRound;
     }
+    if (selectedTeamId && selectedTeamId !== "All") {
+      params.teamId = selectedTeamId;
+    }
+    if (sortBy) {
+      params.sortBy = sortBy;
+      params.sortOrder = sortOrder;
+    }
 
     const urlSearchParams = new URLSearchParams(params);
 
@@ -92,7 +103,22 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
         setError(error.message);
         setLoading(false);
       });
-  }, [selectedCompetition, selectedRound]);
+  }, [selectedCompetition, selectedRound, selectedTeamId, sortBy, sortOrder]);
+
+  const handleResetFilters = () => {
+    setSelectedRound("All");
+    setSelectedTeamId("All");
+    setSortBy("match_date");
+    setSortOrder("desc");
+    // This will trigger fetchMatches and fetchRounds
+    // fetchRounds will then set the latest round because selectedRound is "All"
+  };
+
+  const handleRequestSort = (property) => {
+    const isAsc = sortBy === property && sortOrder === "asc";
+    setSortOrder(isAsc ? "desc" : "asc");
+    setSortBy(property);
+  };
   const handleDeleteMatch = async (matchId) => {
     if (!window.confirm("Are you sure you want to delete this match?")) {
       return;
@@ -140,7 +166,12 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
         <Typography variant="h4">Matches</Typography>
         <Stack direction="row" spacing={2}>
           <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel id="round-select-label">Round</InputLabel>
+            <InputLabel 
+              id="round-select-label"
+              sx={{ color: selectedRound !== "All" ? "secondary.main" : "inherit" }}
+            >
+              Round
+            </InputLabel>
             <Select
               labelId="round-select-label"
               id="round-select"
@@ -157,6 +188,36 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
               ))}
             </Select>
           </FormControl>
+          <FormControl size="small" sx={{ minWidth: 150 }}>
+            <InputLabel 
+              id="team-select-label"
+              sx={{ color: selectedTeamId !== "All" ? "secondary.main" : "inherit" }}
+            >
+              Team
+            </InputLabel>
+            <Select
+              labelId="team-select-label"
+              id="team-select"
+              value={selectedTeamId}
+              label="Team"
+              onChange={(e) => setSelectedTeamId(e.target.value)}
+              disabled={!selectedCompetition}
+            >
+              <MenuItem value="All">All Teams</MenuItem>
+              {teams.map((team) => (
+                <MenuItem key={team.id} value={team.id}>
+                  {team.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Button 
+            size="small" 
+            onClick={handleResetFilters}
+            disabled={selectedRound === "All" && selectedTeamId === "All" && sortBy === "match_date"}
+          >
+            Reset
+          </Button>
           {(user?.role === "admin" || user?.role === "editor") && (
             <Button
               variant="contained"
@@ -176,7 +237,15 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
         <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>Round</TableCell>
+              <TableCell sortDirection={sortBy === "round" ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === "round"}
+                  direction={sortBy === "round" ? sortOrder : "asc"}
+                  onClick={() => handleRequestSort("round")}
+                >
+                  Round
+                </TableSortLabel>
+              </TableCell>
               <TableCell>Home Team</TableCell>
               <TableCell>Away Team</TableCell>
               <TableCell colSpan={2} align="center">Score</TableCell>
@@ -211,8 +280,22 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
               matches.map((match) => (
                 <TableRow key={match.id}>
                   <TableCell>{match.round || "-"}</TableCell>
-                  <TableCell>{match.homeTeam?.name || "Unknown"}</TableCell>
-                  <TableCell>{match.awayTeam?.name || "Unknown"}</TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: match.homeTeam?.id === Number(selectedTeamId) ? "bold" : "normal",
+                      color: match.homeTeam?.id === Number(selectedTeamId) ? "secondary.main" : "inherit",
+                    }}
+                  >
+                    {match.homeTeam?.name || "Unknown"}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: match.awayTeam?.id === Number(selectedTeamId) ? "bold" : "normal",
+                      color: match.awayTeam?.id === Number(selectedTeamId) ? "secondary.main" : "inherit",
+                    }}
+                  >
+                    {match.awayTeam?.name || "Unknown"}
+                  </TableCell>
                   <TableCell colSpan={2} align="center">{match.homeScore} - {match.awayScore}</TableCell>
                   {(user?.role === "admin" || user?.role === "editor") && (
                     <TableCell align="right">

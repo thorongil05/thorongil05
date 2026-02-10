@@ -25,8 +25,8 @@ async function insert(matchEntry) {
   return rows[0];
 }
 
-async function findMatches(competitionId = null, round = null) {
-  logger.info({ competitionId, round }, "Retrieving matches");
+async function findMatches(competitionId = null, round = null, teamId = null, sortBy = "match_date", sortOrder = "DESC") {
+  logger.info({ competitionId, round, teamId, sortBy, sortOrder }, "Retrieving matches");
   let query = `
     SELECT
       m.*,
@@ -52,11 +52,23 @@ async function findMatches(competitionId = null, round = null) {
     whereClause.push(`m.round = $${values.length}`);
   }
 
+  if (teamId) {
+    values.push(teamId);
+    whereClause.push(`(m.home_team_id = $${values.length} OR m.away_team_id = $${values.length})`);
+  }
+
   if (whereClause.length > 0) {
     query += " WHERE " + whereClause.join(" AND ");
   }
   
-  query += " ORDER BY m.match_date DESC";
+  // Handle dynamic sorting
+  const order = sortOrder.toUpperCase() === "ASC" ? "ASC" : "DESC";
+  if (sortBy === "round") {
+    query += ` ORDER BY LENGTH(m.round) ${order}, m.round ${order}, m.id ${order}`;
+  } else {
+    // Default to match_date
+    query += ` ORDER BY m.match_date ${order}, m.id ${order}`;
+  }
 
   const { rows } = await pool.query(query, values);
 

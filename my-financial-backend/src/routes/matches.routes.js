@@ -9,8 +9,11 @@ const { authenticateToken } = require("../middleware/auth.middleware");
 router.get("/", (request, response) => {
   const competitionId = request.query.competitionId;
   const round = request.query.round;
+  const teamId = request.query.teamId;
+  const sortBy = request.query.sortBy;
+  const sortOrder = request.query.sortOrder;
   matchesDao
-    .findMatches(competitionId, round)
+    .findMatches(competitionId, round, teamId, sortBy, sortOrder)
     .then((result) => {
       response.send(result);
     })
