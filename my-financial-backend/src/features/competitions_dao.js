@@ -18,7 +18,7 @@ async function insert(competitionEntry) {
   ];
 
   const { rows } = await pool.query(query, values);
-  console.log("Inserted competition:", rows[0]);
+  logger.info({ competition: rows[0] }, "Inserted competition");
   return rows[0];
 }
 

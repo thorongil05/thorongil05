@@ -42,7 +42,14 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
     const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/matches/rounds`);
     fetch(apiUrl + "?" + urlSearchParams)
       .then((response) => response.json())
-      .then((data) => setRounds(data))
+      .then((data) => {
+        setRounds(data);
+        if (data && data.length > 0) {
+          setSelectedRound(data[data.length - 1]);
+        } else {
+          setSelectedRound("All");
+        }
+      })
       .catch((err) => console.error("Error fetching rounds:", err));
   }, [selectedCompetition]);
 
@@ -86,7 +93,6 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
 
   useEffect(() => {
     fetchRounds();
-    setSelectedRound("All");
   }, [fetchRounds]);
 
   useEffect(() => {
