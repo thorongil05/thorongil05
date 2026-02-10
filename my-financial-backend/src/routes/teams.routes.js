@@ -3,6 +3,7 @@ const router = express.Router();
 const mapper = require("../features/mapper");
 
 const teamsDao = require("../features/teams_dao");
+const { authenticateToken } = require("../middleware/auth.middleware");
 
 router.get("/", (request, response) => {
   response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
@@ -18,7 +19,7 @@ router.get("/", (request, response) => {
     });
 });
 
-router.post("/", (request, response) => {
+router.post("/", authenticateToken, (request, response) => {
   response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   if (Array.isArray(request.body)) {
     throw new Exception("Not supported operation");

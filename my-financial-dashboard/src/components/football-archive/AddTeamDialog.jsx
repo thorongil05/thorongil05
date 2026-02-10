@@ -1,8 +1,9 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { Dialog, DialogTitle, Stack, TextField, Button } from "@mui/material";
+import { useAuth } from "../../context/AuthContext";
 
-function submit(e, formData, onSubmitAction) {
+function submit(e, formData, token, onSubmitAction) {
   e.preventDefault();
   const apiUrl = `${import.meta.env.VITE_SERVER_URL}/api/teams/`;
   console.log("Calling submit on url", apiUrl);
@@ -10,6 +11,7 @@ function submit(e, formData, onSubmitAction) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...(token && { "Authorization": `Bearer ${token}` }),
     },
     body: JSON.stringify(formData),
   };
@@ -29,6 +31,7 @@ function submit(e, formData, onSubmitAction) {
 }
 
 function AddTeamDialog({ onClose, open, onInsert, competitionId }) {
+  const { token } = useAuth();
   let [formData, setFormData] = useState({
     name: "",
     city: "",
@@ -63,6 +66,7 @@ function AddTeamDialog({ onClose, open, onInsert, competitionId }) {
               submit(
                 e,
                 { ...formData, competitionId: competitionId },
+                token,
                 () => {
                   onInsert();
                 },

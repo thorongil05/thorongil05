@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { useAuth } from "../../context/AuthContext";
 
 function AddMatchDialog({
   onMatchAdded,
@@ -89,6 +90,7 @@ function AddMatchDialog({
       return;
     }
 
+    const { token } = useAuth();
     setIsSubmitting(true);
 
     // Prepare match data for API submission
@@ -120,6 +122,7 @@ function AddMatchDialog({
         method: method,
         headers: {
           "Content-Type": "application/json",
+          ...(token && { "Authorization": `Bearer ${token}` }),
         },
         body: JSON.stringify(matchData),
       });

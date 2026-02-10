@@ -4,6 +4,7 @@ const mapper = require("../features/mapper");
 const logger = require("pino")();
 
 const matchesDao = require("../features/matches_dao");
+const { authenticateToken } = require("../middleware/auth.middleware");
 
 router.get("/", (request, response) => {
   response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
@@ -40,7 +41,7 @@ router.get("/rounds", (request, response) => {
     });
 });
 
-router.post("/", (request, response) => {
+router.post("/", authenticateToken, (request, response) => {
   logger.info({ body: request.body }, "Received request");
   response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   if (Array.isArray(request.body)) {
@@ -59,7 +60,7 @@ router.post("/", (request, response) => {
     });
 });
 
-router.put("/:id", (request, response) => {
+router.put("/:id", authenticateToken, (request, response) => {
   logger.info({ body: request.body, id: request.params.id }, "Received update request");
   response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   

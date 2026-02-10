@@ -20,8 +20,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import AddMatchDialog from "./AddMatchDialog";
+import { useAuth } from "../../context/AuthContext";
 
 function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, refreshTrigger }) {
+  const { user } = useAuth();
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -127,17 +129,19 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
               ))}
             </Select>
           </FormControl>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => {
-              setMatchToEdit(null);
-              setMatchDialogOpen(true);
-            }}
-            disabled={!selectedCompetition}
-          >
-            Add Match
-          </Button>
+          {user && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => {
+                setMatchToEdit(null);
+                setMatchDialogOpen(true);
+              }}
+              disabled={!selectedCompetition}
+            >
+              Add Match
+            </Button>
+          )}
         </Stack>
       </Stack>
       <TableContainer component={Paper}>
@@ -148,27 +152,27 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
               <TableCell>Home Team</TableCell>
               <TableCell>Away Team</TableCell>
               <TableCell colSpan={2} align="center">Score</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              {user && <TableCell align="right">Actions</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
             {loading && (
               <TableRow>
-                <TableCell colSpan={6} align="center">
+                <TableCell colSpan={user ? 6 : 5} align="center">
                   Loading matches...
                 </TableCell>
               </TableRow>
             )}
             {error && !loading && (
               <TableRow>
-                <TableCell colSpan={6} align="center" style={{ color: "red" }}>
+                <TableCell colSpan={user ? 6 : 5} align="center" style={{ color: "red" }}>
                   Error: {error}
                 </TableCell>
               </TableRow>
             )}
             {!loading && !error && matches.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} align="center">
+                <TableCell colSpan={user ? 6 : 5} align="center">
                   No matches found
                 </TableCell>
               </TableRow>
@@ -182,17 +186,19 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
                   <TableCell>{match.homeTeam?.name || "Unknown"}</TableCell>
                   <TableCell>{match.awayTeam?.name || "Unknown"}</TableCell>
                   <TableCell colSpan={2} align="center">{match.homeScore} - {match.awayScore}</TableCell>
-                  <TableCell align="right">
-                    <IconButton
-                      size="small"
-                      onClick={() => {
-                        setMatchToEdit(match);
-                        setMatchDialogOpen(true);
-                      }}
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                  </TableCell>
+                  {user && (
+                    <TableCell align="right">
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setMatchToEdit(match);
+                          setMatchDialogOpen(true);
+                        }}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
           </TableBody>

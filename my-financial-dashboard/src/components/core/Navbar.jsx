@@ -7,6 +7,8 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router";
 import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { Button } from "@mui/material";
 
 const navigation = [
   { id: "item-1", name: "BONDs", href: "/bonds", current: false },
@@ -31,8 +33,11 @@ function updateNavigationItems(selectedElement, elements) {
   return elements;
 }
 
+import Stack from "@mui/material/Stack";
+
 export default function Navbar() {
   const [navigationItems, setNavigationItems] = useState(navigation);
+  const { user, logout } = useAuth();
   let navigate = useNavigate();
   return (
     <Box sx={{ flexGrow: 0, height: "60px" }}>
@@ -67,6 +72,19 @@ export default function Navbar() {
               </MenuItem>
             );
           })}
+          <Box sx={{ flexGrow: 1 }} />
+          {user ? (
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Typography variant="body1">Welcome, {user.username}</Typography>
+              <Button color="inherit" onClick={logout}>
+                Logout
+              </Button>
+            </Stack>
+          ) : (
+            <Button color="inherit" onClick={() => navigate("/login")}>
+              Login
+            </Button>
+          )}
         </Toolbar>
       </AppBar>
     </Box>

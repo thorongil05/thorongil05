@@ -12,8 +12,10 @@ import {
 import AddTeamDialog from "./AddTeamDialog";
 import AddIcon from "@mui/icons-material/Add";
 import GroupsIcon from "@mui/icons-material/Groups";
+import { useAuth } from "../../context/AuthContext";
 
 function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
 
   const handleClickOpen = () => {
@@ -42,22 +44,26 @@ function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
         <Typography variant="h5" component="div" sx={{ fontWeight: "bold" }}>
           Teams
         </Typography>
-        <IconButton
-          onClick={handleClickOpen}
-          color="primary"
-          sx={{
-            backgroundColor: "action.hover",
-            "&:hover": { backgroundColor: "action.selected" },
-          }}
-        >
-          <AddIcon />
-        </IconButton>
-        <AddTeamDialog
-          open={open}
-          onClose={handleClose}
-          onInsert={handleInsertCompleted}
-          competitionId={competitionId}
-        ></AddTeamDialog>
+        {user && (
+          <>
+            <IconButton
+              onClick={handleClickOpen}
+              color="primary"
+              sx={{
+                backgroundColor: "action.hover",
+                "&:hover": { backgroundColor: "action.selected" },
+              }}
+            >
+              <AddIcon />
+            </IconButton>
+            <AddTeamDialog
+              open={open}
+              onClose={handleClose}
+              onInsert={handleInsertCompleted}
+              competitionId={competitionId}
+            ></AddTeamDialog>
+          </>
+        )}
       </Stack>
 
       {loading ? (
