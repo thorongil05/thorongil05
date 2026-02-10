@@ -88,10 +88,11 @@ async function findMatches(competitionId = null, round = null) {
 async function findRounds(competitionId) {
   logger.info({ competitionId }, "Retrieving rounds");
   const query = `
-    SELECT DISTINCT round
+    SELECT round
     FROM matches
     WHERE competition_id = $1
-    ORDER BY round
+    GROUP BY round
+    ORDER BY LENGTH(round), round
   `;
   const { rows } = await pool.query(query, [competitionId]);
   return rows.map(r => r.round).filter(r => r);

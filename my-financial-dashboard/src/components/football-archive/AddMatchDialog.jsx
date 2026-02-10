@@ -10,7 +10,7 @@ import {
   Checkbox,
   FormControlLabel,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
 import { useAuth } from "../../context/AuthContext";
 
@@ -24,6 +24,7 @@ function AddMatchDialog({
   matchToEdit,
 }) {
   const { token } = useAuth();
+  const homeTeamRef = useRef(null);
   let [homeTeamOptions, setHomeTeamOptions] = useState([]);
   let [awayTeamOptions, setAwayTeamOptions] = useState([]);
   let [isSubmitting, setIsSubmitting] = useState(false);
@@ -153,6 +154,12 @@ function AddMatchDialog({
             awayTeamScore: null,
             round: match.round, // Keep round for convenience in batch entry
           });
+          // Focus back to home team input
+          setTimeout(() => {
+            if (homeTeamRef.current) {
+              homeTeamRef.current.focus();
+            }
+          }, 0);
       }
     } catch (error) {
       console.error(`Error ${matchToEdit ? "updating" : "creating"} match:`, error);
@@ -218,7 +225,13 @@ function AddMatchDialog({
                   setMatch((prev) => ({ ...prev, homeTeam: newValue }));
                 }}
                 renderInput={(params) => (
-                  <TextField {...params} label="Home Team" required autoFocus />
+                  <TextField
+                    {...params}
+                    inputRef={homeTeamRef}
+                    label="Home Team"
+                    required
+                    autoFocus
+                  />
                 )}
               />
             </Grid>
