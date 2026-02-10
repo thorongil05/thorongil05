@@ -129,9 +129,17 @@ async function update(id, match) {
   return rows[0];
 }
 
+async function deleteMatch(id) {
+  const query = "DELETE FROM matches WHERE id = $1 RETURNING *;";
+  const { rows } = await pool.query(query, [id]);
+  logger.info({ id }, "Match deleted");
+  return rows[0];
+}
+
 module.exports = {
   insert: insert,
   findMatches: findMatches,
   update: update,
   findRounds: findRounds,
+  deleteMatch: deleteMatch,
 };

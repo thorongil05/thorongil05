@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import AddMatchDialog from "./AddMatchDialog";
@@ -92,6 +93,33 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
         setLoading(false);
       });
   }, [selectedCompetition, selectedRound]);
+  const handleDeleteMatch = async (matchId) => {
+    if (!window.confirm("Are you sure you want to delete this match?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/matches/${matchId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete match");
+      }
+
+      fetchMatches();
+      fetchRounds();
+      if (onMatchAdded) {
+        onMatchAdded();
+      }
+    } catch (err) {
+      console.error("Error deleting match:", err);
+      alert("Error deleting match: " + err.message);
+    }
+  };
 
   useEffect(() => {
     fetchRounds();
@@ -129,7 +157,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
               ))}
             </Select>
           </FormControl>
-          {user?.role === "admin" && (
+          {(user?.role === "admin" || user?.role === "editor") && (
             <Button
               variant="contained"
               startIcon={<AddIcon />}
@@ -152,7 +180,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
               <TableCell>Home Team</TableCell>
               <TableCell>Away Team</TableCell>
               <TableCell colSpan={2} align="center">Score</TableCell>
-              {user?.role === "admin" && <TableCell align="right">Actions</TableCell>}
+              {(user?.role === "admin" || user?.role === "editor") && <TableCell align="right">Actions</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -186,7 +214,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
                   <TableCell>{match.homeTeam?.name || "Unknown"}</TableCell>
                   <TableCell>{match.awayTeam?.name || "Unknown"}</TableCell>
                   <TableCell colSpan={2} align="center">{match.homeScore} - {match.awayScore}</TableCell>
-                  {user?.role === "admin" && (
+                  {(user?.role === "admin" || user?.role === "editor") && (
                     <TableCell align="right">
                       <IconButton
                         size="small"
@@ -196,6 +224,13 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
                         }}
                       >
                         <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => handleDeleteMatch(match.id)}
+                      >
+                        <DeleteIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
                   )}

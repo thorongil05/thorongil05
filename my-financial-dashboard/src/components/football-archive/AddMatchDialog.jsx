@@ -23,6 +23,7 @@ function AddMatchDialog({
   onClose,
   matchToEdit,
 }) {
+  const { token } = useAuth();
   let [homeTeamOptions, setHomeTeamOptions] = useState([]);
   let [awayTeamOptions, setAwayTeamOptions] = useState([]);
   let [isSubmitting, setIsSubmitting] = useState(false);
@@ -90,7 +91,6 @@ function AddMatchDialog({
       return;
     }
 
-    const { token } = useAuth();
     setIsSubmitting(true);
 
     // Prepare match data for API submission

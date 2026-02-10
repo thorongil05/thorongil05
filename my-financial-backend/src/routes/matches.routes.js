@@ -59,7 +59,6 @@ router.post("/", authenticateToken, (request, response) => {
 
 router.put("/:id", authenticateToken, (request, response) => {
   logger.info({ body: request.body, id: request.params.id }, "Received update request");
-  response.appendHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   
   let matchEntry = mapper.mapToMatch(request.body);
   matchesDao
@@ -74,11 +73,28 @@ router.put("/:id", authenticateToken, (request, response) => {
     });
 });
 
+router.delete("/:id", authenticateToken, (request, response) => {
+  logger.info({ id: request.params.id }, "Received delete request");  
+  matchesDao
+    .deleteMatch(request.params.id)
+    .then((result) => {
+      if (result) {
+        response.send(result);
+      } else {
+        response.status(404).send({ error: "Match not found" });
+      }
+    })
+    .catch((error) => {
+      response.status(500);
+      response.send(error);
+      console.log(error);
+    });
+});
+
 router.options("/:id", (request, response) => {
   response.set({
-    Allow: "PUT, OPTIONS",
-    "Access-Control-Allow-Origin": "http://localhost:5173",
-    "Access-Control-Allow-Methods": "PUT, OPTIONS",
+    Allow: "PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Methods": "PUT, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Max-Age": "86400", // 24 hours
   });
@@ -88,7 +104,6 @@ router.options("/:id", (request, response) => {
 router.options("/", (request, response) => {
   response.set({
     Allow: "GET, POST, OPTIONS",
-    "Access-Control-Allow-Origin": "http://localhost:5173",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Max-Age": "86400", // 24 hours
