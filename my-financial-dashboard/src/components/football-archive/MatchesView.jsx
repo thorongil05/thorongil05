@@ -166,12 +166,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
         <Typography variant="h4">Matches</Typography>
         <Stack direction="row" spacing={2}>
           <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel 
-              id="round-select-label"
-              sx={{ color: selectedRound !== "All" ? "secondary.main" : "inherit" }}
-            >
-              Round
-            </InputLabel>
+            <InputLabel id="round-select-label">Round</InputLabel>
             <Select
               labelId="round-select-label"
               id="round-select"
