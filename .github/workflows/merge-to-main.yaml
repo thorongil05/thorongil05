@@ -1,0 +1,36 @@
+name: Merge Develop to Main
+
+on:
+  workflow_dispatch:
+
+jobs:
+  merge-develop-to-main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set Git Identity
+        run: |
+          git config --global user.email "a.acquavia@studenti.unipi.com"
+          git config --global user.name "thorongil05"
+
+      - name: Get current version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./my-financial-dashboard/package.json').version")
+          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Merge develop into main
+        run: |
+          git checkout main
+          git pull origin main
+          git merge origin/develop --no-ff -m "build: deploying version ${{ env.APP_VERSION }}"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
