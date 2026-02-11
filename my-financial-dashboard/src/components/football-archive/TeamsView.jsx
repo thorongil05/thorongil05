@@ -7,10 +7,13 @@ import {
   Card,
   CardContent,
   Grid,
-  Box
+  Box,
+  List,
+  ListItem,
+  CircularProgress
 } from "@mui/material";
-import AddTeamDialog from "./AddTeamDialog";
 import AddIcon from "@mui/icons-material/Add";
+import AddTeamDialog from "./AddTeamDialog";
 import GroupsIcon from "@mui/icons-material/Groups";
 import { useAuth } from "../../context/AuthContext";
 import { UserRoles } from "../../constants/roles";
@@ -28,7 +31,7 @@ function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
   };
 
   const handleInsertCompleted = () => {
-    setOpen(false);
+    // Refresh the list
     if (onTeamAdded) {
       onTeamAdded();
     }
@@ -46,26 +49,25 @@ function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
           Teams
         </Typography>
         {user?.role === UserRoles.ADMIN && (
-          <>
-            <IconButton
-              onClick={handleClickOpen}
-              color="primary"
-              sx={{
-                backgroundColor: "action.hover",
-                "&:hover": { backgroundColor: "action.selected" },
-              }}
-            >
-              <AddIcon />
-            </IconButton>
-            <AddTeamDialog
-              open={open}
-              onClose={handleClose}
-              onInsert={handleInsertCompleted}
-              competitionId={competitionId}
-            ></AddTeamDialog>
-          </>
+          <IconButton
+            onClick={handleClickOpen}
+            color="primary"
+            sx={{
+              backgroundColor: "action.hover",
+              "&:hover": { backgroundColor: "action.selected" },
+            }}
+          >
+            <AddIcon />
+          </IconButton>
         )}
       </Stack>
+
+      <AddTeamDialog
+        open={open}
+        onClose={handleClose}
+        onInsert={handleInsertCompleted}
+        competitionId={competitionId}
+      />
 
       {loading ? (
         <Typography>Loading teams...</Typography>
