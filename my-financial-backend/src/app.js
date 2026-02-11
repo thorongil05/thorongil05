@@ -7,7 +7,8 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://my-financial-dashboard.up.railway.app"],
+    credentials: true
   }),
 );
 
