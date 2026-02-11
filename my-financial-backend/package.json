@@ -1,6 +1,6 @@
 {
   "name": "my-financial-backend",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "description": "Backend that exposes REST API to retrieve data for the UI",
   "license": "ISC",
   "author": "",
@@ -9,13 +9,17 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch --env-file=.env src/server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "migrate:up": "node src/features/migrate.js",
+    "migrate:down": "node-pg-migrate down",
+    "migrate:create": "node-pg-migrate create"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.3",
+    "node-pg-migrate": "^8.0.4",
     "pg": "^8.16.3",
     "pino": "^10.1.0",
     "pino-pretty": "^13.1.3",
