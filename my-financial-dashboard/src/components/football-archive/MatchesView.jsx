@@ -15,6 +15,9 @@ import {
   Select,
   MenuItem,
   TableSortLabel,
+  useTheme,
+  useMediaQuery,
+  Box,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -23,9 +26,18 @@ import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import AddMatchDialog from "./AddMatchDialog";
 import { useAuth } from "../../context/AuthContext";
+import { UserRoles } from "../../constants/roles";
+import { useTranslation } from "react-i18next";
 
-function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, refreshTrigger }) {
-  const { user } = useAuth();
+function MatchesView({
+  selectedCompetition,
+  teams,
+  teamsLoading,
+  onMatchAdded,
+  refreshTrigger,
+}) {
+  const { t } = useTranslation();
+  const { user, token } = useAuth();
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -36,6 +48,9 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
   const [selectedTeamId, setSelectedTeamId] = useState("All");
   const [sortBy, setSortBy] = useState("match_date");
   const [sortOrder, setSortOrder] = useState("desc");
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const fetchRounds = useCallback(() => {
     if (!selectedCompetition) {
@@ -120,7 +135,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
     setSortBy(property);
   };
   const handleDeleteMatch = async (matchId) => {
-    if (!window.confirm("Are you sure you want to delete this match?")) {
+    if (!window.confirm(t("football.confirm_delete_match", "Are you sure you want to delete this match?"))) {
       return;
     }
 
@@ -143,7 +158,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
       }
     } catch (err) {
       console.error("Error deleting match:", err);
-      alert("Error deleting match: " + err.message);
+      alert(t("football.error_deleting_match", { defaultValue: "Error deleting match: {{message}}", message: err.message }));
     }
   };
 
@@ -158,24 +173,27 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
   return (
     <Stack>
       <Stack
-        direction="row"
+        direction={isMobile ? "column" : "row"}
         justifyContent="space-between"
-        alignItems="center"
+        alignItems={isMobile ? "flex-start" : "center"}
+        spacing={2}
         sx={{ mb: 2 }}
       >
-        <Typography variant="h4">Matches</Typography>
-        <Stack direction="row" spacing={2}>
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel id="round-select-label">Round</InputLabel>
+        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+          {t("football.matches")}
+        </Typography>
+        <Stack direction={isMobile ? "column" : "row"} spacing={1} sx={{ width: isMobile ? "100%" : "auto" }}>
+          <FormControl size="small" sx={{ minWidth: isMobile ? "100%" : 120 }}>
+            <InputLabel id="round-select-label">{t("football.round", "Round")}</InputLabel>
             <Select
               labelId="round-select-label"
               id="round-select"
               value={selectedRound}
-              label="Round"
+              label={t("football.round", "Round")}
               onChange={(e) => setSelectedRound(e.target.value)}
               disabled={!selectedCompetition}
             >
-              <MenuItem value="All">All Rounds</MenuItem>
+              <MenuItem value="All">{t("football.all_rounds", "All Rounds")}</MenuItem>
               {rounds.map((round) => (
                 <MenuItem key={round} value={round}>
                   {round}
@@ -183,22 +201,22 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
               ))}
             </Select>
           </FormControl>
-          <FormControl size="small" sx={{ minWidth: 150 }}>
+          <FormControl size="small" sx={{ minWidth: isMobile ? "100%" : 150 }}>
             <InputLabel 
               id="team-select-label"
               sx={{ color: selectedTeamId !== "All" ? "secondary.main" : "inherit" }}
             >
-              Team
+              {t("football.team", "Team")}
             </InputLabel>
             <Select
               labelId="team-select-label"
               id="team-select"
               value={selectedTeamId}
-              label="Team"
+              label={t("football.team", "Team")}
               onChange={(e) => setSelectedTeamId(e.target.value)}
               disabled={!selectedCompetition}
             >
-              <MenuItem value="All">All Teams</MenuItem>
+              <MenuItem value="All">{t("football.all_teams", "All Teams")}</MenuItem>
               {teams.map((team) => (
                 <MenuItem key={team.id} value={team.id}>
                   {team.name}
@@ -210,10 +228,11 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
             size="small" 
             onClick={handleResetFilters}
             disabled={selectedRound === "All" && selectedTeamId === "All" && sortBy === "match_date"}
+            fullWidth={isMobile}
           >
-            Reset
+            {t("common.reset", "Reset")}
           </Button>
-          {(user?.role === "admin" || user?.role === "editor") && (
+          {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (
             <Button
               variant="contained"
               startIcon={<AddIcon />}
@@ -222,14 +241,15 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
                 setMatchDialogOpen(true);
               }}
               disabled={!selectedCompetition}
+              fullWidth={isMobile}
             >
-              Add Match
+              {t("football.add_match", "Add Match")}
             </Button>
           )}
         </Stack>
       </Stack>
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
+        <Table size="small" aria-label="simple table">
           <TableHead>
             <TableRow>
               <TableCell sortDirection={sortBy === "round" ? sortOrder : false}>
@@ -238,13 +258,13 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
                   direction={sortBy === "round" ? sortOrder : "asc"}
                   onClick={() => handleRequestSort("round")}
                 >
-                  Round
+                  {t("football.round", "Round")}
                 </TableSortLabel>
               </TableCell>
-              <TableCell>Home Team</TableCell>
-              <TableCell>Away Team</TableCell>
-              <TableCell colSpan={2} align="center">Score</TableCell>
-              {(user?.role === "admin" || user?.role === "editor") && <TableCell align="right">Actions</TableCell>}
+              <TableCell>{t("football.home_team", "Home Team")}</TableCell>
+              <TableCell>{t("football.away_team", "Away Team")}</TableCell>
+              <TableCell colSpan={2} align="center">{t("football.score", "Score")}</TableCell>
+              {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && <TableCell align="right">{t("common.actions", "Actions")}</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -292,7 +312,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
                     {match.awayTeam?.name || "Unknown"}
                   </TableCell>
                   <TableCell colSpan={2} align="center">{match.homeScore} - {match.awayScore}</TableCell>
-                  {(user?.role === "admin" || user?.role === "editor") && (
+                  {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (
                     <TableCell align="right">
                       <IconButton
                         size="small"

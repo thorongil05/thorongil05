@@ -5,7 +5,6 @@ import {
   Typography,
   Drawer,
   Button,
-  Box,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -15,10 +14,12 @@ import TeamsView from "./TeamsView";
 import MatchesView from "./MatchesView";
 import StandingsView from "./StandingsView";
 import { useState, useEffect, useCallback } from "react";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import PeopleIcon from "@mui/icons-material/People";
+import { useTranslation } from "react-i18next";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
 function FootballArchiveView() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [teams, setTeams] = useState([]);
   const [teamsLoading, setTeamsLoading] = useState(true);
@@ -88,7 +89,7 @@ function FootballArchiveView() {
       <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
         <Button onClick={toggleDrawer(true)} variant="outlined">
           <KeyboardArrowRightIcon></KeyboardArrowRightIcon>
-          {selectedCompetition ? selectedCompetition.name : "All Competitions"}
+          {selectedCompetition ? selectedCompetition.name : t("football.all_competitions")}
         </Button>
         <Button
           onClick={() => setParticipantsOpen(true)}
@@ -96,7 +97,7 @@ function FootballArchiveView() {
           startIcon={<PeopleIcon />}
           disabled={!selectedCompetition}
         >
-          Participants
+          {t("football.participants")}
         </Button>
       </Stack>
       <Dialog
@@ -105,7 +106,7 @@ function FootballArchiveView() {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Participants - {selectedCompetition?.name}</DialogTitle>
+        <DialogTitle>{t("football.participants")} - {selectedCompetition?.name}</DialogTitle>
         <DialogContent dividers>
           <TeamsView
             teams={teams}
@@ -115,7 +116,7 @@ function FootballArchiveView() {
           ></TeamsView>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setParticipantsOpen(false)}>Close</Button>
+          <Button onClick={() => setParticipantsOpen(false)}>{t("football.cancel")}</Button>
         </DialogActions>
       </Dialog>
       {selectedCompetition ? (
@@ -144,8 +145,7 @@ function FootballArchiveView() {
           align="center"
           style={{ marginTop: "40px", color: "#666" }}
         >
-          Please select a competition from the side menu to view teams and
-          matches.
+          {t("football.select_competition_message", "Please select a competition from the side menu to view teams and matches.")}
         </Typography>
       )}
     </>

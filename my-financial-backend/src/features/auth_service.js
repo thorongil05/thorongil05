@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authDao = require("./auth_dao");
+const UserRoles = require("../constants/roles");
 const logger = require("pino")();
 
 const JWT_SECRET = process.env.JWT_SECRET || "super-secret-key-change-me";
@@ -26,7 +27,7 @@ async function register(username, email, password) {
     username,
     email,
     passwordHash,
-    role: "editor", // Default to editor for now so user can actually do things
+    role: UserRoles.VIEWER, // Default to viewer
   });
 
   return newUser;
@@ -61,7 +62,12 @@ async function login(email, password) {
   };
 }
 
+async function getAllUsers() {
+  return await authDao.findAll();
+}
+
 module.exports = {
   register,
   login,
+  getAllUsers,
 };

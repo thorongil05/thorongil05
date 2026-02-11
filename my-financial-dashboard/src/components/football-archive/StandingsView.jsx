@@ -7,14 +7,29 @@ import {
   TableHead,
   TableRow,
   Typography,
+  IconButton,
+  Collapse,
+  useMediaQuery,
+  useTheme,
+  Box,
+  Button,
 } from "@mui/material";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import { useTranslation } from "react-i18next";
 
 function StandingsView({ selectedCompetition, refreshTrigger }) {
+  const { t } = useTranslation();
   const [standings, setStandings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const showFullDetails = !isMobile || isExpanded;
 
   useEffect(() => {
     if (!selectedCompetition) {
@@ -53,28 +68,43 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
 
   return (
     <TableContainer component={Paper} sx={{ mt: 2 }}>
-      <Typography variant="h6" sx={{ p: 2 }}>
-        Standings
-      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+          {t("football.standings")}
+        </Typography>
+        {isMobile && (
+          <Button 
+            size="small" 
+            onClick={() => setIsExpanded(!isExpanded)}
+            startIcon={isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          >
+            {isExpanded ? t("football.collapse") : t("football.expand")}
+          </Button>
+        )}
+      </Box>
       <Table size="small" aria-label="standings table">
         <TableHead>
           <TableRow>
-            <TableCell>Pos</TableCell>
+            <TableCell sx={{ width: "40px" }}>Pos</TableCell>
             <TableCell>Team</TableCell>
             <TableCell align="center">P</TableCell>
-            <TableCell align="center">W</TableCell>
-            <TableCell align="center">D</TableCell>
-            <TableCell align="center">L</TableCell>
-            <TableCell align="center">GF</TableCell>
-            <TableCell align="center">GA</TableCell>
-            <TableCell align="center">GD</TableCell>
+            {showFullDetails && (
+              <>
+                <TableCell align="center">W</TableCell>
+                <TableCell align="center">D</TableCell>
+                <TableCell align="center">L</TableCell>
+                <TableCell align="center">GF</TableCell>
+                <TableCell align="center">GA</TableCell>
+                <TableCell align="center">GD</TableCell>
+              </>
+            )}
             <TableCell align="center">Pts</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {loading && (
             <TableRow>
-              <TableCell colSpan={10} align="center">
+              <TableCell colSpan={showFullDetails ? 10 : 4} align="center">
                 Loading standings...
               </TableCell>
             </TableRow>
@@ -88,7 +118,7 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
           )}
           {!loading && !error && standings.length === 0 && (
             <TableRow>
-              <TableCell colSpan={10} align="center">
+              <TableCell colSpan={showFullDetails ? 10 : 4} align="center">
                 No standings available
               </TableCell>
             </TableRow>
@@ -100,12 +130,16 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{team.teamName}</TableCell>
                 <TableCell align="center">{team.played}</TableCell>
-                <TableCell align="center">{team.won}</TableCell>
-                <TableCell align="center">{team.drawn}</TableCell>
-                <TableCell align="center">{team.lost}</TableCell>
-                <TableCell align="center">{team.goalsFor}</TableCell>
-                <TableCell align="center">{team.goalsAgainst}</TableCell>
-                <TableCell align="center">{team.goalDifference}</TableCell>
+                {showFullDetails && (
+                  <>
+                    <TableCell align="center">{team.won}</TableCell>
+                    <TableCell align="center">{team.drawn}</TableCell>
+                    <TableCell align="center">{team.lost}</TableCell>
+                    <TableCell align="center">{team.goalsFor}</TableCell>
+                    <TableCell align="center">{team.goalsAgainst}</TableCell>
+                    <TableCell align="center">{team.goalDifference}</TableCell>
+                  </>
+                )}
                 <TableCell align="center">
                   <strong>{team.points}</strong>
                 </TableCell>

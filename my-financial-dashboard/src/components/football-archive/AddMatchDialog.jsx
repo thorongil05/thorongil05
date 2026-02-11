@@ -175,8 +175,6 @@ function AddMatchDialog({
       onClose={onClose}
       fullWidth
       maxWidth="sm"
-      transitionDuration={0}
-      disableRestoreFocus
     >
       <DialogTitle>{matchToEdit ? "Edit Match" : "Add Match"}</DialogTitle>
       <form onSubmit={handleSubmit}>

@@ -3,6 +3,7 @@ import AddIcon from "@mui/icons-material/Add";
 import AddCompetitionDialog from "./AddCompetitionDialog";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { UserRoles } from "../../constants/roles";
 
 function CompetitionSelector({ onCompetitionSelect, selectedCompetitionId }) {
   const { user } = useAuth();
@@ -50,7 +51,7 @@ function CompetitionSelector({ onCompetitionSelect, selectedCompetitionId }) {
     <Stack direction={"column"}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
         <Typography variant="h6" sx={{ pl: 2 }}>Competitions</Typography>
-        {user?.role === "admin" && (
+        {user?.role === UserRoles.ADMIN && (
           <IconButton onClick={handleClickOpen} size="small">
             <AddIcon />
           </IconButton>

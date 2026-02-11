@@ -1,0 +1,48 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "instruments": "Instruments",
+    "bonds": "Bonds",
+    "mortgages": "Mortgages",
+    "real_estates": "Real Estates",
+    "football_archive": "Football Archive",
+    "admin": "Admin",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register"
+  },
+  "football": {
+    "competitions": "Competitions",
+    "all_competitions": "All Competitions",
+    "participants": "Participants",
+    "teams": "Teams",
+    "loading_teams": "Loading teams...",
+    "no_teams": "No teams found in this competition.",
+    "add_participant": "Add Participant",
+    "add_another": "Add another",
+    "name": "Name",
+    "city": "City",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "adding": "Adding...",
+    "matches": "Matches",
+    "standings": "Standings",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "round": "Round",
+    "all_rounds": "All Rounds",
+    "team": "Team",
+    "all_teams": "All Teams",
+    "home_team": "Home Team",
+    "away_team": "Away Team",
+    "score": "Score",
+    "add_match": "Add Match",
+    "confirm_delete_match": "Are you sure you want to delete this match?",
+    "error_deleting_match": "Error deleting match: {{message}}",
+    "select_competition_message": "Please select a competition from the side menu to view teams and matches."
+  },
+  "common": {
+    "actions": "Actions",
+    "reset": "Reset"
+  }
+}
