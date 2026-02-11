@@ -47,7 +47,7 @@ function RealEstateInsertForm({ onInsert }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const options = ["Villa", "Appartamento", "Terratetto"];
+  const options = ["Villa", "Appartamento", "Terratetto", "Attico"];
 
   return (
     <form>

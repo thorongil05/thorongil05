@@ -1,7 +1,12 @@
 const pool = require("./database");
 
-async function retrieve() {
-  const res = await pool.query("SELECT * FROM real_estates_info");
+async function retrieve(page = 0, size = 10) {
+  const offset = page * size;
+  const statement =
+    "SELECT re.* FROM real_estates_info re ORDER BY re.created_at DESC LIMIT $1 OFFSET $2";
+  const values = [size, offset];
+
+  const res = await pool.query(statement, values);
 
   return res?.rows.map((value) => {
     return {
@@ -17,7 +22,7 @@ async function retrieve() {
   });
 }
 
-async function insertRealEstateInfo(realEstateEntry) {
+async function insert(realEstateEntry) {
   const query = `
     INSERT INTO real_estates_info
       (type, address, location, city, size_sqm, price, reference_date)
@@ -41,6 +46,6 @@ async function insertRealEstateInfo(realEstateEntry) {
 }
 
 module.exports = {
-  insertRealEstateInfo: insertRealEstateInfo,
+  insert: insert,
   retrieve: retrieve,
 };

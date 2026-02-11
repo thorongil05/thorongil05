@@ -1,27 +1,28 @@
 // App bootstrap
 const app = require("./app");
 const { swaggerUi, specs } = require("./swagger/swagger");
+const logger = require("pino")();
 
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(specs));
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  logger.info(`Server running on port ${PORT}`);
 });
 
 async function shutdown(signal) {
-  console.log(`Received ${signal}. Closing resources...`);
+  logger.info(`Received ${signal}. Closing resources...`);
 
   server.close(async () => {
-    console.log("HTTP server closed");
+    logger.info("HTTP server closed");
 
     try {
       await pool.end();
-      console.log("DB pool closed");
+      logger.info("DB pool closed");
       process.exit(0);
     } catch (err) {
-      console.error("Error closing DB pool", err);
+      logger.error("Error closing DB pool", err);
       process.exit(1);
     }
   });

@@ -7,11 +7,19 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router";
 import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { Button } from "@mui/material";
 
 const navigation = [
   { id: "item-1", name: "BONDs", href: "/bonds", current: false },
   { id: "item-2", name: "Mortgages", href: "/mortgages", current: false },
   { id: "item-3", name: "Real Estates", href: "/real-estates", current: false },
+  {
+    id: "item-4",
+    name: "Football Archive",
+    href: "/football-archive",
+    current: false,
+  },
 ];
 
 function updateNavigationItems(selectedElement, elements) {
@@ -25,8 +33,11 @@ function updateNavigationItems(selectedElement, elements) {
   return elements;
 }
 
+import Stack from "@mui/material/Stack";
+
 export default function Navbar() {
   const [navigationItems, setNavigationItems] = useState(navigation);
+  const { user, logout } = useAuth();
   let navigate = useNavigate();
   return (
     <Box sx={{ flexGrow: 0, height: "60px" }}>
@@ -41,26 +52,40 @@ export default function Navbar() {
           >
             <MenuIcon />
           </IconButton>
-          {navigationItems.map((element) => {
-            return (
-              <MenuItem
-                key={element.id}
-                selected={element.current}
-                onClick={() => {
-                  navigate(element.href);
-                  let updatedNavigationItems = updateNavigationItems(
-                    element,
-                    navigationItems
-                  );
-                  setNavigationItems(updatedNavigationItems);
-                }}
-              >
-                <Typography sx={{ textAlign: "center" }}>
-                  {element.name}
-                </Typography>
-              </MenuItem>
-            );
-          })}
+          {navigationItems
+            .filter((item) => item.id !== "item-4" || user)
+            .map((element) => {
+              return (
+                <MenuItem
+                  key={element.id}
+                  selected={element.current}
+                  onClick={() => {
+                    navigate(element.href);
+                    let updatedNavigationItems = updateNavigationItems(
+                      element,
+                      navigationItems
+                    );
+                    setNavigationItems(updatedNavigationItems);
+                  }}
+                >
+                  <Typography sx={{ textAlign: "center" }}>
+                    {element.name}
+                  </Typography>
+                </MenuItem>
+              );
+            })}
+          <Box sx={{ flexGrow: 1 }} />
+          {user ? (
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Button color="inherit" onClick={logout}>
+                Logout
+              </Button>
+            </Stack>
+          ) : (
+            <Button color="inherit" onClick={() => navigate("/login")}>
+              Login
+            </Button>
+          )}
         </Toolbar>
       </AppBar>
     </Box>

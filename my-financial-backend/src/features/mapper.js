@@ -20,4 +20,30 @@ module.exports = {
       volume: input.volume,
     };
   },
+  mapToTeam: function (input) {
+    return {
+      name: input.name,
+      city: input.city,
+      competitionId: input.competitionId,
+    };
+  },
+  mapToMatch: function (input) {
+    return {
+      matchDate: input.matchDate,
+      competitionId: input.competitionId,
+      homeTeamId: input.homeTeamId,
+      awayTeamId: input.awayTeamId,
+      homeGoals: input.homeGoals,
+      awayGoals: input.awayGoals,
+      stadium: input.stadium,
+      round: input.round,
+    };
+  },
+  mapToCompetition: function (input) {
+    return {
+      name: input.name,
+      country: input.country,
+      type: input.type,
+    };
+  },
 };

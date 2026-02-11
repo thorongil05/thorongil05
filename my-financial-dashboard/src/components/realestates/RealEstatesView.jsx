@@ -14,8 +14,14 @@ function RealEstatesView() {
   const [isHeaderOpen, setIsHeaderOpen] = useState(false);
 
   const fetchRealEstatesInfo = () => {
-    const apiUrl = `${import.meta.env.VITE_SERVER_URL}/api/real-estates`;
-    console.log("Eseguito solo al caricamento della pagina (mount)");
+    const apiUrl = new URL(
+      `${import.meta.env.VITE_SERVER_URL}/api/real-estates`
+    );
+    let params = {
+      page: 0,
+      size: 100,
+    };
+    apiUrl.search = new URLSearchParams(params).toString();
     fetch(apiUrl)
       .then((response) => {
         return response.json();

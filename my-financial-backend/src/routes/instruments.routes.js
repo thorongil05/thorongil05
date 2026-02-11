@@ -6,7 +6,6 @@ const mapper = require("../features/mapper");
 
 router.get("/", (request, response) => {
   console.log("Received request");
-  response.appendHeader("Access-Control-Allow-Origin", "*");
   instrumentsDao
     .fetchAllFinancialInstrumentsLight()
     .then((result) => {
