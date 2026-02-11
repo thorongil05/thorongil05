@@ -2,14 +2,30 @@
 const app = require("./app");
 const { swaggerUi, specs } = require("./swagger/swagger");
 const logger = require("pino")();
+const runMigrations = require("./features/migrate");
 
-app.use("/swagger", swaggerUi.serve, swaggerUi.setup(specs));
+async function startServer() {
+  try {
+    await runMigrations();
+    
+    app.use("/swagger", swaggerUi.serve, swaggerUi.setup(specs));
+    
+    const PORT = process.env.PORT || 3000;
+    
+    const server = app.listen(PORT, () => {
+      logger.info(`Server running on port ${PORT}`);
+    });
 
-const PORT = process.env.PORT || 3000;
+    // We need to return server so shutdown can access it
+    return server;
+  } catch (err) {
+    logger.error({ err }, "Failed to start server due to migration error");
+    process.exit(1);
+  }
+}
 
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-});
+let server;
+startServer().then(s => server = s);
 
 async function shutdown(signal) {
   logger.info(`Received ${signal}. Closing resources...`);
