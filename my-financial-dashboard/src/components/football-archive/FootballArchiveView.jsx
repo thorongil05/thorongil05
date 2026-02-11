@@ -80,7 +80,7 @@ function FootballArchiveView() {
 
   return (
     <>
-      <Drawer open={open} onClose={toggleDrawer(false)} disablePortal>
+      <Drawer open={open} onClose={toggleDrawer(false)}>
         <CompetitionSelector
           onCompetitionSelect={handleCompetitionSelect}
           selectedCompetitionId={selectedCompetition?.id}
@@ -105,7 +105,6 @@ function FootballArchiveView() {
         onClose={() => setParticipantsOpen(false)}
         maxWidth="sm"
         fullWidth
-        disablePortal
       >
         <DialogTitle>{t("football.participants")} - {selectedCompetition?.name}</DialogTitle>
         <DialogContent dividers>

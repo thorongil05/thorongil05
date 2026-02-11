@@ -175,8 +175,6 @@ function AddMatchDialog({
       onClose={onClose}
       fullWidth
       maxWidth="sm"
-      disablePortal
-      transitionDuration={0}
     >
       <DialogTitle>{matchToEdit ? "Edit Match" : "Add Match"}</DialogTitle>
       <form onSubmit={handleSubmit}>

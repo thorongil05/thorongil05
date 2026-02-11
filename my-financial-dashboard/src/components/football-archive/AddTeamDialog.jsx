@@ -69,7 +69,6 @@ function AddTeamDialog({ onClose, open, onInsert, competitionId }) {
     <Dialog 
       onClose={onClose} 
       open={open}
-      disablePortal
     >
       <DialogTitle>Add Participant to Competition</DialogTitle>
       <form onSubmit={handleSubmit}>

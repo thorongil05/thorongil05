@@ -8,15 +8,13 @@ import {
   CardContent,
   Grid,
   Box,
-  List,
-  ListItem,
-  CircularProgress
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import AddTeamDialog from "./AddTeamDialog";
 import GroupsIcon from "@mui/icons-material/Groups";
 import { UserRoles } from "../../constants/roles";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../../context/AuthContext";
 
 function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
   const { t } = useTranslation();
