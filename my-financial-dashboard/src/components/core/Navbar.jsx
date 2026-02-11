@@ -8,18 +8,21 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { UserRoles } from "../../constants/roles";
 import { Button } from "@mui/material";
 
 const navigation = [
-  // { id: "item-1", name: "BONDs", href: "/bonds", current: false },
-  // { id: "item-2", name: "Mortgages", href: "/mortgages", current: false },
-  // { id: "item-3", name: "Real Estates", href: "/real-estates", current: false },
   {
-    id: "item-4",
+    id: "item-1",
     name: "Football Archive",
     href: "/football-archive",
-    current: true,
   },
+  {
+    id: "item-2",
+    name: "Admin",
+    href: "/admin",
+    role: UserRoles.ADMIN
+  }
 ];
 
 function updateNavigationItems(selectedElement, elements) {
@@ -52,20 +55,18 @@ export default function Navbar() {
           >
             <MenuIcon />
           </IconButton>
-          {navigationItems
-            .filter((item) => item.id !== "item-4" || user)
+          {navigation
+            .filter((item) => {
+              if (item.id === "item-4" && !user) return false;
+              if (item.role && user?.role !== item.role) return false;
+              return true;
+            })
             .map((element) => {
               return (
                 <MenuItem
                   key={element.id}
-                  selected={element.current}
                   onClick={() => {
                     navigate(element.href);
-                    let updatedNavigationItems = updateNavigationItems(
-                      element,
-                      navigationItems
-                    );
-                    setNavigationItems(updatedNavigationItems);
                   }}
                 >
                   <Typography sx={{ textAlign: "center" }}>

@@ -9,6 +9,13 @@ async function findByEmail(email) {
   return rows[0];
 }
 
+async function findAll() {
+  logger.info("Retrieving all users");
+  const query = "SELECT id, username, email, role, created_at FROM users ORDER BY created_at DESC";
+  const { rows } = await pool.query(query);
+  return rows;
+}
+
 async function findByUsername(username) {
   logger.info({ username }, "Finding user by username");
   const query = "SELECT * FROM users WHERE username = $1";
@@ -31,5 +38,6 @@ async function insert(user) {
 module.exports = {
   findByEmail,
   findByUsername,
+  findAll,
   insert,
 };

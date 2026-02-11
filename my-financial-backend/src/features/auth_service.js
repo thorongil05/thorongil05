@@ -62,7 +62,12 @@ async function login(email, password) {
   };
 }
 
+async function getAllUsers() {
+  return await authDao.findAll();
+}
+
 module.exports = {
   register,
   login,
+  getAllUsers,
 };

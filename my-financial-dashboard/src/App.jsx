@@ -10,10 +10,20 @@ import LoginView from "./components/auth/LoginView";
 import RegisterView from "./components/auth/RegisterView";
 import { useAuth } from "./context/AuthContext";
 
+import AdminDashboardView from "./components/admin/AdminDashboardView";
+import { UserRoles } from "./constants/roles";
+
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
+  return children;
+};
+
+const AdminRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user || user.role !== UserRoles.ADMIN) return <Navigate to="/" replace />;
   return children;
 };
 
@@ -39,6 +49,14 @@ function App() {
             <ProtectedRoute>
               <FootballArchiveView></FootballArchiveView>
             </ProtectedRoute>
+          }
+        ></Route>
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboardView />
+            </AdminRoute>
           }
         ></Route>
       </Route>
