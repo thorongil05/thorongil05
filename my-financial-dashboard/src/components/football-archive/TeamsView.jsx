@@ -13,6 +13,7 @@ import AddTeamDialog from "./AddTeamDialog";
 import AddIcon from "@mui/icons-material/Add";
 import GroupsIcon from "@mui/icons-material/Groups";
 import { useAuth } from "../../context/AuthContext";
+import { UserRoles } from "../../constants/roles";
 
 function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
   const { user } = useAuth();
@@ -44,7 +45,7 @@ function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
         <Typography variant="h5" component="div" sx={{ fontWeight: "bold" }}>
           Teams
         </Typography>
-        {user?.role === "admin" && (
+        {user?.role === UserRoles.ADMIN && (
           <>
             <IconButton
               onClick={handleClickOpen}

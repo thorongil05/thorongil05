@@ -23,6 +23,7 @@ import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import AddMatchDialog from "./AddMatchDialog";
 import { useAuth } from "../../context/AuthContext";
+import { UserRoles } from "../../constants/roles";
 
 function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, refreshTrigger }) {
   const { user } = useAuth();
@@ -213,7 +214,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
           >
             Reset
           </Button>
-          {(user?.role === "admin" || user?.role === "editor") && (
+          {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (
             <Button
               variant="contained"
               startIcon={<AddIcon />}
@@ -244,7 +245,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
               <TableCell>Home Team</TableCell>
               <TableCell>Away Team</TableCell>
               <TableCell colSpan={2} align="center">Score</TableCell>
-              {(user?.role === "admin" || user?.role === "editor") && <TableCell align="right">Actions</TableCell>}
+              {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && <TableCell align="right">Actions</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -292,7 +293,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
                     {match.awayTeam?.name || "Unknown"}
                   </TableCell>
                   <TableCell colSpan={2} align="center">{match.homeScore} - {match.awayScore}</TableCell>
-                  {(user?.role === "admin" || user?.role === "editor") && (
+                  {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (
                     <TableCell align="right">
                       <IconButton
                         size="small"
