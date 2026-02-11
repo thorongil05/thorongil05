@@ -1,0 +1,48 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "instruments": "Strumenti",
+    "bonds": "Obbligazioni",
+    "mortgages": "Mutui",
+    "real_estates": "Immobili",
+    "football_archive": "Archivio Calcio",
+    "admin": "Admin",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Registrati"
+  },
+  "football": {
+    "competitions": "Competizioni",
+    "all_competitions": "Tutte le competizioni",
+    "participants": "Partecipanti",
+    "teams": "Squadre",
+    "loading_teams": "Caricamento squadre...",
+    "no_teams": "Nessuna squadra trovata in questa competizione.",
+    "add_participant": "Aggiungi Partecipante",
+    "add_another": "Aggiungine un altro",
+    "name": "Nome",
+    "city": "Città",
+    "cancel": "Annulla",
+    "submit": "Invia",
+    "adding": "Aggiunta in corso...",
+    "matches": "Partite",
+    "standings": "Classifica",
+    "expand": "Espandi",
+    "collapse": "Comprimi",
+    "round": "Giornata",
+    "all_rounds": "Tutte le giornate",
+    "team": "Squadra",
+    "all_teams": "Tutte le squadre",
+    "home_team": "Squadra di casa",
+    "away_team": "Squadra ospite",
+    "score": "Risultato",
+    "add_match": "Aggiungi Partita",
+    "confirm_delete_match": "Sei sicuro di voler eliminare questa partita?",
+    "error_deleting_match": "Errore durante l'eliminazione della partita: {{message}}",
+    "select_competition_message": "Seleziona una competizione dal menu laterale per visualizzare squadre e partite."
+  },
+  "common": {
+    "actions": "Azioni",
+    "reset": "Resetta"
+  }
+}

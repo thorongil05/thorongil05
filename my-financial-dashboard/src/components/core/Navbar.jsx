@@ -7,19 +7,23 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router";
 import { useState } from "react";
+import { Button, Stack } from "@mui/material";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 import { useAuth } from "../../context/AuthContext";
 import { UserRoles } from "../../constants/roles";
-import { Button } from "@mui/material";
 
 const navigation = [
   {
     id: "item-1",
     name: "Football Archive",
+    i18nKey: "nav.football_archive",
     href: "/football-archive",
   },
   {
     id: "item-2",
     name: "Admin",
+    i18nKey: "nav.admin",
     href: "/admin",
     role: UserRoles.ADMIN
   }
@@ -36,9 +40,8 @@ function updateNavigationItems(selectedElement, elements) {
   return elements;
 }
 
-import Stack from "@mui/material/Stack";
-
 export default function Navbar() {
+  const { t } = useTranslation();
   const [navigationItems, setNavigationItems] = useState(navigation);
   const { user, logout } = useAuth();
   let navigate = useNavigate();
@@ -70,7 +73,7 @@ export default function Navbar() {
                   }}
                 >
                   <Typography sx={{ textAlign: "center" }}>
-                    {element.name}
+                    {t(element.i18nKey)}
                   </Typography>
                 </MenuItem>
               );
@@ -78,14 +81,18 @@ export default function Navbar() {
           <Box sx={{ flexGrow: 1 }} />
           {user ? (
             <Stack direction="row" spacing={2} alignItems="center">
+              <LanguageSwitcher />
               <Button color="inherit" onClick={logout}>
-                Logout
+                {t("nav.logout")}
               </Button>
             </Stack>
           ) : (
-            <Button color="inherit" onClick={() => navigate("/login")}>
-              Login
-            </Button>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <LanguageSwitcher />
+              <Button color="inherit" onClick={() => navigate("/login")}>
+                {t("nav.login")}
+              </Button>
+            </Stack>
           )}
         </Toolbar>
       </AppBar>

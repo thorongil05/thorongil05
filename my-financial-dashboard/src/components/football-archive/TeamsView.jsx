@@ -15,10 +15,11 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import AddTeamDialog from "./AddTeamDialog";
 import GroupsIcon from "@mui/icons-material/Groups";
-import { useAuth } from "../../context/AuthContext";
 import { UserRoles } from "../../constants/roles";
+import { useTranslation } from "react-i18next";
 
 function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
 
@@ -46,7 +47,7 @@ function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
         sx={{ borderBottom: "1px solid rgba(0,0,0,0.12)", pb: 1 }}
       >
         <Typography variant="h5" component="div" sx={{ fontWeight: "bold" }}>
-          Teams
+          {t("football.teams")}
         </Typography>
         {user?.role === UserRoles.ADMIN && (
           <IconButton
@@ -70,7 +71,7 @@ function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
       />
 
       {loading ? (
-        <Typography>Loading teams...</Typography>
+        <Typography>{t("football.loading_teams")}</Typography>
       ) : (
         <Box sx={{ maxHeight: "calc(100vh - 300px)", overflowY: "auto" }}>
           <Grid container spacing={1}>
@@ -110,7 +111,7 @@ function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
             {teams.length === 0 && (
               <Grid size={12}>
                 <Typography variant="body1" color="text.secondary">
-                  No teams found in this competition.
+                  {t("football.no_teams")}
                 </Typography>
               </Grid>
             )}

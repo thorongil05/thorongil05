@@ -18,8 +18,10 @@ import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import { useTranslation } from "react-i18next";
 
 function StandingsView({ selectedCompetition, refreshTrigger }) {
+  const { t } = useTranslation();
   const [standings, setStandings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -67,8 +69,8 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
   return (
     <TableContainer component={Paper} sx={{ mt: 2 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 1 }}>
-        <Typography variant="h6" sx={{ pl: 1 }}>
-          Standings
+        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+          {t("football.standings")}
         </Typography>
         {isMobile && (
           <Button 
@@ -76,7 +78,7 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
             onClick={() => setIsExpanded(!isExpanded)}
             startIcon={isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           >
-            {isExpanded ? "Collapse" : "Expand"}
+            {isExpanded ? t("football.collapse") : t("football.expand")}
           </Button>
         )}
       </Box>
