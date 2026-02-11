@@ -15,6 +15,9 @@ import {
   Select,
   MenuItem,
   TableSortLabel,
+  useTheme,
+  useMediaQuery,
+  Box,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -37,6 +40,9 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
   const [selectedTeamId, setSelectedTeamId] = useState("All");
   const [sortBy, setSortBy] = useState("match_date");
   const [sortOrder, setSortOrder] = useState("desc");
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const fetchRounds = useCallback(() => {
     if (!selectedCompetition) {
@@ -159,14 +165,15 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
   return (
     <Stack>
       <Stack
-        direction="row"
+        direction={isMobile ? "column" : "row"}
         justifyContent="space-between"
-        alignItems="center"
+        alignItems={isMobile ? "flex-start" : "center"}
+        spacing={2}
         sx={{ mb: 2 }}
       >
         <Typography variant="h4">Matches</Typography>
-        <Stack direction="row" spacing={2}>
-          <FormControl size="small" sx={{ minWidth: 120 }}>
+        <Stack direction={isMobile ? "column" : "row"} spacing={1} sx={{ width: isMobile ? "100%" : "auto" }}>
+          <FormControl size="small" sx={{ minWidth: isMobile ? "100%" : 120 }}>
             <InputLabel id="round-select-label">Round</InputLabel>
             <Select
               labelId="round-select-label"
@@ -184,7 +191,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
               ))}
             </Select>
           </FormControl>
-          <FormControl size="small" sx={{ minWidth: 150 }}>
+          <FormControl size="small" sx={{ minWidth: isMobile ? "100%" : 150 }}>
             <InputLabel 
               id="team-select-label"
               sx={{ color: selectedTeamId !== "All" ? "secondary.main" : "inherit" }}
@@ -211,6 +218,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
             size="small" 
             onClick={handleResetFilters}
             disabled={selectedRound === "All" && selectedTeamId === "All" && sortBy === "match_date"}
+            fullWidth={isMobile}
           >
             Reset
           </Button>
@@ -223,6 +231,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
                 setMatchDialogOpen(true);
               }}
               disabled={!selectedCompetition}
+              fullWidth={isMobile}
             >
               Add Match
             </Button>
@@ -230,7 +239,7 @@ function MatchesView({ selectedCompetition, teams, teamsLoading, onMatchAdded, r
         </Stack>
       </Stack>
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
+        <Table size="small" aria-label="simple table">
           <TableHead>
             <TableRow>
               <TableCell sortDirection={sortBy === "round" ? sortOrder : false}>
