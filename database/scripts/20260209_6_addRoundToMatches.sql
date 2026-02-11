@@ -1,2 +1,0 @@
-ALTER TABLE matches
-ADD COLUMN round VARCHAR(50) NOT NULL DEFAULT 'Regular Season';
