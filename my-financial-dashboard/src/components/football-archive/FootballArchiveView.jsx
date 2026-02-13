@@ -16,11 +16,9 @@ import StandingsView from "./StandingsView";
 import { useState, useEffect, useCallback } from "react";
 import PeopleIcon from "@mui/icons-material/People";
 import { useTranslation } from "react-i18next";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
 function FootballArchiveView() {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
   const [teams, setTeams] = useState([]);
   const [teamsLoading, setTeamsLoading] = useState(true);
   const [selectedCompetition, setSelectedCompetition] = useState(null);
@@ -59,8 +57,6 @@ function FootballArchiveView() {
 
   const handleCompetitionSelect = (competition) => {
     setSelectedCompetition(competition);
-    // Close the drawer after selection
-    setOpen(false);
   };
 
   useEffect(() => {
@@ -73,24 +69,12 @@ function FootballArchiveView() {
     }
   }, [selectedCompetition, fetchTeams]);
 
-  const toggleDrawer = (newOpen) => () => {
-    setOpen(newOpen);
-  };
-
   return (
     <>
-      <Drawer open={open} onClose={toggleDrawer(false)}>
-        <CompetitionSelector
-          onCompetitionSelect={handleCompetitionSelect}
-          selectedCompetitionId={selectedCompetition?.id}
-        ></CompetitionSelector>
-      </Drawer>
-      <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-        <Button onClick={toggleDrawer(true)} variant="outlined">
-          <KeyboardArrowRightIcon></KeyboardArrowRightIcon>
-          {selectedCompetition ? selectedCompetition.name : t("football.all_competitions")}
-        </Button>
-      </Stack>
+      <CompetitionSelector
+        onCompetitionSelect={handleCompetitionSelect}
+        selectedCompetitionId={selectedCompetition?.id}
+      />
 
       {selectedCompetition ? (
         <Stack spacing={2}>
