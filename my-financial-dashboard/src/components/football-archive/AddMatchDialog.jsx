@@ -71,6 +71,7 @@ function AddMatchDialog({
   open,
   onClose,
   matchToEdit,
+  defaultRound,
 }) {
   const { token } = useAuth();
   const theme = useTheme();
@@ -106,13 +107,13 @@ function AddMatchDialog({
           awayTeam: null,
           homeTeamScore: null,
           awayTeamScore: null,
-          round: "",
+          round: defaultRound || "",
         });
         setAddAnother(false);
       }
       setSubmitError(null);
     }
-  }, [open, matchToEdit]);
+  }, [open, matchToEdit, defaultRound]);
 
   // Update options when team selections change
   useEffect(() => {
@@ -191,7 +192,7 @@ function AddMatchDialog({
 
       // Notify parent component that a match was added/updated
       if (onMatchAdded) {
-        onMatchAdded();
+        onMatchAdded(match.round);
       }
 
       if (!addAnother || matchToEdit) {
@@ -506,6 +507,7 @@ AddMatchDialog.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   matchToEdit: PropTypes.object,
+  defaultRound: PropTypes.string,
 };
 
 export default AddMatchDialog;

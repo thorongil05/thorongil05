@@ -49,6 +49,13 @@ function MatchesView({
   const [selectedTeamId, setSelectedTeamId] = useState("All");
   const [sortBy, setSortBy] = useState("match_date");
   const [sortOrder, setSortOrder] = useState("desc");
+  const [lastUsedRound, setLastUsedRound] = useState("");
+
+  useEffect(() => {
+    if (selectedRound && selectedRound !== "All") {
+      setLastUsedRound(selectedRound);
+    }
+  }, [selectedRound]);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -357,7 +364,10 @@ function MatchesView({
           setMatchDialogOpen(false);
           setMatchToEdit(null);
         }}
-        onMatchAdded={() => {
+        onMatchAdded={(round) => {
+          if (round) {
+            setLastUsedRound(round);
+          }
           fetchMatches();
           fetchRounds();
           if (onMatchAdded) {
@@ -368,6 +378,7 @@ function MatchesView({
         teamsLoading={teamsLoading}
         selectedCompetition={selectedCompetition}
         matchToEdit={matchToEdit}
+        defaultRound={lastUsedRound}
       ></AddMatchDialog>
     </Stack>
   );
