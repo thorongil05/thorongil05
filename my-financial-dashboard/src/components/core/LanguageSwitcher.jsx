@@ -18,7 +18,7 @@ function LanguageSwitcher() {
       <Button 
         onClick={() => changeLanguage('it')}
         sx={{ 
-          color: i18n.language === 'it' ? 'secondary.main' : 'white',
+          color: i18n.language === 'it' ? '#90caf9' : 'white',
           fontWeight: i18n.language === 'it' ? 'bold' : 'normal'
         }}
       >
@@ -27,7 +27,7 @@ function LanguageSwitcher() {
       <Button 
         onClick={() => changeLanguage('en')}
         sx={{ 
-          color: i18n.language === 'en' ? 'secondary.main' : 'white',
+          color: i18n.language === 'en' ? '#90caf9' : 'white',
           fontWeight: i18n.language === 'en' ? 'bold' : 'normal'
         }}
       >

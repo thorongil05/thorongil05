@@ -1,44 +1,30 @@
-import { Stack, List, ListItem, Typography, IconButton } from "@mui/material";
+import { Stack, Chip, Typography, IconButton, Box } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import AddCompetitionDialog from "./AddCompetitionDialog";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { UserRoles } from "../../constants/roles";
+import { useTranslation } from "react-i18next";
 
 function CompetitionSelector({ onCompetitionSelect, selectedCompetitionId }) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [competitions, setCompetitions] = useState([]);
-
-  const fetchCompetitions = () => {
-    const apiUrl = new URL(
-      `${import.meta.env.VITE_SERVER_URL}/api/competitions`,
-    );
-    fetch(apiUrl)
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        setCompetitions(
-          data.map((element) => {
-            return {
-              id: element.id,
-              name: element.name,
-            };
-          }),
-        );
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
   const [open, setOpen] = useState(false);
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
+  const fetchCompetitions = () => {
+    const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/competitions`);
+    fetch(apiUrl)
+      .then((response) => response.json())
+      .then((data) => {
+        setCompetitions(
+          data.map((element) => ({
+            id: element.id,
+            name: element.name,
+          }))
+        );
+      })
+      .catch((error) => console.error("Error fetching competitions:", error));
   };
 
   const handleInsertCompleted = () => {
@@ -47,57 +33,61 @@ function CompetitionSelector({ onCompetitionSelect, selectedCompetitionId }) {
   };
 
   useEffect(fetchCompetitions, []);
+
   return (
-    <Stack direction={"column"}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
-        <Typography variant="h6" sx={{ pl: 2 }}>Competitions</Typography>
+    <Box sx={{ width: "100%", mb: 3 }}>
+      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.secondary", textTransform: "uppercase", letterSpacing: 1 }}>
+          {t("football.competitions", "Competitions")}
+        </Typography>
         {user?.role === UserRoles.ADMIN && (
-          <IconButton onClick={handleClickOpen} size="small">
-            <AddIcon />
+          <IconButton onClick={() => setOpen(true)} size="small" sx={{ p: 0.5 }}>
+            <AddIcon fontSize="small" />
           </IconButton>
         )}
       </Stack>
+
       <AddCompetitionDialog
         open={open}
-        onClose={handleClose}
+        onClose={() => setOpen(false)}
         onInsert={handleInsertCompleted}
       />
-      <ListItem
-        onClick={() => onCompetitionSelect && onCompetitionSelect(null)}
+
+      <Box
         sx={{
-          cursor: "pointer",
-          backgroundColor:
-            selectedCompetitionId === null
-              ? "rgba(25, 118, 210, 0.08)"
-              : "transparent",
-          "&:hover": {
-            backgroundColor: "rgba(0, 0, 0, 0.04)",
+          display: "flex",
+          flexDirection: "row",
+          gap: 1,
+          overflowX: "auto",
+          pb: 1,
+          "&::-webkit-scrollbar": {
+            height: "4px",
           },
-          marginBottom: "8px",
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "rgba(0,0,0,0.1)",
+            borderRadius: "4px",
+          },
         }}
       >
-        All Competitions
-      </ListItem>
-      {competitions.map((element) => (
-        <List key={element.id}>
-          <ListItem
-            onClick={() => onCompetitionSelect && onCompetitionSelect(element)}
-            sx={{
-              cursor: "pointer",
-              backgroundColor:
-                selectedCompetitionId === element.id
-                  ? "rgba(25, 118, 210, 0.08)"
-                  : "transparent",
-              "&:hover": {
-                backgroundColor: "rgba(0, 0, 0, 0.04)",
-              },
-            }}
-          >
-            {element.name}
-          </ListItem>
-        </List>
-      ))}
-    </Stack>
+        <Chip
+          label={t("football.all_competitions", "All Competitions")}
+          onClick={() => onCompetitionSelect && onCompetitionSelect(null)}
+          color={selectedCompetitionId === null ? "primary" : "default"}
+          variant={selectedCompetitionId === null ? "filled" : "outlined"}
+          sx={{ fontWeight: selectedCompetitionId === null ? "bold" : "normal" }}
+        />
+        {competitions.map((comp) => (
+          <Chip
+            key={comp.id}
+            label={comp.name}
+            onClick={() => onCompetitionSelect && onCompetitionSelect(comp)}
+            color={selectedCompetitionId === comp.id ? "primary" : "default"}
+            variant={selectedCompetitionId === comp.id ? "filled" : "outlined"}
+            sx={{ fontWeight: selectedCompetitionId === comp.id ? "bold" : "normal" }}
+          />
+        ))}
+      </Box>
+    </Box>
   );
 }
 

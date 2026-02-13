@@ -5,27 +5,26 @@ import {
   Typography,
   Drawer,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Chip,
 } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import TeamsView from "./TeamsView";
 import MatchesView from "./MatchesView";
 import StandingsView from "./StandingsView";
 import { useState, useEffect, useCallback } from "react";
 import PeopleIcon from "@mui/icons-material/People";
 import { useTranslation } from "react-i18next";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
 function FootballArchiveView() {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
   const [teams, setTeams] = useState([]);
   const [teamsLoading, setTeamsLoading] = useState(true);
+  const [participantCount, setParticipantCount] = useState(0);
   const [selectedCompetition, setSelectedCompetition] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [participantsOpen, setParticipantsOpen] = useState(false);
 
   const fetchTeams = useCallback((competition) => {
     let apiUrl;
@@ -42,7 +41,11 @@ function FootballArchiveView() {
         return response.json();
       })
       .then((data) => {
-        let retrievedTeams = data.map((element) => {
+        // Handle new response format: { data: [...], metadata: { count: ... } }
+        const teamsData = data.data || [];
+        const count = data.metadata?.count || 0;
+
+        let retrievedTeams = teamsData.map((element) => {
           return {
             id: element.id,
             name: element.name,
@@ -50,6 +53,7 @@ function FootballArchiveView() {
           };
         });
         setTeams(retrievedTeams);
+        setParticipantCount(count);
         setTeamsLoading(false);
       })
       .catch((error) => {
@@ -60,8 +64,6 @@ function FootballArchiveView() {
 
   const handleCompetitionSelect = (competition) => {
     setSelectedCompetition(competition);
-    // Close the drawer after selection
-    setOpen(false);
   };
 
   useEffect(() => {
@@ -74,53 +76,46 @@ function FootballArchiveView() {
     }
   }, [selectedCompetition, fetchTeams]);
 
-  const toggleDrawer = (newOpen) => () => {
-    setOpen(newOpen);
-  };
-
   return (
     <>
-      <Drawer open={open} onClose={toggleDrawer(false)}>
-        <CompetitionSelector
-          onCompetitionSelect={handleCompetitionSelect}
-          selectedCompetitionId={selectedCompetition?.id}
-        ></CompetitionSelector>
-      </Drawer>
-      <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-        <Button onClick={toggleDrawer(true)} variant="outlined">
-          <KeyboardArrowRightIcon></KeyboardArrowRightIcon>
-          {selectedCompetition ? selectedCompetition.name : t("football.all_competitions")}
-        </Button>
-        <Button
-          onClick={() => setParticipantsOpen(true)}
-          variant="outlined"
-          startIcon={<PeopleIcon />}
-          disabled={!selectedCompetition}
-        >
-          {t("football.participants")}
-        </Button>
-      </Stack>
-      <Dialog
-        open={participantsOpen}
-        onClose={() => setParticipantsOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>{t("football.participants")} - {selectedCompetition?.name}</DialogTitle>
-        <DialogContent dividers>
-          <TeamsView
-            teams={teams}
-            loading={teamsLoading}
-            onTeamAdded={() => fetchTeams(selectedCompetition)}
-            competitionId={selectedCompetition?.id}
-          ></TeamsView>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setParticipantsOpen(false)}>{t("football.cancel")}</Button>
-        </DialogActions>
-      </Dialog>
+      <CompetitionSelector
+        onCompetitionSelect={handleCompetitionSelect}
+        selectedCompetitionId={selectedCompetition?.id}
+      />
+
       {selectedCompetition ? (
         <Stack spacing={2}>
+          <Accordion disableGutters elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 1 }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ width: "100%" }}>
+                <PeopleIcon color="action" />
+                <Typography variant="subtitle1" sx={{ fontWeight: "bold", flexGrow: 1 }}>
+                  {t("football.participants")}
+                </Typography>
+                {!teamsLoading && (
+                  <Chip 
+                    label={participantCount} 
+                    size="small" 
+                    color="primary" 
+                    variant="outlined"
+                    sx={{ fontWeight: "bold", height: 20 }}
+                  />
+                )}
+              </Stack>
+            </AccordionSummary>
+            <AccordionDetails sx={{ pt: 0 }}>
+              <TeamsView
+                teams={teams}
+                loading={teamsLoading}
+                onTeamAdded={() => {
+                  fetchTeams(selectedCompetition);
+                  setRefreshTrigger((prev) => prev + 1);
+                }}
+                competitionId={selectedCompetition?.id}
+              ></TeamsView>
+            </AccordionDetails>
+          </Accordion>
+
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 6 }}>
               <StandingsView

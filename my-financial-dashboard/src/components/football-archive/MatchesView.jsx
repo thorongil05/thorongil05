@@ -73,7 +73,7 @@ function MatchesView({
         }
       })
       .catch((err) => console.error("Error fetching rounds:", err));
-  }, [selectedCompetition]);
+  }, [selectedCompetition, refreshTrigger]);
 
   const fetchMatches = useCallback(() => {
     setError(null);
@@ -118,7 +118,7 @@ function MatchesView({
         setError(error.message);
         setLoading(false);
       });
-  }, [selectedCompetition, selectedRound, selectedTeamId, sortBy, sortOrder]);
+  }, [selectedCompetition, selectedRound, selectedTeamId, sortBy, sortOrder, refreshTrigger]);
 
   const handleResetFilters = () => {
     setSelectedRound("All");
@@ -172,12 +172,13 @@ function MatchesView({
 
   return (
     <Stack>
+    <TableContainer component={Paper}>
       <Stack
         direction={isMobile ? "column" : "row"}
         justifyContent="space-between"
         alignItems={isMobile ? "flex-start" : "center"}
         spacing={2}
-        sx={{ mb: 2 }}
+        sx={{ p: 1 }}
       >
         <Typography variant="h5" sx={{ fontWeight: "bold" }}>
           {t("football.matches")}
@@ -248,11 +249,13 @@ function MatchesView({
           )}
         </Stack>
       </Stack>
-      <TableContainer component={Paper}>
         <Table size="small" aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell sortDirection={sortBy === "round" ? sortOrder : false}>
+              <TableCell 
+                sortDirection={sortBy === "round" ? sortOrder : false}
+                sx={{ width: "80px" }}
+              >
                 <TableSortLabel
                   active={sortBy === "round"}
                   direction={sortBy === "round" ? sortOrder : "asc"}
@@ -294,7 +297,7 @@ function MatchesView({
               matches.length > 0 &&
               matches.map((match) => (
                 <TableRow key={match.id}>
-                  <TableCell>{match.round || "-"}</TableCell>
+                  <TableCell sx={{ width: "80px" }}>{match.round || "-"}</TableCell>
                   <TableCell
                     sx={{
                       fontWeight: match.homeTeam?.id === Number(selectedTeamId) ? "bold" : "normal",

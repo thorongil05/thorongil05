@@ -10,16 +10,21 @@ import {
   Box,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import AddTeamDialog from "./AddTeamDialog";
 import GroupsIcon from "@mui/icons-material/Groups";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditTeamDialog from "./EditTeamDialog";
 import { UserRoles } from "../../constants/roles";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
+import AddTeamDialog from "./AddTeamDialog";
 
 function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [open, setOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState(null);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -33,6 +38,38 @@ function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
     // Refresh the list
     if (onTeamAdded) {
       onTeamAdded();
+    }
+  };
+
+  const handleEditOpen = (team) => {
+    setSelectedTeam(team);
+    setEditOpen(true);
+  };
+
+  const handleDeleteTeam = async (teamId) => {
+    if (!window.confirm(t("football.confirm_delete_team", "Are you sure you want to delete this team? All associated matches will be deleted."))) {
+      return;
+    }
+
+    try {
+      const apiUrl = `${import.meta.env.VITE_SERVER_URL}/api/teams/${teamId}`;
+      const response = await fetch(apiUrl, {
+        method: "DELETE",
+        headers: {
+          ...(token && { "Authorization": `Bearer ${token}` }),
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete team");
+      }
+
+      if (onTeamAdded) {
+        onTeamAdded();
+      }
+    } catch (err) {
+      console.error("Error deleting team:", err);
+      alert(t("football.error_deleting_team", { defaultValue: "Error deleting team: {{message}}", message: err.message }));
     }
   };
 
@@ -68,6 +105,13 @@ function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
         competitionId={competitionId}
       />
 
+      <EditTeamDialog
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        onUpdate={handleInsertCompleted}
+        team={selectedTeam}
+      />
+
       {loading ? (
         <Typography>{t("football.loading_teams")}</Typography>
       ) : (
@@ -97,9 +141,21 @@ function TeamsView({ teams, loading, onTeamAdded, competitionId }) {
                         <Typography variant="subtitle1" component="div">
                           {element.name}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {element.city}
-                        </Typography>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <Typography variant="body2" color="text.secondary">
+                            {element.city}
+                          </Typography>
+                          {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (
+                            <Stack direction="row">
+                              <IconButton size="small" onClick={() => handleEditOpen(element)} color="primary">
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                              <IconButton size="small" onClick={() => handleDeleteTeam(element.id)} color="error">
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Stack>
+                          )}
+                        </Stack>
                       </Stack>
                     </Stack>
                   </CardContent>

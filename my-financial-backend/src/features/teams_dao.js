@@ -49,7 +49,29 @@ async function retrieveAll() {
   return rows;
 }
 
+async function update(id, team) {
+  const query = `
+    UPDATE teams
+    SET name = $1, city = $2
+    WHERE id = $3
+    RETURNING *;
+  `;
+  const values = [team.name, team.city, id];
+  const { rows } = await pool.query(query, values);
+  logger.info({ team: rows[0] }, "Team updated");
+  return rows[0];
+}
+
+async function deleteTeam(id) {
+  const query = "DELETE FROM teams WHERE id = $1 RETURNING *;";
+  const { rows } = await pool.query(query, [id]);
+  logger.info({ id }, "Team deleted");
+  return rows[0];
+}
+
 module.exports = {
   insert: insert,
   retrieveAll: retrieveAll,
+  update: update,
+  deleteTeam: deleteTeam,
 };

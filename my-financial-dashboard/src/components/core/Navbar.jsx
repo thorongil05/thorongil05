@@ -7,7 +7,18 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router";
 import { useState } from "react";
-import { Button, Stack } from "@mui/material";
+import { 
+  Button, 
+  Stack, 
+  Collapse, 
+  List, 
+  ListItem, 
+  ListItemText, 
+  ListItemButton,
+  useTheme,
+  useMediaQuery,
+  Divider
+} from "@mui/material";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useAuth } from "../../context/AuthContext";
@@ -42,59 +53,131 @@ function updateNavigationItems(selectedElement, elements) {
 
 export default function Navbar() {
   const { t } = useTranslation();
-  const [navigationItems, setNavigationItems] = useState(navigation);
   const { user, logout } = useAuth();
-  let navigate = useNavigate();
+  const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const navItems = navigation.filter((item) => {
+    if (item.role && user?.role !== item.role) return false;
+    return true;
+  });
+
+  const handleNavClick = (href) => {
+    navigate(href);
+    if (mobileOpen) setMobileOpen(false);
+  };
+
+  const menuContent = (
+    <Box sx={{ pb: 2 }}>
+      <Divider sx={{ mb: 1, borderColor: "rgba(255,255,255,0.12)" }} />
+      <List>
+        {navItems.map((item) => (
+          <ListItem key={item.id} disablePadding>
+            <ListItemButton onClick={() => handleNavClick(item.href)}>
+              <ListItemText 
+                primary={t(item.i18nKey)} 
+                primaryTypographyProps={{ sx: { fontWeight: "medium" } }}
+              />
+            </ListItemButton>
+          </ListItem>
+        ))}
+        <Divider sx={{ my: 1, borderColor: "rgba(255,255,255,0.12)" }} />
+        <ListItem>
+          <Stack direction="column" spacing={2} sx={{ width: "100%" }}>
+            <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+               <LanguageSwitcher />
+            </Box>
+            {user ? (
+              <Button variant="outlined" color="inherit" onClick={logout} fullWidth>
+                {t("nav.logout")}
+              </Button>
+            ) : (
+              <Button variant="outlined" color="inherit" onClick={() => handleNavClick("/login")} fullWidth>
+                {t("nav.login")}
+              </Button>
+            )}
+          </Stack>
+        </ListItem>
+      </List>
+    </Box>
+  );
+
   return (
-    <Box sx={{ flexGrow: 0, height: "60px" }}>
+    <Box sx={{ flexGrow: 0 }}>
       <AppBar position="static">
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
+          {isMobile && (
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              sx={{ mr: 2 }}
+              onClick={handleDrawerToggle}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
+          
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{ 
+              cursor: "pointer", 
+              mr: 4,
+              fontWeight: "bold"
+            }}
+            onClick={() => navigate("/")}
           >
-            <MenuIcon />
-          </IconButton>
-          {navigation
-            .filter((item) => {
-              if (item.id === "item-4" && !user) return false;
-              if (item.role && user?.role !== item.role) return false;
-              return true;
-            })
-            .map((element) => {
-              return (
+            Thorongil
+          </Typography>
+
+          {!isMobile && (
+            <Stack direction="row" spacing={1}>
+              {navItems.map((element) => (
                 <MenuItem
                   key={element.id}
-                  onClick={() => {
-                    navigate(element.href);
-                  }}
+                  onClick={() => handleNavClick(element.href)}
+                  sx={{ borderRadius: 1 }}
                 >
                   <Typography sx={{ textAlign: "center" }}>
                     {t(element.i18nKey)}
                   </Typography>
                 </MenuItem>
-              );
-            })}
-          <Box sx={{ flexGrow: 1 }} />
-          {user ? (
-            <Stack direction="row" spacing={2} alignItems="center">
-              <LanguageSwitcher />
-              <Button color="inherit" onClick={logout}>
-                {t("nav.logout")}
-              </Button>
+              ))}
             </Stack>
-          ) : (
+          )}
+
+          <Box sx={{ flexGrow: 1 }} />
+          
+          {!isMobile && (
             <Stack direction="row" spacing={2} alignItems="center">
               <LanguageSwitcher />
-              <Button color="inherit" onClick={() => navigate("/login")}>
-                {t("nav.login")}
-              </Button>
+              {user ? (
+                <Button color="inherit" onClick={logout}>
+                  {t("nav.logout")}
+                </Button>
+              ) : (
+                <Button color="inherit" onClick={() => navigate("/login")}>
+                  {t("nav.login")}
+                </Button>
+              )}
             </Stack>
           )}
         </Toolbar>
+        
+        {isMobile && (
+          <Collapse in={mobileOpen} timeout="auto" unmountOnExit>
+            {menuContent}
+          </Collapse>
+        )}
       </AppBar>
     </Box>
   );

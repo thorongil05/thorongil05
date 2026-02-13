@@ -39,10 +39,31 @@
     "add_match": "Aggiungi Partita",
     "confirm_delete_match": "Sei sicuro di voler eliminare questa partita?",
     "error_deleting_match": "Errore durante l'eliminazione della partita: {{message}}",
-    "select_competition_message": "Seleziona una competizione dal menu laterale per visualizzare squadre e partite."
+    "select_competition_message": "Seleziona una competizione dal menu laterale per visualizzare squadre e partite.",
+    "edit_team": "Modifica Squadra",
+    "confirm_delete_team": "Sei sicuro di voler eliminare questa squadra? Tutte le partite associate saranno eliminate.",
+    "error_deleting_team": "Errore durante l'eliminazione della squadra: {{message}}",
+    "error_updating_team": "Errore durante l'aggiornamento della squadra: {{message}}",
+    "saving": "Salvataggio..."
+  },
+  "admin": {
+    "dashboard": "Dashboard Amministratore",
+    "user_management": "Gestione Utenti",
+    "username": "Nome utente",
+    "email": "Email",
+    "role": "Ruolo",
+    "joined_at": "Data di iscrizione",
+    "edit_user_role": "Modifica Ruolo Utente",
+    "cannot_edit_self": "Non puoi modificare il tuo stesso ruolo",
+    "cannot_delete_self": "Non puoi eliminare il tuo stesso account",
+    "confirm_delete_user": "Sei sicuro di voler eliminare questo utente?"
   },
   "common": {
     "actions": "Azioni",
-    "reset": "Resetta"
+    "reset": "Resetta",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "cancel": "Annulla",
+    "save": "Salva"
   }
 }

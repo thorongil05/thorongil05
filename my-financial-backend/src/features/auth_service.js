@@ -66,8 +66,18 @@ async function getAllUsers() {
   return await authDao.findAll();
 }
 
+async function updateRole(id, role) {
+  return await authDao.updateRole(id, role);
+}
+
+async function deleteUser(id) {
+  return await authDao.deleteUser(id);
+}
+
 module.exports = {
   register,
   login,
   getAllUsers,
+  updateRole,
+  deleteUser,
 };
