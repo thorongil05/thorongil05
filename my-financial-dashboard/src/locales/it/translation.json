@@ -39,7 +39,12 @@
     "add_match": "Aggiungi Partita",
     "confirm_delete_match": "Sei sicuro di voler eliminare questa partita?",
     "error_deleting_match": "Errore durante l'eliminazione della partita: {{message}}",
-    "select_competition_message": "Seleziona una competizione dal menu laterale per visualizzare squadre e partite."
+    "select_competition_message": "Seleziona una competizione dal menu laterale per visualizzare squadre e partite.",
+    "edit_team": "Modifica Squadra",
+    "confirm_delete_team": "Sei sicuro di voler eliminare questa squadra? Tutte le partite associate saranno eliminate.",
+    "error_deleting_team": "Errore durante l'eliminazione della squadra: {{message}}",
+    "error_updating_team": "Errore durante l'aggiornamento della squadra: {{message}}",
+    "saving": "Salvataggio..."
   },
   "common": {
     "actions": "Azioni",

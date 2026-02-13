@@ -73,7 +73,7 @@ function MatchesView({
         }
       })
       .catch((err) => console.error("Error fetching rounds:", err));
-  }, [selectedCompetition]);
+  }, [selectedCompetition, refreshTrigger]);
 
   const fetchMatches = useCallback(() => {
     setError(null);
@@ -118,7 +118,7 @@ function MatchesView({
         setError(error.message);
         setLoading(false);
       });
-  }, [selectedCompetition, selectedRound, selectedTeamId, sortBy, sortOrder]);
+  }, [selectedCompetition, selectedRound, selectedTeamId, sortBy, sortOrder, refreshTrigger]);
 
   const handleResetFilters = () => {
     setSelectedRound("All");

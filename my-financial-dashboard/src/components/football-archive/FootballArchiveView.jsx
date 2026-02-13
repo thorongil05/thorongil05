@@ -111,7 +111,10 @@ function FootballArchiveView() {
           <TeamsView
             teams={teams}
             loading={teamsLoading}
-            onTeamAdded={() => fetchTeams(selectedCompetition)}
+            onTeamAdded={() => {
+              fetchTeams(selectedCompetition);
+              setRefreshTrigger((prev) => prev + 1);
+            }}
             competitionId={selectedCompetition?.id}
           ></TeamsView>
         </DialogContent>

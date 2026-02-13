@@ -39,7 +39,12 @@
     "add_match": "Add Match",
     "confirm_delete_match": "Are you sure you want to delete this match?",
     "error_deleting_match": "Error deleting match: {{message}}",
-    "select_competition_message": "Please select a competition from the side menu to view teams and matches."
+    "select_competition_message": "Please select a competition from the side menu to view teams and matches.",
+    "edit_team": "Edit Team",
+    "confirm_delete_team": "Are you sure you want to delete this team? All associated matches will be deleted.",
+    "error_deleting_team": "Error deleting team: {{message}}",
+    "error_updating_team": "Error updating team: {{message}}",
+    "saving": "Saving..."
   },
   "common": {
     "actions": "Actions",
