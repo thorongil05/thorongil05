@@ -130,7 +130,6 @@ export default function Navbar() {
             variant="h6"
             component="div"
             sx={{ 
-              flexGrow: isMobile ? 1 : 0, 
               cursor: "pointer", 
               mr: 4,
               fontWeight: "bold"

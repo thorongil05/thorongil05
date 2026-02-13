@@ -172,12 +172,13 @@ function MatchesView({
 
   return (
     <Stack>
+    <TableContainer component={Paper}>
       <Stack
         direction={isMobile ? "column" : "row"}
         justifyContent="space-between"
         alignItems={isMobile ? "flex-start" : "center"}
         spacing={2}
-        sx={{ mb: 2 }}
+        sx={{ p: 2 }}
       >
         <Typography variant="h5" sx={{ fontWeight: "bold" }}>
           {t("football.matches")}
@@ -248,7 +249,6 @@ function MatchesView({
           )}
         </Stack>
       </Stack>
-      <TableContainer component={Paper}>
         <Table size="small" aria-label="simple table">
           <TableHead>
             <TableRow>
