@@ -35,9 +35,25 @@ async function insert(user) {
   return rows[0];
 }
 
+async function updateRole(id, role) {
+  logger.info({ id, role }, "Updating user role");
+  const query = "UPDATE users SET role = $1 WHERE id = $2 RETURNING id, username, email, role, created_at";
+  const { rows } = await pool.query(query, [role, id]);
+  return rows[0];
+}
+
+async function deleteUser(id) {
+  logger.info({ id }, "Deleting user");
+  const query = "DELETE FROM users WHERE id = $1 RETURNING id, username, email";
+  const { rows } = await pool.query(query, [id]);
+  return rows[0];
+}
+
 module.exports = {
   findByEmail,
   findByUsername,
   findAll,
   insert,
+  updateRole,
+  deleteUser,
 };

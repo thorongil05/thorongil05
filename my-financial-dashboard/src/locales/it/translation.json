@@ -46,8 +46,24 @@
     "error_updating_team": "Errore durante l'aggiornamento della squadra: {{message}}",
     "saving": "Salvataggio..."
   },
+  "admin": {
+    "dashboard": "Dashboard Amministratore",
+    "user_management": "Gestione Utenti",
+    "username": "Nome utente",
+    "email": "Email",
+    "role": "Ruolo",
+    "joined_at": "Data di iscrizione",
+    "edit_user_role": "Modifica Ruolo Utente",
+    "cannot_edit_self": "Non puoi modificare il tuo stesso ruolo",
+    "cannot_delete_self": "Non puoi eliminare il tuo stesso account",
+    "confirm_delete_user": "Sei sicuro di voler eliminare questo utente?"
+  },
   "common": {
     "actions": "Azioni",
-    "reset": "Resetta"
+    "reset": "Resetta",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "cancel": "Annulla",
+    "save": "Salva"
   }
 }

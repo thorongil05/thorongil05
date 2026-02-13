@@ -46,8 +46,24 @@
     "error_updating_team": "Error updating team: {{message}}",
     "saving": "Saving..."
   },
+  "admin": {
+    "dashboard": "Admin Dashboard",
+    "user_management": "User Management",
+    "username": "Username",
+    "email": "Email",
+    "role": "Role",
+    "joined_at": "Joined At",
+    "edit_user_role": "Edit User Role",
+    "cannot_edit_self": "You cannot edit your own role",
+    "cannot_delete_self": "You cannot delete yourself",
+    "confirm_delete_user": "Are you sure you want to delete this user?"
+  },
   "common": {
     "actions": "Actions",
-    "reset": "Reset"
+    "reset": "Reset",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save"
   }
 }
