@@ -13,8 +13,8 @@ function Main() {
   return (
     <Box sx={layoutStyle}>
       <Navbar />
-      <Box component="main" sx={{ flex: 1, py: 4 }}>
-        <Container maxWidth="lg">
+      <Box component="main" sx={{ flex: 1, py: 2 }}>
+        <Container maxWidth="xl">
           <Outlet />
         </Container>
       </Box>
