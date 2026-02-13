@@ -18,6 +18,7 @@ import {
   useTheme,
   useMediaQuery,
   Box,
+  Tooltip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -48,6 +49,13 @@ function MatchesView({
   const [selectedTeamId, setSelectedTeamId] = useState("All");
   const [sortBy, setSortBy] = useState("match_date");
   const [sortOrder, setSortOrder] = useState("desc");
+  const [lastUsedRound, setLastUsedRound] = useState("");
+
+  useEffect(() => {
+    if (selectedRound && selectedRound !== "All") {
+      setLastUsedRound(selectedRound);
+    }
+  }, [selectedRound]);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -254,14 +262,16 @@ function MatchesView({
             <TableRow>
               <TableCell 
                 sortDirection={sortBy === "round" ? sortOrder : false}
-                sx={{ width: "80px" }}
+                sx={{ width: isMobile ? "50px" : "80px" }}
               >
                 <TableSortLabel
                   active={sortBy === "round"}
                   direction={sortBy === "round" ? sortOrder : "asc"}
                   onClick={() => handleRequestSort("round")}
                 >
-                  {t("football.round", "Round")}
+                  <Tooltip title={isMobile ? t("football.round", "Round") : ""}>
+                    <span>{isMobile ? t("football.round_short", "G.") : t("football.round", "Round")}</span>
+                  </Tooltip>
                 </TableSortLabel>
               </TableCell>
               <TableCell>{t("football.home_team", "Home Team")}</TableCell>
@@ -297,11 +307,15 @@ function MatchesView({
               matches.length > 0 &&
               matches.map((match) => (
                 <TableRow key={match.id}>
-                  <TableCell sx={{ width: "80px" }}>{match.round || "-"}</TableCell>
+                  <TableCell sx={{ width: isMobile ? "50px" : "80px" }}>{match.round || "-"}</TableCell>
                   <TableCell
                     sx={{
                       fontWeight: match.homeTeam?.id === Number(selectedTeamId) ? "bold" : "normal",
                       color: match.homeTeam?.id === Number(selectedTeamId) ? "secondary.main" : "inherit",
+                      maxWidth: isMobile ? "100px" : "none",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
                     }}
                   >
                     {match.homeTeam?.name || "Unknown"}
@@ -310,6 +324,10 @@ function MatchesView({
                     sx={{
                       fontWeight: match.awayTeam?.id === Number(selectedTeamId) ? "bold" : "normal",
                       color: match.awayTeam?.id === Number(selectedTeamId) ? "secondary.main" : "inherit",
+                      maxWidth: isMobile ? "100px" : "none",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
                     }}
                   >
                     {match.awayTeam?.name || "Unknown"}
@@ -346,7 +364,10 @@ function MatchesView({
           setMatchDialogOpen(false);
           setMatchToEdit(null);
         }}
-        onMatchAdded={() => {
+        onMatchAdded={(round) => {
+          if (round) {
+            setLastUsedRound(round);
+          }
           fetchMatches();
           fetchRounds();
           if (onMatchAdded) {
@@ -357,6 +378,7 @@ function MatchesView({
         teamsLoading={teamsLoading}
         selectedCompetition={selectedCompetition}
         matchToEdit={matchToEdit}
+        defaultRound={lastUsedRound}
       ></AddMatchDialog>
     </Stack>
   );
