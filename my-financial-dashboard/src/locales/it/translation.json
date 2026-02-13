@@ -30,6 +30,7 @@
     "expand": "Espandi",
     "collapse": "Comprimi",
     "round": "Giornata",
+    "round_short": "G.",
     "all_rounds": "Tutte le giornate",
     "team": "Squadra",
     "all_teams": "Tutte le squadre",
