@@ -10,7 +10,7 @@ router.get("/", (request, response) => {
   teamsDao
     .retrieveAll()
     .then((result) => {
-      response.send(result);
+      response.send({ data: result, metadata: { count: result.length } });
     })
     .catch((error) => {
       response.status(500);

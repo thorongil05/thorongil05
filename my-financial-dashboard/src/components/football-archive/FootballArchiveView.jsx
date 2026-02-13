@@ -8,6 +8,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Chip,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import TeamsView from "./TeamsView";
@@ -21,6 +22,7 @@ function FootballArchiveView() {
   const { t } = useTranslation();
   const [teams, setTeams] = useState([]);
   const [teamsLoading, setTeamsLoading] = useState(true);
+  const [participantCount, setParticipantCount] = useState(0);
   const [selectedCompetition, setSelectedCompetition] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -39,7 +41,11 @@ function FootballArchiveView() {
         return response.json();
       })
       .then((data) => {
-        let retrievedTeams = data.map((element) => {
+        // Handle new response format: { data: [...], metadata: { count: ... } }
+        const teamsData = data.data || [];
+        const count = data.metadata?.count || 0;
+
+        let retrievedTeams = teamsData.map((element) => {
           return {
             id: element.id,
             name: element.name,
@@ -47,6 +53,7 @@ function FootballArchiveView() {
           };
         });
         setTeams(retrievedTeams);
+        setParticipantCount(count);
         setTeamsLoading(false);
       })
       .catch((error) => {
@@ -80,11 +87,20 @@ function FootballArchiveView() {
         <Stack spacing={2}>
           <Accordion disableGutters elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 1 }}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Stack direction="row" spacing={1} alignItems="center">
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ width: "100%" }}>
                 <PeopleIcon color="action" />
-                <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: "bold", flexGrow: 1 }}>
                   {t("football.participants")}
                 </Typography>
+                {!teamsLoading && (
+                  <Chip 
+                    label={participantCount} 
+                    size="small" 
+                    color="primary" 
+                    variant="outlined"
+                    sx={{ fontWeight: "bold", height: 20 }}
+                  />
+                )}
               </Stack>
             </AccordionSummary>
             <AccordionDetails sx={{ pt: 0 }}>

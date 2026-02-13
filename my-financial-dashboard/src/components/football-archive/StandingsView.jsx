@@ -67,7 +67,7 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
   }
 
   return (
-    <TableContainer component={Paper} sx={{ mt: 2 }}>
+    <TableContainer component={Paper}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 1 }}>
         <Typography variant="h5" sx={{ fontWeight: "bold" }}>
           {t("football.standings")}

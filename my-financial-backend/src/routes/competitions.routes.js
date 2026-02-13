@@ -25,7 +25,7 @@ router.get("/:id/teams", (request, response) => {
   competitionsDao
     .retrieveTeams(competitionId)
     .then((result) => {
-      response.send(result);
+      response.send({ data: result, metadata: { count: result.length } });
     })
     .catch((error) => {
       response.status(500);
