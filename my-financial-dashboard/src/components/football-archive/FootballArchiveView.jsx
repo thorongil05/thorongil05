@@ -5,11 +5,11 @@ import {
   Typography,
   Drawer,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import TeamsView from "./TeamsView";
 import MatchesView from "./MatchesView";
 import StandingsView from "./StandingsView";
@@ -25,7 +25,6 @@ function FootballArchiveView() {
   const [teamsLoading, setTeamsLoading] = useState(true);
   const [selectedCompetition, setSelectedCompetition] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [participantsOpen, setParticipantsOpen] = useState(false);
 
   const fetchTeams = useCallback((competition) => {
     let apiUrl;
@@ -91,39 +90,32 @@ function FootballArchiveView() {
           <KeyboardArrowRightIcon></KeyboardArrowRightIcon>
           {selectedCompetition ? selectedCompetition.name : t("football.all_competitions")}
         </Button>
-        <Button
-          onClick={() => setParticipantsOpen(true)}
-          variant="outlined"
-          startIcon={<PeopleIcon />}
-          disabled={!selectedCompetition}
-        >
-          {t("football.participants")}
-        </Button>
       </Stack>
-      <Dialog
-        open={participantsOpen}
-        onClose={() => setParticipantsOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>{t("football.participants")} - {selectedCompetition?.name}</DialogTitle>
-        <DialogContent dividers>
-          <TeamsView
-            teams={teams}
-            loading={teamsLoading}
-            onTeamAdded={() => {
-              fetchTeams(selectedCompetition);
-              setRefreshTrigger((prev) => prev + 1);
-            }}
-            competitionId={selectedCompetition?.id}
-          ></TeamsView>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setParticipantsOpen(false)}>{t("football.cancel")}</Button>
-        </DialogActions>
-      </Dialog>
+
       {selectedCompetition ? (
         <Stack spacing={2}>
+          <Accordion disableGutters elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 1 }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <PeopleIcon color="action" />
+                <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                  {t("football.participants")}
+                </Typography>
+              </Stack>
+            </AccordionSummary>
+            <AccordionDetails sx={{ pt: 0 }}>
+              <TeamsView
+                teams={teams}
+                loading={teamsLoading}
+                onTeamAdded={() => {
+                  fetchTeams(selectedCompetition);
+                  setRefreshTrigger((prev) => prev + 1);
+                }}
+                competitionId={selectedCompetition?.id}
+              ></TeamsView>
+            </AccordionDetails>
+          </Accordion>
+
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 6 }}>
               <StandingsView
