@@ -13,6 +13,8 @@ import {
   IconButton,
   Tooltip,
   Stack,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "../../context/AuthContext";
@@ -29,6 +31,9 @@ function AdminDashboardView() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState(null);
   const { token, user: currentUser } = useAuth();
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -107,21 +112,25 @@ function AdminDashboardView() {
   }
 
   return (
-    <Box p={3}>
+    <Box p={{ xs: 1, sm: 3 }}>
       <Typography variant="h4" gutterBottom>
         {t("admin.dashboard", "Admin Dashboard")}
       </Typography>
       <Typography variant="h6" gutterBottom color="text.secondary">
         {t("admin.user_management", "User Management")}
       </Typography>
-      <TableContainer component={Paper} sx={{ mt: 2 }}>
-        <Table sx={{ minWidth: 650 }} aria-label="user table">
+      <TableContainer component={Paper} sx={{ mt: 2, overflowX: "auto" }}>
+        <Table aria-label="user table">
           <TableHead>
             <TableRow sx={{ backgroundColor: "primary.main" }}>
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>{t("admin.username", "Username")}</TableCell>
-              <TableCell sx={{ color: "white", fontWeight: "bold" }}>{t("admin.email", "Email")}</TableCell>
+              {!isMobile && (
+                <TableCell sx={{ color: "white", fontWeight: "bold" }}>{t("admin.email", "Email")}</TableCell>
+              )}
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>{t("admin.role", "Role")}</TableCell>
-              <TableCell sx={{ color: "white", fontWeight: "bold" }}>{t("admin.joined_at", "Joined At")}</TableCell>
+              {!isMobile && (
+                <TableCell sx={{ color: "white", fontWeight: "bold" }}>{t("admin.joined_at", "Joined At")}</TableCell>
+              )}
               <TableCell sx={{ color: "white", fontWeight: "bold" }} align="right">{t("common.actions", "Actions")}</TableCell>
             </TableRow>
           </TableHead>
@@ -134,7 +143,7 @@ function AdminDashboardView() {
                 <TableCell component="th" scope="row">
                   {user.username}
                 </TableCell>
-                <TableCell>{user.email}</TableCell>
+                {!isMobile && <TableCell>{user.email}</TableCell>}
                 <TableCell>
                   <Box
                     component="span"
@@ -151,7 +160,7 @@ function AdminDashboardView() {
                     {user.role.toUpperCase()}
                   </Box>
                 </TableCell>
-                <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                {!isMobile && <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>}
                 <TableCell align="right">
                   <Stack direction="row" spacing={1} justifyContent="flex-end">
                     <Tooltip title={user.id === currentUser?.id ? t("admin.cannot_edit_self", "You cannot edit your own role") : t("common.edit", "Edit")}>
