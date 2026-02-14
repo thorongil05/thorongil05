@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Dialog, DialogTitle, Stack, TextField, Button, Checkbox, FormControlLabel, Box, Typography, DialogContent, DialogActions } from "@mui/material";
 import { useAuth } from "../../context/AuthContext";
+import { apiPost } from "../../utils/api";
 
 
 function AddTeamDialog({ onClose, open, onInsert, competitionId }) {
@@ -31,19 +32,7 @@ function AddTeamDialog({ onClose, open, onInsert, competitionId }) {
     setIsSubmitting(true);
 
     try {
-      const apiUrl = `${import.meta.env.VITE_SERVER_URL}/api/teams/`;
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token && { "Authorization": `Bearer ${token}` }),
-        },
-        body: JSON.stringify({ ...formData, competitionId }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to add team");
-      }
+      await apiPost(`/api/teams/`, { ...formData, competitionId });
 
       if (addAnother) {
         setFormData({ name: "", city: "" });

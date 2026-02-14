@@ -24,6 +24,7 @@ import { useAuth } from "../../context/AuthContext";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import CloseIcon from "@mui/icons-material/Close";
+import { apiPost, apiPut } from "../../utils/api";
 
 function ScoreSelector({ label, value, onChange, disabled }) {
   return (
@@ -158,33 +159,14 @@ function AddMatchDialog({
     };
 
     try {
-      let apiUrl;
-      let method;
+      let result;
 
       if (matchToEdit) {
-        apiUrl = new URL(
-          `${import.meta.env.VITE_SERVER_URL}/api/matches/${matchToEdit.id}`,
-        );
-        method = "PUT";
+        result = await apiPut(`/api/matches/${matchToEdit.id}`, matchData);
       } else {
-        apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/matches`);
-        method = "POST";
+        result = await apiPost(`/api/matches`, matchData);
       }
 
-      const response = await fetch(apiUrl, {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-          ...(token && { "Authorization": `Bearer ${token}` }),
-        },
-        body: JSON.stringify(matchData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
       console.log(
         `Match ${matchToEdit ? "updated" : "created"} successfully:`,
         result,

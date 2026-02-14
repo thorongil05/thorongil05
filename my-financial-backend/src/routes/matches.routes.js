@@ -6,7 +6,7 @@ const logger = require("pino")();
 const matchesDao = require("../features/matches_dao");
 const { authenticateToken } = require("../middleware/auth.middleware");
 
-router.get("/", (request, response) => {
+router.get("/", authenticateToken, (request, response) => {
   const competitionId = request.query.competitionId;
   const round = request.query.round;
   const teamId = request.query.teamId;
@@ -24,7 +24,7 @@ router.get("/", (request, response) => {
     });
 });
 
-router.get("/rounds", (request, response) => {
+router.get("/rounds", authenticateToken, (request, response) => {
   const competitionId = request.query.competitionId;
   if (!competitionId) {
     response.status(400).send({ error: "competitionId is required" });

@@ -6,7 +6,7 @@ const logger = require("pino")();
 const competitionsDao = require("../features/competitions_dao");
 const { authenticateToken } = require("../middleware/auth.middleware");
 
-router.get("/", (request, response) => {
+router.get("/", authenticateToken, (request, response) => {
   logger.info("Competition resourece, received get request", request);
   competitionsDao
     .retrieveAll()
@@ -20,7 +20,7 @@ router.get("/", (request, response) => {
     });
 });
 
-router.get("/:id/teams", (request, response) => {
+router.get("/:id/teams", authenticateToken, (request, response) => {
   const competitionId = request.params.id;
   competitionsDao
     .retrieveTeams(competitionId)
@@ -34,7 +34,7 @@ router.get("/:id/teams", (request, response) => {
     });
 });
 
-router.get("/:id/standings", (request, response) => {
+router.get("/:id/standings", authenticateToken, (request, response) => {
   const competitionId = request.params.id;
   competitionsDao
     .getStandings(competitionId)
