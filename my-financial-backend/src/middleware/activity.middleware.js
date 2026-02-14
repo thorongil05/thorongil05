@@ -8,10 +8,10 @@ const crypto = require("crypto");
  */
 function trackActivity(activityType) {
   return async (req, res, next) => {
-    // Store original res.json to intercept successful responses
-    const originalJson = res.json.bind(res);
+    // Store original res.send to intercept successful responses
+    const originalSend = res.send.bind(res);
 
-    res.json = function (data) {
+    res.send = function (data) {
       // Only track if the response was successful (2xx status)
       if (res.statusCode >= 200 && res.statusCode < 300) {
         // Track activity asynchronously (don't block the response)
@@ -24,6 +24,8 @@ function trackActivity(activityType) {
               .update(`${userId}-${req.headers['user-agent'] || 'unknown'}`)
               .digest('hex');
 
+          logger.info({ userId, sessionId, activityType }, "Tracking activity");
+
           userActivityDao.upsertActivity(userId, sessionId, activityType)
             .catch(error => {
               logger.error({ error, userId, activityType }, "Failed to track activity");
@@ -31,8 +33,8 @@ function trackActivity(activityType) {
         }
       }
 
-      // Call original json method
-      return originalJson(data);
+      // Call original send method
+      return originalSend(data);
     };
 
     next();

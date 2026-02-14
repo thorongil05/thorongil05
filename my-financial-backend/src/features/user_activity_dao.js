@@ -1,5 +1,6 @@
 const pool = require("./database");
 const logger = require("pino")();
+const lockManager = require("../utils/lockManager");
 
 /**
  * Upsert user activity statistics
@@ -9,25 +10,34 @@ const logger = require("pino")();
  * @returns {Promise<object>} Updated activity record
  */
 async function upsertActivity(userId, sessionId, activityType) {
-  const query = `
-    INSERT INTO user_activity (user_id, session_id, statistics, created_at, updated_at)
-    VALUES ($1, $2, jsonb_build_object($3, 1), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-    ON CONFLICT (user_id, session_id)
-    DO UPDATE SET
-      statistics = user_activity.statistics || jsonb_build_object($3, 
-        COALESCE((user_activity.statistics->>$3)::int, 0) + 1
-      ),
-      updated_at = CURRENT_TIMESTAMP
-    RETURNING *;
-  `;
-
+  // Create lock key from userId and sessionId
+  const lockKey = `activity:${userId}:${sessionId}`;
+  
+  // Acquire application-level lock
+  const release = await lockManager.acquire(lockKey);
+  
   try {
+    const query = `
+      INSERT INTO user_activity (user_id, session_id, statistics, created_at, updated_at)
+      VALUES ($1, $2, jsonb_build_object($3, 1), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      ON CONFLICT (user_id, session_id)
+      DO UPDATE SET
+        statistics = user_activity.statistics || jsonb_build_object($3, 
+          COALESCE((user_activity.statistics->>$3)::int, 0) + 1
+        ),
+        updated_at = CURRENT_TIMESTAMP
+      RETURNING *;
+    `;
+
     const result = await pool.query(query, [userId, sessionId, activityType]);
     logger.info({ userId, sessionId, activityType }, "Activity tracked");
     return result.rows[0];
   } catch (error) {
     logger.error({ error, userId, sessionId, activityType }, "Error upserting activity");
     throw error;
+  } finally {
+    // Always release the lock
+    release();
   }
 }
 
