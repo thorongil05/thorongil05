@@ -2,6 +2,14 @@ const pool = require("./database");
 const logger = require("pino")();
 const lockManager = require("../utils/lockManager");
 
+async function findActivity(userId, sessionId) {
+  const query = `
+    SELECT * FROM user_activity WHERE user_id = $1 AND session_id = $2;
+  `;
+  const result = await pool.query(query, [userId, sessionId]);
+  return result.rows[0];
+}
+
 /**
  * Upsert user activity statistics
  * @param {number} userId - User ID
@@ -15,23 +23,29 @@ async function upsertActivity(userId, sessionId, activityType) {
   
   // Acquire application-level lock
   const release = await lockManager.acquire(lockKey);
-  
   try {
-    const query = `
-      INSERT INTO user_activity (user_id, session_id, statistics, created_at, updated_at)
-      VALUES ($1, $2, jsonb_build_object($3, 1), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-      ON CONFLICT (user_id, session_id)
-      DO UPDATE SET
-        statistics = user_activity.statistics || jsonb_build_object($3, 
-          COALESCE((user_activity.statistics->>$3)::int, 0) + 1
-        ),
-        updated_at = CURRENT_TIMESTAMP
-      RETURNING *;
-    `;
+    const activity = await findActivity(userId, sessionId);
+    if (activity) {
+      activity.statistics[activityType] = (activity.statistics[activityType] || 0) + 1;
+      const query = `
+        UPDATE user_activity SET statistics = $3, updated_at = CURRENT_TIMESTAMP WHERE user_id = $1 AND session_id = $2;
+      `;
+      const result = await pool.query(query, [userId, sessionId, activity.statistics]);
+      logger.info({ userId, sessionId, activityType }, "Activity tracked");
+      return result.rows[0];
+    } else {
+      const statistics = {};
+      statistics[activityType] = 1;
+      const query = `
+        INSERT INTO user_activity (user_id, session_id, statistics, created_at, updated_at)
+        VALUES ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        RETURNING *;
+      `;
 
-    const result = await pool.query(query, [userId, sessionId, activityType]);
-    logger.info({ userId, sessionId, activityType }, "Activity tracked");
-    return result.rows[0];
+      const result = await pool.query(query, [userId, sessionId, statistics]);
+      logger.info({ userId, sessionId, activityType }, "Activity tracked");
+      return result.rows[0];
+    }
   } catch (error) {
     logger.error({ error, userId, sessionId, activityType }, "Error upserting activity");
     throw error;
