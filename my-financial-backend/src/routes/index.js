@@ -7,6 +7,7 @@ const matchesRoutes = require("./matches.routes");
 const competitionsRoutes = require("./competitions.routes");
 const authRoutes = require("./auth.routes");
 const userRoutes = require("./user.routes");
+const userActivityRoutes = require("./user_activity.routes");
 
 const router = express.Router();
 
@@ -18,5 +19,6 @@ router.use("/matches", matchesRoutes);
 router.use("/competitions", competitionsRoutes);
 router.use("/auth", authRoutes);
 router.use("/users", userRoutes);
+router.use("/user-activity", userActivityRoutes);
 
 module.exports = router;

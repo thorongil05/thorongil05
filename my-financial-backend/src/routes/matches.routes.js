@@ -5,6 +5,7 @@ const logger = require("pino")();
 
 const matchesDao = require("../features/matches_dao");
 const { authenticateToken } = require("../middleware/auth.middleware");
+const { trackActivity } = require("../middleware/activity.middleware");
 
 router.get("/", authenticateToken, (request, response) => {
   const competitionId = request.query.competitionId;
@@ -42,7 +43,7 @@ router.get("/rounds", authenticateToken, (request, response) => {
     });
 });
 
-router.post("/", authenticateToken, (request, response) => {
+router.post("/", authenticateToken, trackActivity("matches_added"), (request, response) => {
   logger.info({ body: request.body }, "Received request");
   if (Array.isArray(request.body)) {
     throw new Exception("Not supported operation");
@@ -60,7 +61,7 @@ router.post("/", authenticateToken, (request, response) => {
     });
 });
 
-router.put("/:id", authenticateToken, (request, response) => {
+router.put("/:id", authenticateToken, trackActivity("matches_updated"), async (request, response) => {
   logger.info({ body: request.body, id: request.params.id }, "Received update request");
   
   let matchEntry = mapper.mapToMatch(request.body);
@@ -76,7 +77,7 @@ router.put("/:id", authenticateToken, (request, response) => {
     });
 });
 
-router.delete("/:id", authenticateToken, (request, response) => {
+router.delete("/:id", authenticateToken, trackActivity("matches_deleted"), async (request, response) => {
   logger.info({ id: request.params.id }, "Received delete request");  
   matchesDao
     .deleteMatch(request.params.id)

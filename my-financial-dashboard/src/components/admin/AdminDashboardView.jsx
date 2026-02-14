@@ -22,6 +22,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import UserEditDialog from "./UserEditDialog";
 import { useTranslation } from "react-i18next";
+import { apiGet } from "../../utils/api";
 
 function AdminDashboardView() {
   const { t } = useTranslation();
@@ -31,6 +32,8 @@ function AdminDashboardView() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState(null);
   const { token, user: currentUser } = useAuth();
+  const [activities, setActivities] = useState([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(true);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -61,6 +64,21 @@ function AdminDashboardView() {
       fetchUsers();
     }
   }, [token, fetchUsers]);
+
+  const fetchActivities = useCallback(async () => {
+    try {
+      const data = await apiGet("/api/user-activity");
+      setActivities(data);
+    } catch (err) {
+      console.error("Error fetching activities:", err);
+    } finally {
+      setActivitiesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchActivities();
+  }, [fetchActivities]);
 
   const handleEdit = (user) => {
     setUserToEdit(user);
@@ -191,6 +209,67 @@ function AdminDashboardView() {
                 </TableCell>
               </TableRow>
             ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* User Activity Statistics */}
+      <Typography variant="h6" gutterBottom color="text.secondary" sx={{ mt: 4 }}>
+        {t("admin.user_activity", "User Activity Statistics")}
+      </Typography>
+      <TableContainer component={Paper} sx={{ mt: 2, overflowX: "auto" }}>
+        <Table aria-label="activity table">
+          <TableHead>
+            <TableRow sx={{ backgroundColor: "secondary.main" }}>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>{t("admin.username", "Username")}</TableCell>
+              {!isMobile && (
+                <TableCell sx={{ color: "white", fontWeight: "bold" }}>{t("admin.email", "Email")}</TableCell>
+              )}
+              <TableCell sx={{ color: "white", fontWeight: "bold" }} align="center">{t("admin.sessions", "Sessions")}</TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }} align="center">{t("admin.matches_added", "Matches +")}</TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }} align="center">{t("admin.matches_updated", "Matches ~")}</TableCell>
+              {!isMobile && (
+                <TableCell sx={{ color: "white", fontWeight: "bold" }} align="center">{t("admin.teams_added", "Teams +")}</TableCell>
+              )}
+              {!isMobile && (
+                <TableCell sx={{ color: "white", fontWeight: "bold" }}>{t("admin.last_activity", "Last Activity")}</TableCell>
+              )}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {activitiesLoading ? (
+              <TableRow>
+                <TableCell colSpan={isMobile ? 4 : 7} align="center">
+                  <CircularProgress size={24} />
+                </TableCell>
+              </TableRow>
+            ) : activities.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={isMobile ? 4 : 7} align="center">
+                  {t("admin.no_activity", "No activity data available")}
+                </TableCell>
+              </TableRow>
+            ) : (
+              activities.map((activity) => (
+                <TableRow key={activity.user_id}>
+                  <TableCell>{activity.username}</TableCell>
+                  {!isMobile && <TableCell>{activity.email}</TableCell>}
+                  <TableCell align="center">{activity.session_count || 0}</TableCell>
+                  <TableCell align="center">{activity.total_statistics?.matches_added || 0}</TableCell>
+                  <TableCell align="center">{activity.total_statistics?.matches_updated || 0}</TableCell>
+                  {!isMobile && (
+                    <TableCell align="center">{activity.total_statistics?.teams_added || 0}</TableCell>
+                  )}
+                  {!isMobile && (
+                    <TableCell>
+                      {activity.last_activity
+                        ? new Date(activity.last_activity).toLocaleString()
+                        : t("admin.no_activity_yet", "No activity yet")}
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>

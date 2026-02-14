@@ -5,6 +5,7 @@ const logger = require("pino")();
 
 const competitionsDao = require("../features/competitions_dao");
 const { authenticateToken } = require("../middleware/auth.middleware");
+const { trackActivity } = require("../middleware/activity.middleware");
 
 router.get("/", authenticateToken, (request, response) => {
   logger.info("Competition resourece, received get request", request);
@@ -48,7 +49,7 @@ router.get("/:id/standings", authenticateToken, (request, response) => {
     });
 });
 
-router.post("/", authenticateToken, (request, response) => {
+router.post("/", authenticateToken, trackActivity("competitions_added"), (request, response) => {
   if (Array.isArray(request.body)) {
     throw new Exception("Not supported operation");
   }
