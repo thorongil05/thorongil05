@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useTranslation } from "react-i18next";
+import { apiGet } from "../../utils/api";
 
 function StandingsView({ selectedCompetition, refreshTrigger }) {
   const { t } = useTranslation();
@@ -40,17 +41,7 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
     setLoading(true);
     setError(null);
 
-    const apiUrl = new URL(
-      `${import.meta.env.VITE_SERVER_URL}/api/competitions/${selectedCompetition.id}/standings`,
-    );
-
-    fetch(apiUrl)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
+    apiGet(`/api/competitions/${selectedCompetition.id}/standings`)
       .then((data) => {
         setStandings(data);
         setLoading(false);

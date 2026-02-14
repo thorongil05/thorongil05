@@ -12,29 +12,17 @@ import {
   MenuItem,
 } from "@mui/material";
 import { useAuth } from "../../context/AuthContext";
+import { apiPost } from "../../utils/api";
 
-function submit(e, formData, token, onSubmitAction) {
+async function submit(e, formData, onSubmitAction) {
   e.preventDefault();
-  const apiUrl = `${import.meta.env.VITE_SERVER_URL}/api/competitions/`;
-  console.log("Calling submit on url", apiUrl);
-  let options = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token && { "Authorization": `Bearer ${token}` }),
-    },
-    body: JSON.stringify(formData),
-  };
-  console.log(JSON.stringify(options));
-  fetch(apiUrl, options)
-    .then((response) => {
-      console.log(response.json());
-      console.log("Success, executing on submit action");
-      onSubmitAction();
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+  try {
+    await apiPost(`/api/competitions/`, formData);
+    console.log("Success, executing on submit action");
+    onSubmitAction();
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function AddCompetitionDialog({ onClose, open, onInsert }) {
@@ -90,7 +78,7 @@ function AddCompetitionDialog({ onClose, open, onInsert }) {
             variant="contained"
             type="submit"
             onClick={(e) =>
-              submit(e, formData, token, () => {
+              submit(e, formData, () => {
                 onInsert();
                 setFormData({ name: "", country: "", type: "LEAGUE" }); // Reset form
               })

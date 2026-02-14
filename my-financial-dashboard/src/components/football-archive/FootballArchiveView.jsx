@@ -17,6 +17,7 @@ import StandingsView from "./StandingsView";
 import { useState, useEffect, useCallback } from "react";
 import PeopleIcon from "@mui/icons-material/People";
 import { useTranslation } from "react-i18next";
+import { apiGet } from "../../utils/api";
 
 function FootballArchiveView() {
   const { t } = useTranslation();
@@ -27,19 +28,11 @@ function FootballArchiveView() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const fetchTeams = useCallback((competition) => {
-    let apiUrl;
-    if (competition) {
-      apiUrl = new URL(
-        `${import.meta.env.VITE_SERVER_URL}/api/competitions/${competition.id}/teams`,
-      );
-    } else {
-      apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/teams`);
-    }
+    const endpoint = competition
+      ? `/api/competitions/${competition.id}/teams`
+      : `/api/teams`;
 
-    fetch(apiUrl)
-      .then((response) => {
-        return response.json();
-      })
+    apiGet(endpoint)
       .then((data) => {
         // Handle new response format: { data: [...], metadata: { count: ... } }
         const teamsData = data.data || [];

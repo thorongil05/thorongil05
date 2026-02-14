@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { UserRoles } from "../../constants/roles";
 import { useTranslation } from "react-i18next";
+import { apiGet } from "../../utils/api";
 
 function CompetitionSelector({ onCompetitionSelect, selectedCompetitionId }) {
   const { t } = useTranslation();
@@ -13,9 +14,7 @@ function CompetitionSelector({ onCompetitionSelect, selectedCompetitionId }) {
   const [open, setOpen] = useState(false);
 
   const fetchCompetitions = () => {
-    const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/competitions`);
-    fetch(apiUrl)
-      .then((response) => response.json())
+    apiGet("/api/competitions")
       .then((data) => {
         setCompetitions(
           data.map((element) => ({

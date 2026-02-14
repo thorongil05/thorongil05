@@ -29,6 +29,7 @@ import AddMatchDialog from "./AddMatchDialog";
 import { useAuth } from "../../context/AuthContext";
 import { UserRoles } from "../../constants/roles";
 import { useTranslation } from "react-i18next";
+import { apiGet, apiDelete } from "../../utils/api";
 
 function MatchesView({
   selectedCompetition,
@@ -69,9 +70,7 @@ function MatchesView({
     const urlSearchParams = new URLSearchParams({
       competitionId: selectedCompetition.id,
     });
-    const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/matches/rounds`);
-    fetch(apiUrl + "?" + urlSearchParams)
-      .then((response) => response.json())
+    apiGet(`/api/matches/rounds?${urlSearchParams}`)
       .then((data) => {
         setRounds(data);
         if (selectedRound === "All" && data && data.length > 0) {
@@ -109,14 +108,7 @@ function MatchesView({
 
     const urlSearchParams = new URLSearchParams(params);
 
-    const apiUrl = new URL(`${import.meta.env.VITE_SERVER_URL}/api/matches`);
-    fetch(apiUrl + "?" + urlSearchParams)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
+    apiGet(`/api/matches?${urlSearchParams}`)
       .then((data) => {
         setMatches(data);
         setLoading(false);
@@ -148,16 +140,7 @@ function MatchesView({
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/matches/${matchId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete match");
-      }
+      await apiDelete(`/api/matches/${matchId}`);
 
       fetchMatches();
       fetchRounds();

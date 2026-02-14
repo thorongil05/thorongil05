@@ -6,7 +6,7 @@ const teamsDao = require("../features/teams_dao");
 const { authenticateToken, authorizeRole } = require("../middleware/auth.middleware");
 const UserRoles = require("../constants/roles");
 
-router.get("/", (request, response) => {
+router.get("/", authenticateToken, (request, response) => {
   teamsDao
     .retrieveAll()
     .then((result) => {

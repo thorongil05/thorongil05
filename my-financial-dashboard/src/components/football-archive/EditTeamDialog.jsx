@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { useAuth } from "../../context/AuthContext";
 import { useTranslation } from "react-i18next";
+import { apiPut } from "../../utils/api";
 
 function EditTeamDialog({ onClose, open, onUpdate, team }) {
   const { t } = useTranslation();
@@ -40,19 +41,7 @@ function EditTeamDialog({ onClose, open, onUpdate, team }) {
     setIsSubmitting(true);
 
     try {
-      const apiUrl = `${import.meta.env.VITE_SERVER_URL}/api/teams/${team.id}`;
-      const response = await fetch(apiUrl, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token && { "Authorization": `Bearer ${token}` }),
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update team");
-      }
+      await apiPut(`/api/teams/${team.id}`, formData);
 
       onUpdate();
       onClose();
