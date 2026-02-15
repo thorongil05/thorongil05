@@ -1,9 +1,15 @@
 const logger = require("pino")();
 
-function calculateStandings(matches) {
+function calculateStandings(matches, startInterval, endInterval) {
+  logger.info(
+    `Calculating standings for ${matches.length} matches with start interval ${startInterval} and end interval ${endInterval}`,
+  );
   const standings = {};
 
   matches.forEach((match) => {
+    if (match.round < startInterval || match.round > endInterval) {
+      return;
+    }
     // Process Home Team
     if (!standings[match.homeTeam.id]) {
       standings[match.homeTeam.id] = initializeTeam(match.homeTeam);

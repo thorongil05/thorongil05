@@ -37,34 +37,53 @@ router.get("/:id/teams", authenticateToken, (request, response) => {
 
 router.get("/:id/standings", authenticateToken, (request, response) => {
   const competitionId = request.params.id;
+  let args = {};
+  if (request.query) {
+    args.startInterval = parseInt(request.query.startInterval);
+    args.endInterval = parseInt(request.query.endInterval);
+  }
+  logger.info(
+    `Competition resource, received get standings for competition ${competitionId} with args ${JSON.stringify(args)}`,
+  );
   competitionsDao
-    .getStandings(competitionId)
+    .getStandings(competitionId, args)
     .then((result) => {
+      logger.info(
+        `Competition resource, successfully retrieved standings for competition ${competitionId} with args ${JSON.stringify(args)}`,
+      );
       response.send(result);
     })
     .catch((error) => {
       response.status(500);
       response.send(error);
-      console.log(error);
+      logger.error(
+        `Competition resource, error getting standings for competition ${competitionId} with args ${JSON.stringify(args)}`,
+        error,
+      );
     });
 });
 
-router.post("/", authenticateToken, trackActivity("competitions_added"), (request, response) => {
-  if (Array.isArray(request.body)) {
-    throw new Exception("Not supported operation");
-  }
-  let competitionEntry = mapper.mapToCompetition(request.body);
-  competitionsDao
-    .insert(competitionEntry)
-    .then((result) => {
-      response.send(result);
-    })
-    .catch((error) => {
-      response.status(500);
-      response.send(error);
-      console.log(error);
-    });
-});
+router.post(
+  "/",
+  authenticateToken,
+  trackActivity("competitions_added"),
+  (request, response) => {
+    if (Array.isArray(request.body)) {
+      throw new Exception("Not supported operation");
+    }
+    let competitionEntry = mapper.mapToCompetition(request.body);
+    competitionsDao
+      .insert(competitionEntry)
+      .then((result) => {
+        response.send(result);
+      })
+      .catch((error) => {
+        response.status(500);
+        response.send(error);
+        console.log(error);
+      });
+  },
+);
 
 router.options("/", (request, response) => {
   response.set({

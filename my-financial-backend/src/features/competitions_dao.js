@@ -42,8 +42,13 @@ async function retrieveTeams(competitionId) {
 async function getStandings(competitionId, args = {}) {
   logger.info({ competitionId }, "Retrieving standings");
   const matches = await matchesDao.findMatches(competitionId);
-  const totalRounds = matches.map( match => match.round).reduce((max, round) => Math.max(max, round), 0); // TODO: find a better way to get total rounds
-  const { startInterval, endInterval } = { startInterval: 1, endInterval: totalRounds };
+  const totalRounds = matches
+    .map((match) => match.round)
+    .reduce((max, round) => Math.max(max, round), 0); // TODO: find a better way to get total rounds
+  let { startInterval, endInterval } = {
+    startInterval: 1,
+    endInterval: totalRounds,
+  };
 
   if (args && args.startInterval) {
     startInterval = args.startInterval;
@@ -55,7 +60,11 @@ async function getStandings(competitionId, args = {}) {
     totalRounds: totalRounds,
     startInterval: startInterval,
     endInterval: endInterval,
-    standings: standingsService.calculateStandings(matches, startInterval, endInterval)
+    standings: standingsService.calculateStandings(
+      matches,
+      startInterval,
+      endInterval,
+    ),
   };
 }
 
