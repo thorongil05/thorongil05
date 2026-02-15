@@ -81,6 +81,7 @@ function AddMatchDialog({
   let [homeTeamOptions, setHomeTeamOptions] = useState([]);
   let [awayTeamOptions, setAwayTeamOptions] = useState([]);
   let [isSubmitting, setIsSubmitting] = useState(false);
+  let [submitCompleted, setSubmitCompleted] = useState(false);
   let [submitError, setSubmitError] = useState(null);
   let [addAnother, setAddAnother] = useState(false);
   let [match, setMatch] = useState({
@@ -180,22 +181,16 @@ function AddMatchDialog({
       if (!addAnother || matchToEdit) {
         onClose();
       } else {
-         // Reset form after successful submission only if adding another
-          setMatch({
-            homeTeam: null,
-            awayTeam: null,
-            homeTeamScore: null,
-            awayTeamScore: null,
-            round: match.round, // Keep round for convenience in batch entry
-          });
-          // Focus back to home team input if on desktop
-          if (!isMobile) {
-            setTimeout(() => {
-              if (homeTeamRef.current) {
-                homeTeamRef.current.focus();
-              }
-            }, 0);
-          }
+        // Reset form after successful submission only if adding another
+        setMatch({
+          homeTeam: null,
+          awayTeam: null,
+          homeTeamScore: null,
+          awayTeamScore: null,
+          round: match.round, // Keep round for convenience in batch entry
+        });
+        // Set submit completed to true to trigger focus back to home team input and other reset logic
+        setSubmitCompleted(true);
       }
     } catch (error) {
       console.error(`Error ${matchToEdit ? "updating" : "creating"} match:`, error);
@@ -204,6 +199,13 @@ function AddMatchDialog({
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    if (submitCompleted && !isMobile) {
+      homeTeamRef.current?.focus();
+      setSubmitCompleted(false);
+    }
+  }, [submitCompleted, isMobile]);
 
   const dialogTitle = matchToEdit ? "Edit Match" : "Add Match";
 
