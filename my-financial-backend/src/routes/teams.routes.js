@@ -5,6 +5,7 @@ const mapper = require("../features/mapper");
 const teamsDao = require("../features/teams_dao");
 const { authenticateToken, authorizeRole } = require("../middleware/auth.middleware");
 const UserRoles = require("../constants/roles");
+const { trackActivity } = require("../middleware/activity.middleware");
 
 router.get("/", authenticateToken, (request, response) => {
   teamsDao
@@ -19,7 +20,7 @@ router.get("/", authenticateToken, (request, response) => {
     });
 });
 
-router.post("/", authenticateToken, (request, response) => {
+router.post("/", authenticateToken, trackActivity("teams_added"), (request, response) => {
   if (Array.isArray(request.body)) {
     throw new Exception("Not supported operation");
   }
@@ -36,7 +37,7 @@ router.post("/", authenticateToken, (request, response) => {
     });
 });
 
-router.put("/:id", authenticateToken, authorizeRole([UserRoles.ADMIN, UserRoles.EDITOR]), (request, response) => {
+router.put("/:id", authenticateToken, authorizeRole([UserRoles.ADMIN, UserRoles.EDITOR]), trackActivity("teams_updated"), async (request, response) => {
   const id = request.params.id;
   const teamEntry = mapper.mapToTeam(request.body);
   teamsDao
@@ -50,7 +51,7 @@ router.put("/:id", authenticateToken, authorizeRole([UserRoles.ADMIN, UserRoles.
     });
 });
 
-router.delete("/:id", authenticateToken, authorizeRole([UserRoles.ADMIN, UserRoles.EDITOR]), (request, response) => {
+router.delete("/:id", authenticateToken, authorizeRole([UserRoles.ADMIN, UserRoles.EDITOR]), trackActivity("teams_deleted"), async (request, response) => {
   const id = request.params.id;
   teamsDao
     .deleteTeam(id)

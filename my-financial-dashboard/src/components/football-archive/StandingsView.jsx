@@ -7,8 +7,7 @@ import {
   TableHead,
   TableRow,
   Typography,
-  IconButton,
-  Collapse,
+  Slider,
   useMediaQuery,
   useTheme,
   Box,
@@ -27,10 +26,16 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  
+  const [roundsInterval, setRoundsInterval] = useState([1, 10]);
+  const [maxRound, setMaxRound] = useState(0);
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const showFullDetails = !isMobile || isExpanded;
+
+  const handleIntervalChange = (_event, newValue) => {
+    setRoundsInterval(newValue);
+  };
 
   useEffect(() => {
     if (!selectedCompetition) {
@@ -41,9 +46,10 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
     setLoading(true);
     setError(null);
 
-    apiGet(`/api/competitions/${selectedCompetition.id}/standings`)
-      .then((data) => {
-        setStandings(data);
+    apiGet(`/api/competitions/${selectedCompetition.id}/standings?startInterval=${roundsInterval[0]}&endInterval=${roundsInterval[1]}`)
+      .then((result) => {
+        setStandings(result.standings);
+        setMaxRound(result.totalRounds);
         setLoading(false);
       })
       .catch((error) => {
@@ -51,7 +57,7 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
         setError(error.message);
         setLoading(false);
       });
-  }, [selectedCompetition, refreshTrigger]);
+  }, [selectedCompetition, refreshTrigger, roundsInterval]);
 
   if (!selectedCompetition) {
     return null;
@@ -64,14 +70,26 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
           {t("football.standings")}
         </Typography>
         {isMobile && (
-          <Button 
-            size="small" 
+          <Button
+            size="small"
             onClick={() => setIsExpanded(!isExpanded)}
             startIcon={isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           >
             {isExpanded ? t("football.collapse") : t("football.expand")}
           </Button>
         )}
+      </Box>
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 1 }}>
+        <Slider
+          sx={{ mx: 4 }}
+          getAriaLabel={() => 'Temperature range'}
+          value={roundsInterval}
+          onChange={handleIntervalChange}
+          valueLabelDisplay="auto"
+          getAriaValueText={(value) => `${value} rounds`}
+          min={1}
+          max={maxRound}
+        />
       </Box>
       <Table size="small" aria-label="standings table">
         <TableHead>
