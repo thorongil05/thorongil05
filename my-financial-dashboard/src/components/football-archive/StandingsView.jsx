@@ -7,8 +7,7 @@ import {
   TableHead,
   TableRow,
   Typography,
-  IconButton,
-  Collapse,
+  Slider,
   useMediaQuery,
   useTheme,
   Box,
@@ -27,10 +26,15 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  
+  const [roundsInterval, setRoundsInterval] = useState([1, 10]);
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const showFullDetails = !isMobile || isExpanded;
+
+  const handleIntervalChange = (_event, newValue) => {
+    setRoundsInterval(newValue);
+  };
 
   useEffect(() => {
     if (!selectedCompetition) {
@@ -42,8 +46,10 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
     setError(null);
 
     apiGet(`/api/competitions/${selectedCompetition.id}/standings`)
-      .then((data) => {
-        setStandings(data);
+      .then((result) => {
+        console.log(result)
+        setStandings(result.standings);
+        setRoundsInterval([result.startInterval, result.endInterval]);
         setLoading(false);
       })
       .catch((error) => {
@@ -64,8 +70,8 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
           {t("football.standings")}
         </Typography>
         {isMobile && (
-          <Button 
-            size="small" 
+          <Button
+            size="small"
             onClick={() => setIsExpanded(!isExpanded)}
             startIcon={isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           >
@@ -73,6 +79,16 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
           </Button>
         )}
       </Box>
+      <Slider
+        sx={{ mx: 1 }}
+        getAriaLabel={() => 'Temperature range'}
+        value={roundsInterval}
+        onChange={handleIntervalChange}
+        valueLabelDisplay="auto"
+        getAriaValueText={(value) => `${value} rounds`}
+        min={roundsInterval[0]}
+        max={roundsInterval[1]}
+      />
       <Table size="small" aria-label="standings table">
         <TableHead>
           <TableRow>
