@@ -27,6 +27,7 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
   const [error, setError] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [roundsInterval, setRoundsInterval] = useState([1, 10]);
+  const [sliderValue, setSliderValue] = useState([1, 10]);
   const [maxRound, setMaxRound] = useState(0);
 
   const theme = useTheme();
@@ -35,6 +36,10 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
 
   const handleIntervalChange = (_event, newValue) => {
     setRoundsInterval(newValue);
+  };
+
+  const handleSliderChange = (_event, newValue) => {
+    setSliderValue(newValue);
   };
 
   useEffect(() => {
@@ -83,8 +88,9 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
         <Slider
           sx={{ mx: 4 }}
           getAriaLabel={() => 'Temperature range'}
-          value={roundsInterval}
-          onChange={handleIntervalChange}
+          value={sliderValue}
+          onChange={handleSliderChange}
+          onChangeCommitted={handleIntervalChange}
           valueLabelDisplay="auto"
           getAriaValueText={(value) => `${value} rounds`}
           min={1}

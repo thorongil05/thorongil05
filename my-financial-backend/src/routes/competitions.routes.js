@@ -36,6 +36,8 @@ router.get("/:id/teams", authenticateToken, (request, response) => {
 });
 
 router.get("/:id/standings", authenticateToken, (request, response) => {
+  // TODO: add validation for args
+  // TODO: add caching
   const competitionId = request.params.id;
   let args = {};
   if (request.query) {
