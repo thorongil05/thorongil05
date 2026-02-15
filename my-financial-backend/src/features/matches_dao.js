@@ -21,7 +21,7 @@ async function insert(matchEntry) {
   ];
 
   const { rows } = await pool.query(query, values);
-  logger.info({ match: rows[0] }, "Match inserted");
+  logger.info({ match: rows[0] }, "Match inserted in Database");
   return rows[0];
 }
 
@@ -92,7 +92,7 @@ async function findMatches(competitionId = null, round = null, teamId = null, so
     },
   }));
 
-  logger.info({ matches: rows }, "Retrieved matches");
+  logger.info({ count: domainMatches.length }, "Retrieved matches");
 
   return domainMatches;
 }

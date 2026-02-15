@@ -7,35 +7,27 @@ const crypto = require("crypto");
  * This should be applied after authenticateToken middleware
  */
 function trackActivity(activityType) {
-  return async (req, res, next) => {
-    // Store original res.send to intercept successful responses
-    const originalSend = res.send.bind(res);
+  return (req, res, next) => {
 
-    res.send = function (data) {
-      // Only track if the response was successful (2xx status)
+    res.on("finish", () => {
+      logger.info({ originalUrl: req.originalUrl, method: req.method }, "Response finished - Tracking activity");
       if (res.statusCode >= 200 && res.statusCode < 300) {
-        // Track activity asynchronously (don't block the response)
-        if (req.user && req.user.id) {
+        if (req.user?.id) {
           const userId = req.user.id;
-          // Generate or retrieve session ID from request
-          // For simplicity, we'll use a combination of user ID and a hash of the user agent
-          const sessionId = req.headers['x-session-id'] || 
+
+          const sessionId =
+            req.headers['x-session-id'] ||
             crypto.createHash('md5')
               .update(`${userId}-${req.headers['user-agent'] || 'unknown'}`)
               .digest('hex');
 
-          logger.info({ userId, sessionId, activityType }, "Tracking activity");
-
           userActivityDao.upsertActivity(userId, sessionId, activityType)
             .catch(error => {
-              logger.error({ error, userId, activityType }, "Failed to track activity");
+              logger.error({ error }, "Failed to track activity");
             });
         }
       }
-
-      // Call original send method
-      return originalSend(data);
-    };
+    });
 
     next();
   };

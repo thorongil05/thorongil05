@@ -21,7 +21,7 @@ router.get("/", authenticateToken, (request, response) => {
     .catch((error) => {
       response.status(500);
       response.send(error);
-      console.log(error);
+      logger.error({ error }, "Error fetching matches");
     });
 });
 
@@ -52,12 +52,12 @@ router.post("/", authenticateToken, trackActivity("matches_added"), (request, re
   matchesDao
     .insert(matchEntry)
     .then((result) => {
-      response.send(result);
+      logger.info({ match: result }, "Match inserted");
+      response.status(201).send(result);
     })
     .catch((error) => {
-      response.status(500);
-      response.send(error);
-      console.log(error);
+      response.status(500).send(error);
+      logger.error({ error }, "Error inserting match");
     });
 });
 

@@ -27,6 +27,7 @@ async function upsertActivity(userId, sessionId, activityType) {
     const activity = await findActivity(userId, sessionId);
     if (activity) {
       activity.statistics[activityType] = (activity.statistics[activityType] || 0) + 1;
+      logger.info({ activity }, "Activity found, updating statistics");
       const query = `
         UPDATE user_activity SET statistics = $3, updated_at = CURRENT_TIMESTAMP WHERE user_id = $1 AND session_id = $2;
       `;
