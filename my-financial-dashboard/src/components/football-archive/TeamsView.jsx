@@ -1,17 +1,17 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import {
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
   Stack,
   Typography,
   IconButton,
-  Card,
-  CardContent,
-  Grid,
   Box,
   Button,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import GroupsIcon from "@mui/icons-material/Groups";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditTeamDialog from "./EditTeamDialog";
@@ -74,101 +74,100 @@ function TeamsView({ teams, loading, onTeamAdded, competitionId, isCompact = fal
     }
   };
 
+  const canManage = user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR;
+
   const listContent = (
-    <Grid container spacing={1}>
+    <List sx={{ p: 0 }}>
       {teams.map((element) => (
-        <Grid size={12} key={element.id}>
-          <Card
-            variant="outlined"
-            sx={{
-              transition: "0.3s",
-              "&:hover": {
-                boxShadow: 1,
-                borderColor: "primary.main",
-              },
+        <ListItem
+          key={element.id}
+          disablePadding
+          secondaryAction={canManage && (
+            <>
+              <IconButton size="small" onClick={() => handleEditOpen(element)} color="primary">
+                <EditIcon sx={{ fontSize: 14 }} />
+              </IconButton>
+              <IconButton size="small" onClick={() => handleDeleteTeam(element.id)} color="error">
+                <DeleteIcon sx={{ fontSize: 14 }} />
+              </IconButton>
+            </>
+          )}
+          sx={{
+            py: 0.5,
+            px: 1,
+            "&:hover": { bgcolor: "action.hover" },
+            borderRadius: 1,
+            mb: 0.5
+          }}
+        >
+          <ListItemText
+            primary={element.name}
+            primaryTypographyProps={{
+              variant: "body2",
+              fontWeight: "medium",
+              noWrap: true
             }}
-          >
-            <CardContent sx={{ padding: isCompact ? "6px 12px !important" : "8px 16px !important" }}>
-              <Stack direction="row" spacing={isCompact ? 1 : 2} alignItems="center">
-                <GroupsIcon color="action" fontSize={isCompact ? "small" : "medium"} />
-                <Stack
-                  direction="row"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  sx={{ width: "100%" }}
-                >
-                  <Typography variant={isCompact ? "body2" : "subtitle1"} component="div" sx={{ fontWeight: isCompact ? "medium" : "normal" }}>
-                    {element.name}
-                  </Typography>
-                  <Stack direction="row" spacing={0.5} alignItems="center">
-                    {!isCompact && (
-                      <Typography variant="body2" color="text.secondary">
-                        {element.city}
-                      </Typography>
-                    )}
-                    {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (
-                      <Stack direction="row">
-                        <IconButton size="small" onClick={() => handleEditOpen(element)} color="primary">
-                          <EditIcon sx={{ fontSize: isCompact ? 14 : 18 }} />
-                        </IconButton>
-                        <IconButton size="small" onClick={() => handleDeleteTeam(element.id)} color="error">
-                          <DeleteIcon sx={{ fontSize: isCompact ? 14 : 18 }} />
-                        </IconButton>
-                      </Stack>
-                    )}
-                  </Stack>
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
+            secondary={!isCompact ? element.city : null}
+          />
+        </ListItem>
       ))}
-      {teams.length === 0 && (
-        <Grid size={12}>
-          <Typography variant="body2" color="text.secondary" align="center">
-            {t("football.no_teams")}
-          </Typography>
-        </Grid>
-      )}
-    </Grid>
+    </List>
   );
 
   return (
-    <Stack spacing={isCompact ? 1 : 2}>
+    <Stack spacing={1}>
       {!isCompact && (
         <Stack
           direction="row"
           justifyContent="space-between"
           alignItems="center"
-          sx={{ borderBottom: "1px solid rgba(0,0,0,0.12)", pb: 1 }}
+          sx={{ borderBottom: "1px solid rgba(0,0,0,0.12)", pb: 1, mb: 1 }}
         >
-          <Typography variant="h5" component="div" sx={{ fontWeight: "bold" }}>
+          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
             {t("football.teams")}
           </Typography>
-          {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (
+          {canManage && (
             <IconButton
               onClick={handleClickOpen}
               color="primary"
+              size="small"
               sx={{
                 backgroundColor: "action.hover",
                 "&:hover": { backgroundColor: "action.selected" },
               }}
             >
-              <AddIcon />
+              <AddIcon fontSize="small" />
             </IconButton>
           )}
         </Stack>
       )}
 
-      {/* For compact mode, the "Add" button is handled by the parent or differently */}
-      {isCompact && (user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (
+      {/* Simplified header for empty/setup state */}
+      {teams.length === 0 && !loading && canManage && (
+        <Box sx={{ textAlign: "center", py: 2 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+            {t("football.no_teams", "Nessuna squadra presente")}
+          </Typography>
+          <Button
+            startIcon={<AddIcon />}
+            variant="outlined"
+            size="small"
+            onClick={handleClickOpen}
+            sx={{ borderRadius: 2, textTransform: "none" }}
+          >
+            {t("football.add_first_team", "Aggiungi la prima squadra")}
+          </Button>
+        </Box>
+      )}
+
+      {teams.length > 0 && isCompact && canManage && (
         <Button
           startIcon={<AddIcon />}
           size="small"
           onClick={handleClickOpen}
-          sx={{ alignSelf: "flex-start", fontSize: "0.7rem", mb: 0.5 }}
+          sx={{ alignSelf: "flex-start", fontSize: "0.75rem", px: 1, py: 0.2 }}
         >
-          {t("football.add_team", "Add Team")}
+          {t("football.add_team", "Aggiungi Squadra")}
         </Button>
       )}
 
@@ -187,13 +186,34 @@ function TeamsView({ teams, loading, onTeamAdded, competitionId, isCompact = fal
       />
 
       {loading ? (
-        <Typography variant="body2">{t("football.loading_teams")}</Typography>
-      ) : isCompact ? (
-        listContent
-      ) : (
-        <Box sx={{ maxHeight: "calc(100vh - 300px)", overflowY: "auto" }}>
+        <Typography variant="caption" align="center">{t("football.loading_teams")}</Typography>
+      ) : teams.length > 0 ? (
+        <Box sx={{
+          maxHeight: isCompact ? "400px" : "calc(100vh - 300px)",
+          overflowY: "auto",
+          pr: 0.5,
+          "&::-webkit-scrollbar": {
+            width: "4px",
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "transparent",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            background: "rgba(0,0,0,0.1)",
+            borderRadius: "10px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            background: "rgba(0,0,0,0.2)",
+          },
+        }}>
           {listContent}
         </Box>
+      ) : (
+        !canManage && !loading && (
+          <Typography variant="body2" color="text.secondary" align="center">
+            {t("football.no_teams")}
+          </Typography>
+        )
       )}
     </Stack>
   );

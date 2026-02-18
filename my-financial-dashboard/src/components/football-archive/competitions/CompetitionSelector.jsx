@@ -51,7 +51,7 @@ function CompetitionSelector({ onCompetitionSelect, selectedCompetitionId }) {
 
   return (
     <Box sx={{
-      width: isMobile ? "100%" : "280px",
+      width: "100%",
       flexShrink: 0,
       mb: isMobile ? 2 : 0
     }}>

@@ -16,7 +16,6 @@ import TeamsView from "./TeamsView";
 import MatchesView from "./MatchesView";
 import StandingsView from "./StandingsView";
 import { useState, useEffect, useCallback } from "react";
-import PeopleIcon from "@mui/icons-material/People";
 import { useTranslation } from "react-i18next";
 import { apiGet } from "../../utils/api";
 
@@ -70,38 +69,6 @@ function FootballArchiveView() {
     }
   }, [selectedCompetition, fetchTeams]);
 
-  const participantsContent = (
-    <>
-      <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: isMobile ? 0 : 2 }}>
-        <PeopleIcon color="action" fontSize="small" />
-        <Typography variant="subtitle2" sx={{ fontWeight: "bold", flexGrow: 1 }}>
-          {t("football.participants")}
-        </Typography>
-        {!teamsLoading && (
-          <Chip
-            label={participantCount}
-            size="small"
-            color="primary"
-            variant="outlined"
-            sx={{ fontWeight: "bold", height: 18, fontSize: "0.7rem" }}
-          />
-        )}
-      </Stack>
-      <Box sx={{ flex: 1, overflow: isMobile ? "visible" : "auto", pr: 0.5 }}>
-        <TeamsView
-          teams={teams}
-          loading={teamsLoading}
-          onTeamAdded={() => {
-            fetchTeams(selectedCompetition);
-            setRefreshTrigger((prev) => prev + 1);
-          }}
-          competitionId={selectedCompetition?.id}
-          isCompact={true}
-        />
-      </Box>
-    </>
-  );
-
   const sidebarContent = (
     <Stack spacing={2} sx={{ width: isMobile ? "100%" : "300px", flexShrink: 0 }}>
       <CompetitionSelector
@@ -109,51 +76,46 @@ function FootballArchiveView() {
         selectedCompetitionId={selectedCompetition?.id}
       />
       {selectedCompetition && (
-        isMobile ? (
-          <Accordion disableGutters sx={{ borderRadius: 2, border: "1px solid", borderColor: "divider" }}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ width: "100%" }}>
-                <PeopleIcon color="action" fontSize="small" />
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold", flexGrow: 1 }}>
-                  {t("football.participants")}
-                </Typography>
-                {!teamsLoading && (
-                  <Chip
-                    label={participantCount}
-                    size="small"
-                    variant="outlined"
-                    sx={{ fontWeight: "bold", height: 18, fontSize: "0.7rem" }}
-                  />
-                )}
-              </Stack>
-            </AccordionSummary>
-            <AccordionDetails sx={{ pt: 0 }}>
-              <TeamsView
-                teams={teams}
-                loading={teamsLoading}
-                onTeamAdded={() => {
-                  fetchTeams(selectedCompetition);
-                  setRefreshTrigger((prev) => prev + 1);
-                }}
-                competitionId={selectedCompetition?.id}
-                isCompact={true}
-              />
-            </AccordionDetails>
-          </Accordion>
-        ) : (
-          <Paper
-            variant="outlined"
-            sx={{
-              p: 2,
-              borderRadius: 2,
-              height: "calc(100vh - 250px)",
-              display: "flex",
-              flexDirection: "column"
-            }}
-          >
-            {participantsContent}
-          </Paper>
-        )
+        <Accordion
+          disableGutters
+          defaultExpanded={!isMobile}
+          sx={{
+            borderRadius: 2,
+            border: "1px solid",
+            borderColor: "divider",
+            "&:before": { display: "none" },
+            boxShadow: "none",
+            width: "100%" // Ensure it takes full width of the sidebar stack
+          }}
+        >
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ width: "100%" }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: "bold", flexGrow: 1 }}>
+                {t("football.participants")}
+              </Typography>
+              {!teamsLoading && participantCount > 0 && (
+                <Chip
+                  label={participantCount}
+                  size="small"
+                  variant="outlined"
+                  sx={{ fontWeight: "bold", height: 18, fontSize: "0.7rem" }}
+                />
+              )}
+            </Stack>
+          </AccordionSummary>
+          <AccordionDetails sx={{ pt: 0 }}>
+            <TeamsView
+              teams={teams}
+              loading={teamsLoading}
+              onTeamAdded={() => {
+                fetchTeams(selectedCompetition);
+                setRefreshTrigger((prev) => prev + 1);
+              }}
+              competitionId={selectedCompetition?.id}
+              isCompact={true}
+            />
+          </AccordionDetails>
+        </Accordion>
       )}
     </Stack>
   );
