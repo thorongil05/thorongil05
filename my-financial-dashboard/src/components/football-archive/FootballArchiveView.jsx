@@ -82,48 +82,6 @@ function FootballArchiveView() {
         onCompetitionSelect={handleCompetitionSelect}
         selectedCompetitionId={selectedCompetition?.id}
       />
-      {selectedCompetition && (
-        <Accordion
-          disableGutters
-          defaultExpanded={!isMobile}
-          sx={{
-            borderRadius: 2,
-            border: "1px solid",
-            borderColor: "divider",
-            "&:before": { display: "none" },
-            boxShadow: "none",
-            width: "100%" // Ensure it takes full width of the sidebar stack
-          }}
-        >
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Stack direction="row" spacing={1} alignItems="center" sx={{ width: "100%" }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: "bold", flexGrow: 1 }}>
-                {t("football.participants")}
-              </Typography>
-              {!teamsLoading && participantCount > 0 && (
-                <Chip
-                  label={participantCount}
-                  size="small"
-                  variant="outlined"
-                  sx={{ fontWeight: "bold", height: 18, fontSize: "0.7rem" }}
-                />
-              )}
-            </Stack>
-          </AccordionSummary>
-          <AccordionDetails sx={{ pt: 0 }}>
-            <TeamsView
-              teams={teams}
-              loading={teamsLoading}
-              onTeamAdded={() => {
-                fetchTeams(selectedCompetition);
-                setRefreshTrigger((prev) => prev + 1);
-              }}
-              competitionId={selectedCompetition?.id}
-              isCompact={true}
-            />
-          </AccordionDetails>
-        </Accordion>
-      )}
     </Stack>
   );
 
@@ -144,6 +102,10 @@ function FootballArchiveView() {
             label={t("football.matches", "Partite")}
             sx={{ fontWeight: "bold", textTransform: "none" }}
           />
+          <Tab
+            label={t("football.participants", "Partecipanti")}
+            sx={{ fontWeight: "bold", textTransform: "none" }}
+          />
         </Tabs>
       </Box>
 
@@ -161,6 +123,18 @@ function FootballArchiveView() {
             teamsLoading={teamsLoading}
             onMatchAdded={() => setRefreshTrigger((prev) => prev + 1)}
             refreshTrigger={refreshTrigger}
+          />
+        )}
+        {tabValue === 2 && (
+          <TeamsView
+            teams={teams}
+            loading={teamsLoading}
+            onTeamAdded={() => {
+              fetchTeams(selectedCompetition);
+              setRefreshTrigger((prev) => prev + 1);
+            }}
+            competitionId={selectedCompetition?.id}
+            isCompact={false}
           />
         )}
       </Box>

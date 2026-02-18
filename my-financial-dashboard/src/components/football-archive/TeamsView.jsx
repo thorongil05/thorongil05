@@ -188,26 +188,7 @@ function TeamsView({ teams, loading, onTeamAdded, competitionId, isCompact = fal
       {loading ? (
         <Typography variant="caption" align="center">{t("football.loading_teams")}</Typography>
       ) : teams.length > 0 ? (
-        <Box sx={{
-          maxHeight: isCompact ? "400px" : "calc(100vh - 300px)",
-          overflowY: "auto",
-          pr: 0.5,
-          "&::-webkit-scrollbar": {
-            width: "4px",
-          },
-          "&::-webkit-scrollbar-track": {
-            background: "transparent",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            background: "rgba(0,0,0,0.1)",
-            borderRadius: "10px",
-          },
-          "&::-webkit-scrollbar-thumb:hover": {
-            background: "rgba(0,0,0,0.2)",
-          },
-        }}>
-          {listContent}
-        </Box>
+        listContent
       ) : (
         !canManage && !loading && (
           <Typography variant="body2" color="text.secondary" align="center">
