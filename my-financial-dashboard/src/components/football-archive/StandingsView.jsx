@@ -14,6 +14,8 @@ import {
   Button,
   TableSortLabel,
   Stack,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import PropTypes from "prop-types";
 import { useEffect, useState, useMemo } from "react";
@@ -28,7 +30,6 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
   const [standings, setStandings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isExpanded, setIsExpanded] = useState(false);
   const [roundsInterval, setRoundsInterval] = useState([1, 0]);
   const [sliderValue, setSliderValue] = useState([1, 0]);
   const [maxRound, setMaxRound] = useState(0);
@@ -40,7 +41,14 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const showFullDetails = !isMobile || isExpanded;
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+
+  // Default expanded for desktop, collapsed for mobile/tablet
+  const [isExpanded, setIsExpanded] = useState(!isTablet);
+
+  // Column visibility logic
+  const showP2 = isExpanded; // P, W, D, L
+  const showP3 = isExpanded; // GF, GA, GD
 
   const handleIntervalChange = (_event, newValue) => {
     setRoundsInterval(newValue);
@@ -160,52 +168,84 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
   }
 
   return (
-    <TableContainer component={Paper}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 1 }}>
-        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+    <TableContainer
+      component={Paper}
+      variant="outlined"
+      sx={{
+        borderRadius: 2,
+        overflow: "auto",
+        "&::-webkit-scrollbar": {
+          width: "6px",
+          height: "6px",
+        },
+        "&::-webkit-scrollbar-track": {
+          background: "transparent",
+        },
+        "&::-webkit-scrollbar-thumb": {
+          background: "rgba(0,0,0,0.1)",
+          borderRadius: "10px",
+        },
+        "&::-webkit-scrollbar-thumb:hover": {
+          background: "rgba(0,0,0,0.2)",
+        },
+      }}
+    >
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider", bgcolor: "background.paper" }}
+      >
+        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
           {t("football.standings")}
         </Typography>
         <Stack direction="row" spacing={1}>
           {(sortBy !== "points" || sortOrder !== "desc") && (
-            <Button
-              size="small"
-              onClick={resetSorting}
-              startIcon={<RestartAltIcon />}
-              variant="outlined"
-              sx={{ py: 0 }}
-            >
-              {t("common.reset_sort", "Reset Sort")}
-            </Button>
+            <Tooltip title={t("common.reset_sort")}>
+              <IconButton size="small" onClick={resetSorting} sx={{ border: "1px solid", borderColor: "divider" }}>
+                <RestartAltIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           )}
-          {isMobile && (
-            <Button
-              size="small"
-              onClick={() => setIsExpanded(!isExpanded)}
-              startIcon={isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-            >
-              {isExpanded ? t("football.collapse") : t("football.expand")}
-            </Button>
-          )}
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => setIsExpanded(!isExpanded)}
+            startIcon={isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            sx={{ borderRadius: 2, textTransform: "none", fontSize: "0.75rem" }}
+          >
+            {isExpanded ? t("common.less", "Less") : t("common.more", "More")}
+          </Button>
         </Stack>
-      </Box>
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 1 }}>
+      </Stack>
+
+      <Box sx={{ px: 4, py: 1, bgcolor: "background.paper" }}>
         <Slider
-          sx={{ mx: 4 }}
-          getAriaLabel={() => 'Temperature range'}
           value={sliderValue}
           onChange={handleSliderChange}
           onChangeCommitted={handleIntervalChange}
           valueLabelDisplay="auto"
-          getAriaValueText={(value) => `${value} rounds`}
           min={1}
           max={maxRound}
+          size="small"
         />
+        <Typography variant="caption" color="text.secondary" align="center" display="block">
+          {t("football.rounds_range", "Rounds Range")}: {sliderValue[0]} - {sliderValue[1]}
+        </Typography>
       </Box>
-      <Table size="small" aria-label="standings table">
+
+      <Table
+        size="small"
+        aria-label="standings table"
+        sx={{
+          minWidth: isExpanded ? 800 : "100%",
+          tableLayout: "fixed"
+        }}
+      >
         <TableHead>
-          <TableRow>
-            <TableCell sx={{ width: "40px" }}>Pos</TableCell>
-            <TableCell>
+          <TableRow sx={{ bgcolor: "action.hover" }}>
+            <TableCell sx={{ width: "50px", fontWeight: "bold" }}>Pos</TableCell>
+            <TableCell sx={{ fontWeight: "bold", width: "auto", minWidth: 150 }}>
               <TableSortLabel
                 active={sortBy === "teamName"}
                 direction={sortBy === "teamName" ? sortOrder : "asc"}
@@ -214,7 +254,7 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
                 Team
               </TableSortLabel>
             </TableCell>
-            <TableCell align="center">
+            <TableCell align="center" sx={{ fontWeight: "bold", width: "50px" }}>
               <TableSortLabel
                 active={sortBy === "played"}
                 direction={sortBy === "played" ? sortOrder : "desc"}
@@ -223,9 +263,9 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
                 P
               </TableSortLabel>
             </TableCell>
-            {showFullDetails && (
+            {showP2 && (
               <>
-                <TableCell align="center">
+                <TableCell align="center" sx={{ fontWeight: "bold", width: "50px" }}>
                   <TableSortLabel
                     active={sortBy === "won"}
                     direction={sortBy === "won" ? sortOrder : "desc"}
@@ -234,7 +274,7 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
                     W
                   </TableSortLabel>
                 </TableCell>
-                <TableCell align="center">
+                <TableCell align="center" sx={{ fontWeight: "bold", width: "50px" }}>
                   <TableSortLabel
                     active={sortBy === "drawn"}
                     direction={sortBy === "drawn" ? sortOrder : "desc"}
@@ -243,7 +283,7 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
                     D
                   </TableSortLabel>
                 </TableCell>
-                <TableCell align="center">
+                <TableCell align="center" sx={{ fontWeight: "bold", width: "50px" }}>
                   <TableSortLabel
                     active={sortBy === "lost"}
                     direction={sortBy === "lost" ? sortOrder : "desc"}
@@ -252,7 +292,11 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
                     L
                   </TableSortLabel>
                 </TableCell>
-                <TableCell align="center">
+              </>
+            )}
+            {showP3 && (
+              <>
+                <TableCell align="center" sx={{ fontWeight: "bold", width: "50px" }}>
                   <TableSortLabel
                     active={sortBy === "goalsFor"}
                     direction={sortBy === "goalsFor" ? sortOrder : "desc"}
@@ -261,7 +305,7 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
                     GF
                   </TableSortLabel>
                 </TableCell>
-                <TableCell align="center">
+                <TableCell align="center" sx={{ fontWeight: "bold", width: "50px" }}>
                   <TableSortLabel
                     active={sortBy === "goalsAgainst"}
                     direction={sortBy === "goalsAgainst" ? sortOrder : "desc"}
@@ -270,7 +314,7 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
                     GA
                   </TableSortLabel>
                 </TableCell>
-                <TableCell align="center">
+                <TableCell align="center" sx={{ fontWeight: "bold", width: "50px" }}>
                   <TableSortLabel
                     active={sortBy === "goalDifference"}
                     direction={sortBy === "goalDifference" ? sortOrder : "desc"}
@@ -281,7 +325,15 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
                 </TableCell>
               </>
             )}
-            <TableCell align="center">
+            <TableCell
+              align="center"
+              sx={{
+                fontWeight: "bold",
+                bgcolor: "primary.soft",
+                color: "primary.main",
+                width: "60px"
+              }}
+            >
               <TableSortLabel
                 active={sortBy === "points"}
                 direction={sortBy === "points" ? sortOrder : "desc"}
@@ -295,44 +347,55 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
         <TableBody>
           {loading && (
             <TableRow>
-              <TableCell colSpan={showFullDetails ? 10 : 4} align="center">
-                Loading standings...
+              <TableCell colSpan={isExpanded ? 10 : 4} align="center" sx={{ py: 4 }}>
+                <Typography variant="body2" color="text.secondary">Loading standings...</Typography>
               </TableCell>
             </TableRow>
           )}
           {error && (
             <TableRow>
-              <TableCell colSpan={10} align="center" style={{ color: "red" }}>
-                Error: {error}
+              <TableCell colSpan={10} align="center" sx={{ py: 4 }}>
+                <Typography variant="body2" color="error">Error: {error}</Typography>
               </TableCell>
             </TableRow>
           )}
           {!loading && !error && sortedStandings.length === 0 && (
             <TableRow>
-              <TableCell colSpan={showFullDetails ? 10 : 4} align="center">
-                No standings available
+              <TableCell colSpan={10} align="center" sx={{ py: 4 }}>
+                <Typography variant="body2" color="text.secondary">No standings available</Typography>
               </TableCell>
             </TableRow>
           )}
           {!loading &&
             !error &&
             sortedStandings.map((team, index) => (
-              <TableRow key={team.teamId}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{team.teamName}</TableCell>
+              <TableRow key={team.teamId} hover>
+                <TableCell sx={{ color: "text.secondary" }}>{index + 1}</TableCell>
+                <TableCell sx={{ fontWeight: "medium" }}>{team.teamName}</TableCell>
                 <TableCell align="center">{team.played}</TableCell>
-                {showFullDetails && (
+                {showP2 && (
                   <>
                     <TableCell align="center">{team.won}</TableCell>
                     <TableCell align="center">{team.drawn}</TableCell>
                     <TableCell align="center">{team.lost}</TableCell>
+                  </>
+                )}
+                {showP3 && (
+                  <>
                     <TableCell align="center">{team.goalsFor}</TableCell>
                     <TableCell align="center">{team.goalsAgainst}</TableCell>
                     <TableCell align="center">{team.goalDifference}</TableCell>
                   </>
                 )}
-                <TableCell align="center">
-                  <strong>{team.points}</strong>
+                <TableCell
+                  align="center"
+                  sx={{
+                    bgcolor: "action.selected",
+                    fontWeight: "bold",
+                    color: "primary.main"
+                  }}
+                >
+                  {team.points}
                 </TableCell>
               </TableRow>
             ))}
