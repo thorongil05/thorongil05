@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import {
   Dialog,
@@ -16,13 +16,17 @@ import {
   Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { useAuth } from "../../context/AuthContext";
-import { apiPost } from "../../utils/api";
+import { useAuth } from "../../../context/AuthContext";
+import { apiPost, apiPut } from "../../../utils/api";
 
-async function submit(e, formData, onSubmitAction) {
+async function submit(e, formData, competitionToEdit, onSubmitAction) {
   e.preventDefault();
   try {
-    await apiPost(`/api/competitions/`, formData);
+    if (competitionToEdit) {
+      await apiPut(`/api/competitions/${competitionToEdit.id}`, formData);
+    } else {
+      await apiPost(`/api/competitions/`, formData);
+    }
     console.log("Success, executing on submit action");
     onSubmitAction();
   } catch (error) {
@@ -30,7 +34,7 @@ async function submit(e, formData, onSubmitAction) {
   }
 }
 
-function AddCompetitionDialog({ onClose, open, onInsert }) {
+function CompetitionDialog({ onClose, open, onInsert, competitionToEdit }) {
   const { token } = useAuth();
   const initialFormState = {
     name: "",
@@ -45,6 +49,24 @@ function AddCompetitionDialog({ onClose, open, onInsert }) {
   };
   let [formData, setFormData] = useState(initialFormState);
 
+  useEffect(() => {
+    if (competitionToEdit) {
+      setFormData({
+        name: competitionToEdit.name || "",
+        country: competitionToEdit.country || "",
+        type: competitionToEdit.type || "LEAGUE",
+        metadata: {
+          totalMatches: competitionToEdit.metadata?.totalMatches || "",
+          phasesCount: competitionToEdit.metadata?.phasesCount || "",
+          maxParticipants: competitionToEdit.metadata?.maxParticipants || "",
+          competitionFormat: competitionToEdit.metadata?.competitionFormat || "",
+        },
+      });
+    } else {
+      setFormData(initialFormState);
+    }
+  }, [competitionToEdit, open]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -58,10 +80,12 @@ function AddCompetitionDialog({ onClose, open, onInsert }) {
     }));
   };
 
+  const dialogTitle = competitionToEdit ? "Modifica competizione" : "Aggiungi competizione";
+
   return (
     <Dialog onClose={onClose} open={open}>
-      <DialogTitle>Aggiungi competizione</DialogTitle>
-      <form onSubmit={(e) => submit(e, formData, () => {
+      <DialogTitle>{dialogTitle}</DialogTitle>
+      <form onSubmit={(e) => submit(e, formData, competitionToEdit, () => {
         onInsert();
         setFormData(initialFormState);
       })}>
@@ -157,7 +181,7 @@ function AddCompetitionDialog({ onClose, open, onInsert }) {
             type="submit"
             fullWidth
           >
-            Salva
+            {competitionToEdit ? "Aggiorna" : "Salva"}
           </Button>
         </Stack>
       </form>
@@ -165,10 +189,11 @@ function AddCompetitionDialog({ onClose, open, onInsert }) {
   );
 }
 
-AddCompetitionDialog.propTypes = {
+CompetitionDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
   onInsert: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
+  competitionToEdit: PropTypes.object,
 };
 
-export default AddCompetitionDialog;
+export default CompetitionDialog;

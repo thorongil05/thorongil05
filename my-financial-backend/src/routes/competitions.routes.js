@@ -87,6 +87,26 @@ router.post(
   },
 );
 
+router.put(
+  "/:id",
+  authenticateToken,
+  trackActivity("competitions_updated"),
+  (request, response) => {
+    const competitionId = request.params.id;
+    let competitionEntry = mapper.mapToCompetition(request.body);
+    competitionsDao
+      .update(competitionId, competitionEntry)
+      .then((result) => {
+        response.send(result);
+      })
+      .catch((error) => {
+        response.status(500);
+        response.send(error);
+        console.log(error);
+      });
+  },
+);
+
 router.options("/", (request, response) => {
   response.set({
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",

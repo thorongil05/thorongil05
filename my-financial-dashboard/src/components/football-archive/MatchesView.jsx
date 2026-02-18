@@ -10,6 +10,7 @@ import {
   MenuItem,
   useTheme,
   useMediaQuery,
+  Box
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useState, useEffect, useCallback } from "react";
@@ -156,20 +157,63 @@ function MatchesView({
   }, [fetchMatches]);
 
   return (
-    <Stack>
-      <TableContainer component={Paper}>
-        <Stack
-          direction={isMobile ? "column" : "row"}
-          justifyContent="space-between"
-          alignItems={isMobile ? "flex-start" : "center"}
-          spacing={2}
-          sx={{ p: 1 }}
+    <Stack spacing={2}>
+      <TableContainer
+        component={Paper}
+        variant="outlined"
+        sx={{
+          borderRadius: 2,
+          overflow: "hidden",
+          borderColor: "divider"
+        }}
+      >
+        <Box
+          sx={{
+            p: 2,
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            justifyContent: "space-between",
+            alignItems: isMobile ? "stretch" : "center",
+            gap: 2,
+            bgcolor: "background.paper",
+          }}
         >
-          <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-            {t("football.matches")}
-          </Typography>
-          <Stack direction={isMobile ? "column" : "row"} spacing={1} sx={{ width: isMobile ? "100%" : "auto" }}>
-            <FormControl size="small" sx={{ minWidth: isMobile ? "100%" : 120 }}>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+              {t("football.matches")}
+            </Typography>
+            {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && !isMobile && (
+              <Button
+                variant="soft"
+                size="small"
+                startIcon={<AddIcon />}
+                onClick={() => {
+                  setMatchToEdit(null);
+                  setMatchDialogOpen(true);
+                }}
+                disabled={!selectedCompetition}
+                sx={{
+                  borderRadius: 2,
+                  px: 2,
+                  bgcolor: "primary.main",
+                  color: "white",
+                  "&:hover": { bgcolor: "primary.dark" }
+                }}
+              >
+                {t("football.add_match", "Add Match")}
+              </Button>
+            )}
+          </Stack>
+
+          <Stack
+            direction={isMobile ? "column" : "row"}
+            spacing={1.5}
+            alignItems="center"
+            sx={{ width: isMobile ? "100%" : "auto" }}
+          >
+            <FormControl size="small" sx={{ minWidth: isMobile ? "100%" : 140 }}>
               <InputLabel id="round-select-label">{t("football.round", "Round")}</InputLabel>
               <Select
                 labelId="round-select-label"
@@ -178,6 +222,7 @@ function MatchesView({
                 label={t("football.round", "Round")}
                 onChange={(e) => setSelectedRound(e.target.value)}
                 disabled={!selectedCompetition}
+                sx={{ borderRadius: 2 }}
               >
                 <MenuItem value="All">{t("football.all_rounds", "All Rounds")}</MenuItem>
                 {rounds.map((round) => (
@@ -187,7 +232,8 @@ function MatchesView({
                 ))}
               </Select>
             </FormControl>
-            <FormControl size="small" sx={{ minWidth: isMobile ? "100%" : 150 }}>
+
+            <FormControl size="small" sx={{ minWidth: isMobile ? "100%" : 180 }}>
               <InputLabel
                 id="team-select-label"
                 sx={{ color: selectedTeamId !== "All" ? "secondary.main" : "inherit" }}
@@ -201,6 +247,7 @@ function MatchesView({
                 label={t("football.team", "Team")}
                 onChange={(e) => setSelectedTeamId(e.target.value)}
                 disabled={!selectedCompetition}
+                sx={{ borderRadius: 2 }}
               >
                 <MenuItem value="All">{t("football.all_teams", "All Teams")}</MenuItem>
                 {teams.map((team) => (
@@ -210,15 +257,17 @@ function MatchesView({
                 ))}
               </Select>
             </FormControl>
+
             <Button
               size="small"
               onClick={handleResetFilters}
               disabled={selectedRound === "All" && selectedTeamId === "All" && sortBy === "match_date"}
-              fullWidth={isMobile}
+              sx={{ borderRadius: 2, minWidth: 80 }}
             >
               {t("common.reset", "Reset")}
             </Button>
-            {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (
+
+            {isMobile && (user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
@@ -227,13 +276,14 @@ function MatchesView({
                   setMatchDialogOpen(true);
                 }}
                 disabled={!selectedCompetition}
-                fullWidth={isMobile}
+                fullWidth
+                sx={{ borderRadius: 2 }}
               >
                 {t("football.add_match", "Add Match")}
               </Button>
             )}
           </Stack>
-        </Stack>
+        </Box>
 
         {isMobile ? (
           <MobileMatchesView
