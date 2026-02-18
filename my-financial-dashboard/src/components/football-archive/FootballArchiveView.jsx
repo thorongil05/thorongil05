@@ -10,6 +10,8 @@ import {
   AccordionDetails,
   useMediaQuery,
   useTheme,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import TeamsView from "./TeamsView";
@@ -29,6 +31,11 @@ function FootballArchiveView() {
   const [participantCount, setParticipantCount] = useState(0);
   const [selectedCompetition, setSelectedCompetition] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [tabValue, setTabValue] = useState(0);
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
 
   const fetchTeams = useCallback((competition) => {
     const endpoint = competition
@@ -121,18 +128,42 @@ function FootballArchiveView() {
   );
 
   const mainContent = selectedCompetition ? (
-    <Stack spacing={3} sx={{ flex: 1, minWidth: 0, width: "100%" }}>
-      <StandingsView
-        selectedCompetition={selectedCompetition}
-        refreshTrigger={refreshTrigger}
-      />
-      <MatchesView
-        selectedCompetition={selectedCompetition}
-        teams={teams}
-        teamsLoading={teamsLoading}
-        onMatchAdded={() => setRefreshTrigger((prev) => prev + 1)}
-        refreshTrigger={refreshTrigger}
-      />
+    <Stack spacing={2} sx={{ flex: 1, minWidth: 0, width: "100%" }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          aria-label="football content tabs"
+          variant={isMobile ? "fullWidth" : "standard"}
+        >
+          <Tab
+            label={t("football.standings", "Classifica")}
+            sx={{ fontWeight: "bold", textTransform: "none" }}
+          />
+          <Tab
+            label={t("football.matches", "Partite")}
+            sx={{ fontWeight: "bold", textTransform: "none" }}
+          />
+        </Tabs>
+      </Box>
+
+      <Box sx={{ mt: 1 }}>
+        {tabValue === 0 && (
+          <StandingsView
+            selectedCompetition={selectedCompetition}
+            refreshTrigger={refreshTrigger}
+          />
+        )}
+        {tabValue === 1 && (
+          <MatchesView
+            selectedCompetition={selectedCompetition}
+            teams={teams}
+            teamsLoading={teamsLoading}
+            onMatchAdded={() => setRefreshTrigger((prev) => prev + 1)}
+            refreshTrigger={refreshTrigger}
+          />
+        )}
+      </Box>
     </Stack>
   ) : (
     <Box sx={{
