@@ -173,16 +173,25 @@ function MatchesView({
         variant="outlined"
         sx={{
           borderRadius: 2,
-          overflow: "hidden",
-          borderColor: "divider"
+          overflow: "auto",
+          borderColor: "divider",
+          width: "100%",
+          "&::-webkit-scrollbar": {
+            height: "6px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            background: "rgba(0,0,0,0.1)",
+            borderRadius: "10px",
+          },
         }}
       >
         <Stack
           sx={{
-            p: 2,
+            p: isMobile ? 1.5 : 2,
             borderBottom: "1px solid",
             borderColor: "divider",
             bgcolor: "background.paper",
+            minWidth: isMobile ? "fit-content" : "auto"
           }}
           spacing={2}
         >
@@ -237,23 +246,25 @@ function MatchesView({
             <Stack direction="row" spacing={1} alignItems="center">
               {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && !isMobile && (
                 <Tooltip title={t("football.add_match", "Add Match")}>
-                  <IconButton
-                    size="small"
-                    onClick={() => {
-                      setMatchToEdit(null);
-                      setMatchDialogOpen(true);
-                    }}
-                    disabled={!selectedCompetition}
-                    sx={{
-                      bgcolor: "primary.main",
-                      color: "white",
-                      "&:hover": { bgcolor: "primary.dark" },
-                      width: 32,
-                      height: 32
-                    }}
-                  >
-                    <AddIcon fontSize="small" />
-                  </IconButton>
+                  <Box component="span">
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        setMatchToEdit(null);
+                        setMatchDialogOpen(true);
+                      }}
+                      disabled={!selectedCompetition}
+                      sx={{
+                        bgcolor: "primary.main",
+                        color: "white",
+                        "&:hover": { bgcolor: "primary.dark" },
+                        width: 32,
+                        height: 32
+                      }}
+                    >
+                      <AddIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
                 </Tooltip>
               )}
             </Stack>
@@ -315,14 +326,16 @@ function MatchesView({
 
             <Stack direction="row" spacing={1} justifyContent={isMobile ? "stretch" : "flex-end"}>
               <Tooltip title={t("common.reset", "Reset Filters")}>
-                <IconButton
-                  size="small"
-                  onClick={handleResetFilters}
-                  disabled={selectedRound === "All" && selectedTeamId === "All" && sortBy === "match_date"}
-                  sx={{ borderRadius: 2, border: "1px solid", borderColor: "divider" }}
-                >
-                  <RestartAltIcon fontSize="small" />
-                </IconButton>
+                <Box component="span">
+                  <IconButton
+                    size="small"
+                    onClick={handleResetFilters}
+                    disabled={selectedRound === "All" && selectedTeamId === "All" && sortBy === "match_date"}
+                    sx={{ borderRadius: 2, border: "1px solid", borderColor: "divider" }}
+                  >
+                    <RestartAltIcon fontSize="small" />
+                  </IconButton>
+                </Box>
               </Tooltip>
 
               {isMobile && (user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (

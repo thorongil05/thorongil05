@@ -1,15 +1,13 @@
 import CompetitionSelector from "./competitions/CompetitionSelector";
 import {
-  Grid,
   Stack,
   Typography,
-  Drawer,
-  Button,
+  Chip,
+  Box,
+  Paper,
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Chip,
-  Box,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -72,57 +70,107 @@ function FootballArchiveView() {
     }
   }, [selectedCompetition, fetchTeams]);
 
-  const viewContent = selectedCompetition ? (
-    <Stack spacing={2} sx={{ flex: 1, minWidth: 0 }}>
-      {/* Participants Accordion */}
-      <Accordion disableGutters elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 1 }}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ width: "100%" }}>
-            <PeopleIcon color="action" />
-            <Typography variant="subtitle1" sx={{ fontWeight: "bold", flexGrow: 1 }}>
-              {t("football.participants")}
-            </Typography>
-            {!teamsLoading && (
-              <Chip
-                label={participantCount}
-                size="small"
-                color="primary"
-                variant="outlined"
-                sx={{ fontWeight: "bold", height: 20 }}
-              />
-            )}
-          </Stack>
-        </AccordionSummary>
-        <AccordionDetails sx={{ pt: 0 }}>
-          <TeamsView
-            teams={teams}
-            loading={teamsLoading}
-            onTeamAdded={() => {
-              fetchTeams(selectedCompetition);
-              setRefreshTrigger((prev) => prev + 1);
-            }}
-            competitionId={selectedCompetition?.id}
+  const participantsContent = (
+    <>
+      <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: isMobile ? 0 : 2 }}>
+        <PeopleIcon color="action" fontSize="small" />
+        <Typography variant="subtitle2" sx={{ fontWeight: "bold", flexGrow: 1 }}>
+          {t("football.participants")}
+        </Typography>
+        {!teamsLoading && (
+          <Chip
+            label={participantCount}
+            size="small"
+            color="primary"
+            variant="outlined"
+            sx={{ fontWeight: "bold", height: 18, fontSize: "0.7rem" }}
           />
-        </AccordionDetails>
-      </Accordion>
+        )}
+      </Stack>
+      <Box sx={{ flex: 1, overflow: isMobile ? "visible" : "auto", pr: 0.5 }}>
+        <TeamsView
+          teams={teams}
+          loading={teamsLoading}
+          onTeamAdded={() => {
+            fetchTeams(selectedCompetition);
+            setRefreshTrigger((prev) => prev + 1);
+          }}
+          competitionId={selectedCompetition?.id}
+          isCompact={true}
+        />
+      </Box>
+    </>
+  );
 
-      <Grid container spacing={2}>
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <StandingsView
-            selectedCompetition={selectedCompetition}
-            refreshTrigger={refreshTrigger}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <MatchesView
-            selectedCompetition={selectedCompetition}
-            teams={teams}
-            teamsLoading={teamsLoading}
-            onMatchAdded={() => setRefreshTrigger((prev) => prev + 1)}
-            refreshTrigger={refreshTrigger}
-          />
-        </Grid>
-      </Grid>
+  const sidebarContent = (
+    <Stack spacing={2} sx={{ width: isMobile ? "100%" : "300px", flexShrink: 0 }}>
+      <CompetitionSelector
+        onCompetitionSelect={handleCompetitionSelect}
+        selectedCompetitionId={selectedCompetition?.id}
+      />
+      {selectedCompetition && (
+        isMobile ? (
+          <Accordion disableGutters sx={{ borderRadius: 2, border: "1px solid", borderColor: "divider" }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ width: "100%" }}>
+                <PeopleIcon color="action" fontSize="small" />
+                <Typography variant="subtitle2" sx={{ fontWeight: "bold", flexGrow: 1 }}>
+                  {t("football.participants")}
+                </Typography>
+                {!teamsLoading && (
+                  <Chip
+                    label={participantCount}
+                    size="small"
+                    variant="outlined"
+                    sx={{ fontWeight: "bold", height: 18, fontSize: "0.7rem" }}
+                  />
+                )}
+              </Stack>
+            </AccordionSummary>
+            <AccordionDetails sx={{ pt: 0 }}>
+              <TeamsView
+                teams={teams}
+                loading={teamsLoading}
+                onTeamAdded={() => {
+                  fetchTeams(selectedCompetition);
+                  setRefreshTrigger((prev) => prev + 1);
+                }}
+                competitionId={selectedCompetition?.id}
+                isCompact={true}
+              />
+            </AccordionDetails>
+          </Accordion>
+        ) : (
+          <Paper
+            variant="outlined"
+            sx={{
+              p: 2,
+              borderRadius: 2,
+              height: "calc(100vh - 250px)",
+              display: "flex",
+              flexDirection: "column"
+            }}
+          >
+            {participantsContent}
+          </Paper>
+        )
+      )}
+    </Stack>
+  );
+
+  const mainContent = selectedCompetition ? (
+    <Stack spacing={3} sx={{ flex: 1, minWidth: 0, width: "100%" }}>
+      <StandingsView
+        selectedCompetition={selectedCompetition}
+        refreshTrigger={refreshTrigger}
+      />
+      <MatchesView
+        selectedCompetition={selectedCompetition}
+        teams={teams}
+        teamsLoading={teamsLoading}
+        onMatchAdded={() => setRefreshTrigger((prev) => prev + 1)}
+        refreshTrigger={refreshTrigger}
+      />
     </Stack>
   ) : (
     <Box sx={{
@@ -131,7 +179,7 @@ function FootballArchiveView() {
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      minHeight: "300px",
+      minHeight: "400px",
       p: 4,
       bgcolor: "action.hover",
       borderRadius: 2,
@@ -155,16 +203,13 @@ function FootballArchiveView() {
       sx={{
         display: "flex",
         flexDirection: isMobile ? "column" : "row",
-        gap: isMobile ? 2 : 4,
+        gap: isMobile ? 3 : 4,
         alignItems: "flex-start",
         p: isMobile ? 1 : 2
       }}
     >
-      <CompetitionSelector
-        onCompetitionSelect={handleCompetitionSelect}
-        selectedCompetitionId={selectedCompetition?.id}
-      />
-      {viewContent}
+      {sidebarContent}
+      {mainContent}
     </Box>
   );
 }

@@ -43,8 +43,12 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
 
-  // Default expanded for desktop, collapsed for mobile/tablet
-  const [isExpanded, setIsExpanded] = useState(!isTablet);
+  // Default collapsed for mobile/tablet, expanded for desktop
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    setIsExpanded(!isTablet);
+  }, [isTablet]);
 
   // Column visibility logic
   const showP2 = isExpanded; // P, W, D, L
@@ -202,9 +206,11 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
         <Stack direction="row" spacing={1}>
           {(sortBy !== "points" || sortOrder !== "desc") && (
             <Tooltip title={t("common.reset_sort")}>
-              <IconButton size="small" onClick={resetSorting} sx={{ border: "1px solid", borderColor: "divider" }}>
-                <RestartAltIcon fontSize="small" />
-              </IconButton>
+              <Box component="span">
+                <IconButton size="small" onClick={resetSorting} sx={{ border: "1px solid", borderColor: "divider" }}>
+                  <RestartAltIcon fontSize="small" />
+                </IconButton>
+              </Box>
             </Tooltip>
           )}
           <Button
@@ -354,14 +360,14 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
           )}
           {error && (
             <TableRow>
-              <TableCell colSpan={10} align="center" sx={{ py: 4 }}>
+              <TableCell colSpan={isExpanded ? 10 : 4} align="center" sx={{ py: 4 }}>
                 <Typography variant="body2" color="error">Error: {error}</Typography>
               </TableCell>
             </TableRow>
           )}
           {!loading && !error && sortedStandings.length === 0 && (
             <TableRow>
-              <TableCell colSpan={10} align="center" sx={{ py: 4 }}>
+              <TableCell colSpan={isExpanded ? 10 : 4} align="center" sx={{ py: 4 }}>
                 <Typography variant="body2" color="text.secondary">No standings available</Typography>
               </TableCell>
             </TableRow>
