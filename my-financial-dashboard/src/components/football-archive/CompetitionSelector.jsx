@@ -70,7 +70,7 @@ function CompetitionSelector({ onCompetitionSelect, selectedCompetitionId }) {
       >
         <Chip
           label={t("football.all_competitions", "All Competitions")}
-          onClick={() => onCompetitionSelect && onCompetitionSelect(null)}
+          onClick={() => onCompetitionSelect?.(null)}
           color={selectedCompetitionId === null ? "primary" : "default"}
           variant={selectedCompetitionId === null ? "filled" : "outlined"}
           sx={{ fontWeight: selectedCompetitionId === null ? "bold" : "normal" }}
@@ -79,7 +79,7 @@ function CompetitionSelector({ onCompetitionSelect, selectedCompetitionId }) {
           <Chip
             key={comp.id}
             label={comp.name}
-            onClick={() => onCompetitionSelect && onCompetitionSelect(comp)}
+            onClick={() => onCompetitionSelect?.(comp)}
             color={selectedCompetitionId === comp.id ? "primary" : "default"}
             variant={selectedCompetitionId === comp.id ? "filled" : "outlined"}
             sx={{ fontWeight: selectedCompetitionId === comp.id ? "bold" : "normal" }}

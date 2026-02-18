@@ -2,27 +2,16 @@ import {
   Paper,
   Stack,
   TableContainer,
-  Table,
   Typography,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableHead,
   Button,
-  IconButton,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  TableSortLabel,
   useTheme,
   useMediaQuery,
-  Box,
-  Tooltip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import AddMatchDialog from "./AddMatchDialog";
@@ -30,6 +19,8 @@ import { useAuth } from "../../context/AuthContext";
 import { UserRoles } from "../../constants/roles";
 import { useTranslation } from "react-i18next";
 import { apiGet, apiDelete } from "../../utils/api";
+import MobileMatchesView from "./matches/MobileMatchesView";
+import DesktopMatchesView from "./matches/DesktopMatchesView";
 
 function MatchesView({
   selectedCompetition,
@@ -125,8 +116,6 @@ function MatchesView({
     setSelectedTeamId("All");
     setSortBy("match_date");
     setSortOrder("desc");
-    // This will trigger fetchMatches and fetchRounds
-    // fetchRounds will then set the latest round because selectedRound is "All"
   };
 
   const handleRequestSort = (property) => {
@@ -134,6 +123,7 @@ function MatchesView({
     setSortOrder(isAsc ? "desc" : "asc");
     setSortBy(property);
   };
+
   const handleDeleteMatch = async (matchId) => {
     if (!window.confirm(t("football.confirm_delete_match", "Are you sure you want to delete this match?"))) {
       return;
@@ -141,7 +131,6 @@ function MatchesView({
 
     try {
       await apiDelete(`/api/matches/${matchId}`);
-
       fetchMatches();
       fetchRounds();
       if (onMatchAdded) {
@@ -151,6 +140,11 @@ function MatchesView({
       console.error("Error deleting match:", err);
       alert(t("football.error_deleting_match", { defaultValue: "Error deleting match: {{message}}", message: err.message }));
     }
+  };
+
+  const handleEditMatch = (match) => {
+    setMatchToEdit(match);
+    setMatchDialogOpen(true);
   };
 
   useEffect(() => {
@@ -163,184 +157,108 @@ function MatchesView({
 
   return (
     <Stack>
-    <TableContainer component={Paper}>
-      <Stack
-        direction={isMobile ? "column" : "row"}
-        justifyContent="space-between"
-        alignItems={isMobile ? "flex-start" : "center"}
-        spacing={2}
-        sx={{ p: 1 }}
-      >
-        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-          {t("football.matches")}
-        </Typography>
-        <Stack direction={isMobile ? "column" : "row"} spacing={1} sx={{ width: isMobile ? "100%" : "auto" }}>
-          <FormControl size="small" sx={{ minWidth: isMobile ? "100%" : 120 }}>
-            <InputLabel id="round-select-label">{t("football.round", "Round")}</InputLabel>
-            <Select
-              labelId="round-select-label"
-              id="round-select"
-              value={selectedRound}
-              label={t("football.round", "Round")}
-              onChange={(e) => setSelectedRound(e.target.value)}
-              disabled={!selectedCompetition}
-            >
-              <MenuItem value="All">{t("football.all_rounds", "All Rounds")}</MenuItem>
-              {rounds.map((round) => (
-                <MenuItem key={round} value={round}>
-                  {round}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl size="small" sx={{ minWidth: isMobile ? "100%" : 150 }}>
-            <InputLabel 
-              id="team-select-label"
-              sx={{ color: selectedTeamId !== "All" ? "secondary.main" : "inherit" }}
-            >
-              {t("football.team", "Team")}
-            </InputLabel>
-            <Select
-              labelId="team-select-label"
-              id="team-select"
-              value={selectedTeamId}
-              label={t("football.team", "Team")}
-              onChange={(e) => setSelectedTeamId(e.target.value)}
-              disabled={!selectedCompetition}
-            >
-              <MenuItem value="All">{t("football.all_teams", "All Teams")}</MenuItem>
-              {teams.map((team) => (
-                <MenuItem key={team.id} value={team.id}>
-                  {team.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Button 
-            size="small" 
-            onClick={handleResetFilters}
-            disabled={selectedRound === "All" && selectedTeamId === "All" && sortBy === "match_date"}
-            fullWidth={isMobile}
-          >
-            {t("common.reset", "Reset")}
-          </Button>
-          {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (
+      <TableContainer component={Paper}>
+        <Stack
+          direction={isMobile ? "column" : "row"}
+          justifyContent="space-between"
+          alignItems={isMobile ? "flex-start" : "center"}
+          spacing={2}
+          sx={{ p: 1 }}
+        >
+          <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+            {t("football.matches")}
+          </Typography>
+          <Stack direction={isMobile ? "column" : "row"} spacing={1} sx={{ width: isMobile ? "100%" : "auto" }}>
+            <FormControl size="small" sx={{ minWidth: isMobile ? "100%" : 120 }}>
+              <InputLabel id="round-select-label">{t("football.round", "Round")}</InputLabel>
+              <Select
+                labelId="round-select-label"
+                id="round-select"
+                value={selectedRound}
+                label={t("football.round", "Round")}
+                onChange={(e) => setSelectedRound(e.target.value)}
+                disabled={!selectedCompetition}
+              >
+                <MenuItem value="All">{t("football.all_rounds", "All Rounds")}</MenuItem>
+                {rounds.map((round) => (
+                  <MenuItem key={round} value={round}>
+                    {round}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl size="small" sx={{ minWidth: isMobile ? "100%" : 150 }}>
+              <InputLabel
+                id="team-select-label"
+                sx={{ color: selectedTeamId !== "All" ? "secondary.main" : "inherit" }}
+              >
+                {t("football.team", "Team")}
+              </InputLabel>
+              <Select
+                labelId="team-select-label"
+                id="team-select"
+                value={selectedTeamId}
+                label={t("football.team", "Team")}
+                onChange={(e) => setSelectedTeamId(e.target.value)}
+                disabled={!selectedCompetition}
+              >
+                <MenuItem value="All">{t("football.all_teams", "All Teams")}</MenuItem>
+                {teams.map((team) => (
+                  <MenuItem key={team.id} value={team.id}>
+                    {team.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={() => {
-                setMatchToEdit(null);
-                setMatchDialogOpen(true);
-              }}
-              disabled={!selectedCompetition}
+              size="small"
+              onClick={handleResetFilters}
+              disabled={selectedRound === "All" && selectedTeamId === "All" && sortBy === "match_date"}
               fullWidth={isMobile}
             >
-              {t("football.add_match", "Add Match")}
+              {t("common.reset", "Reset")}
             </Button>
-          )}
-        </Stack>
-      </Stack>
-        <Table size="small" aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell 
-                sortDirection={sortBy === "round" ? sortOrder : false}
-                sx={{ width: isMobile ? "50px" : "80px" }}
+            {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => {
+                  setMatchToEdit(null);
+                  setMatchDialogOpen(true);
+                }}
+                disabled={!selectedCompetition}
+                fullWidth={isMobile}
               >
-                <TableSortLabel
-                  active={sortBy === "round"}
-                  direction={sortBy === "round" ? sortOrder : "asc"}
-                  onClick={() => handleRequestSort("round")}
-                >
-                  <Tooltip title={isMobile ? t("football.round", "Round") : ""}>
-                    <span>{isMobile ? t("football.round_short", "G.") : t("football.round", "Round")}</span>
-                  </Tooltip>
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>{t("football.home_team", "Home Team")}</TableCell>
-              <TableCell>{t("football.away_team", "Away Team")}</TableCell>
-              <TableCell colSpan={2} align="center">{t("football.score", "Score")}</TableCell>
-              {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && <TableCell align="right">{t("common.actions", "Actions")}</TableCell>}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading && (
-              <TableRow>
-                <TableCell colSpan={user ? 6 : 5} align="center">
-                  Loading matches...
-                </TableCell>
-              </TableRow>
+                {t("football.add_match", "Add Match")}
+              </Button>
             )}
-            {error && !loading && (
-              <TableRow>
-                <TableCell colSpan={user ? 6 : 5} align="center" style={{ color: "red" }}>
-                  Error: {error}
-                </TableCell>
-              </TableRow>
-            )}
-            {!loading && !error && matches.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={user ? 6 : 5} align="center">
-                  No matches found
-                </TableCell>
-              </TableRow>
-            )}
-            {!loading &&
-              !error &&
-              matches.length > 0 &&
-              matches.map((match) => (
-                <TableRow key={match.id}>
-                  <TableCell sx={{ width: isMobile ? "50px" : "80px" }}>{match.round || "-"}</TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: match.homeTeam?.id === Number(selectedTeamId) ? "bold" : "normal",
-                      color: match.homeTeam?.id === Number(selectedTeamId) ? "secondary.main" : "inherit",
-                      maxWidth: isMobile ? "100px" : "none",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {match.homeTeam?.name || "Unknown"}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: match.awayTeam?.id === Number(selectedTeamId) ? "bold" : "normal",
-                      color: match.awayTeam?.id === Number(selectedTeamId) ? "secondary.main" : "inherit",
-                      maxWidth: isMobile ? "100px" : "none",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {match.awayTeam?.name || "Unknown"}
-                  </TableCell>
-                  <TableCell colSpan={2} align="center">{match.homeScore} - {match.awayScore}</TableCell>
-                  {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (
-                    <TableCell align="right">
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          setMatchToEdit(match);
-                          setMatchDialogOpen(true);
-                        }}
-                      >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        color="error"
-                        onClick={() => handleDeleteMatch(match.id)}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
+          </Stack>
+        </Stack>
+
+        {isMobile ? (
+          <MobileMatchesView
+            matches={matches}
+            loading={loading}
+            error={error}
+            handleEditMatch={handleEditMatch}
+            handleDeleteMatch={handleDeleteMatch}
+            selectedTeamId={selectedTeamId}
+          />
+        ) : (
+          <DesktopMatchesView
+            matches={matches}
+            loading={loading}
+            error={error}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            handleRequestSort={handleRequestSort}
+            handleEditMatch={handleEditMatch}
+            handleDeleteMatch={handleDeleteMatch}
+            selectedTeamId={selectedTeamId}
+          />
+        )}
       </TableContainer>
+
       <AddMatchDialog
         open={matchDialogOpen}
         onClose={() => {
@@ -362,7 +280,7 @@ function MatchesView({
         selectedCompetition={selectedCompetition}
         matchToEdit={matchToEdit}
         defaultRound={lastUsedRound}
-      ></AddMatchDialog>
+      />
     </Stack>
   );
 }
