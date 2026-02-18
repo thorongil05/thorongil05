@@ -1,12 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Dialog, DialogTitle, Stack, TextField, Button, Checkbox, FormControlLabel, Box, Typography, DialogContent, DialogActions } from "@mui/material";
-import { useAuth } from "../../context/AuthContext";
 import { apiPost } from "../../utils/api";
 
 
 function AddTeamDialog({ onClose, open, onInsert, competitionId }) {
-  const { token } = useAuth();
   const nameInputRef = useRef(null);
   const [addAnother, setAddAnother] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,8 +53,8 @@ function AddTeamDialog({ onClose, open, onInsert, competitionId }) {
   };
 
   return (
-    <Dialog 
-      onClose={onClose} 
+    <Dialog
+      onClose={onClose}
       open={open}
     >
       <DialogTitle>Add Participant to Competition</DialogTitle>

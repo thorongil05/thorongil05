@@ -24,7 +24,7 @@ import { useAuth } from "../../context/AuthContext";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import CloseIcon from "@mui/icons-material/Close";
-import { apiPost, apiPut } from "../../utils/api";
+import { apiGet, apiPost, apiPut } from "../../utils/api";
 
 function ScoreSelector({ label, value, onChange, disabled }) {
   return (
@@ -41,12 +41,24 @@ function ScoreSelector({ label, value, onChange, disabled }) {
         >
           <RemoveIcon />
         </IconButton>
-        <Typography variant="h4" sx={{ minWidth: "40px", fontWeight: "bold" }}>
-          {value ?? 0}
-        </Typography>
+        <TextField
+          type="number"
+          size="small"
+          value={value ?? ""}
+          onChange={(e) => {
+            const val = e.target.value;
+            onChange(val === "" ? 0 : parseInt(val));
+          }}
+          disabled={disabled}
+          inputProps={{
+            min: 0,
+            style: { textAlign: 'center', fontWeight: 'bold', fontSize: '1.5rem' }
+          }}
+          sx={{ width: '80px' }}
+        />
         <IconButton
           size="large"
-          onClick={() => onChange((value || 0) + 1)}
+          onClick={() => onChange(value === null ? 0 : value + 1)}
           disabled={disabled}
           sx={{ border: "1px solid", borderColor: "divider" }}
         >
@@ -81,6 +93,7 @@ function AddMatchDialog({
   let [homeTeamOptions, setHomeTeamOptions] = useState([]);
   let [awayTeamOptions, setAwayTeamOptions] = useState([]);
   let [isSubmitting, setIsSubmitting] = useState(false);
+  let [submitCompleted, setSubmitCompleted] = useState(false);
   let [submitError, setSubmitError] = useState(null);
   let [addAnother, setAddAnother] = useState(false);
   let [match, setMatch] = useState({
@@ -90,6 +103,25 @@ function AddMatchDialog({
     awayTeamScore: null,
     round: "",
   });
+  const [roundMatches, setRoundMatches] = useState([]);
+
+  // Fetch matches for the current round to filter out teams that already played
+  useEffect(() => {
+    if (open && selectedCompetition && match.round) {
+      const params = new URLSearchParams({
+        competitionId: selectedCompetition.id,
+        round: match.round
+      });
+      apiGet(`/api/matches?${params}`)
+        .then(response => {
+          const data = response.data || response;
+          setRoundMatches(data);
+        })
+        .catch(err => console.error("Error fetching round matches:", err));
+    } else {
+      setRoundMatches([]);
+    }
+  }, [open, selectedCompetition, match.round]);
 
   useEffect(() => {
     if (open) {
@@ -116,20 +148,31 @@ function AddMatchDialog({
     }
   }, [open, matchToEdit, defaultRound]);
 
-  // Update options when team selections change
+  // Update options when team selections or round matches change
   useEffect(() => {
-    // Filter out the selected away team from home options
-    setHomeTeamOptions(
-      teams.filter((team) => !match.awayTeam || team.id !== match.awayTeam.id),
+    // Get IDs of teams that already played in this round (excluding current match being edited)
+    const playedTeamIds = new Set(
+      roundMatches
+        .filter(rm => !matchToEdit || rm.id !== matchToEdit.id)
+        .flatMap(rm => [rm.homeTeamId, rm.awayTeamId])
     );
-  }, [match.awayTeam, teams]);
 
-  useEffect(() => {
-    // Filter out the selected home team from away options
-    setAwayTeamOptions(
-      teams.filter((team) => !match.homeTeam || team.id !== match.homeTeam.id),
+    // Filter out the selected away team AND teams that already played this round
+    setHomeTeamOptions(
+      teams.filter((team) =>
+        (!match.awayTeam || team.id !== match.awayTeam.id) &&
+        !playedTeamIds.has(team.id)
+      ),
     );
-  }, [match.homeTeam, teams]);
+
+    // Filter out the selected home team AND teams that already played this round
+    setAwayTeamOptions(
+      teams.filter((team) =>
+        (!match.homeTeam || team.id !== match.homeTeam.id) &&
+        !playedTeamIds.has(team.id)
+      ),
+    );
+  }, [match.awayTeam, match.homeTeam, teams, roundMatches, matchToEdit]);
 
   const handleSubmit = async (event) => {
     if (event) event.preventDefault();
@@ -180,22 +223,16 @@ function AddMatchDialog({
       if (!addAnother || matchToEdit) {
         onClose();
       } else {
-         // Reset form after successful submission only if adding another
-          setMatch({
-            homeTeam: null,
-            awayTeam: null,
-            homeTeamScore: null,
-            awayTeamScore: null,
-            round: match.round, // Keep round for convenience in batch entry
-          });
-          // Focus back to home team input if on desktop
-          if (!isMobile) {
-            setTimeout(() => {
-              if (homeTeamRef.current) {
-                homeTeamRef.current.focus();
-              }
-            }, 0);
-          }
+        // Reset form after successful submission only if adding another
+        setMatch({
+          homeTeam: null,
+          awayTeam: null,
+          homeTeamScore: null,
+          awayTeamScore: null,
+          round: match.round, // Keep round for convenience in batch entry
+        });
+        // Set submit completed to true to trigger focus back to home team input and other reset logic
+        setSubmitCompleted(true);
       }
     } catch (error) {
       console.error(`Error ${matchToEdit ? "updating" : "creating"} match:`, error);
@@ -204,6 +241,13 @@ function AddMatchDialog({
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    if (submitCompleted && !isMobile) {
+      homeTeamRef.current?.focus();
+      setSubmitCompleted(false);
+    }
+  }, [submitCompleted, isMobile]);
 
   const dialogTitle = matchToEdit ? "Edit Match" : "Add Match";
 

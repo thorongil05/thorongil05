@@ -1,31 +1,41 @@
-import CompetitionSelector from "./CompetitionSelector";
+import CompetitionSelector from "./competitions/CompetitionSelector";
 import {
-  Grid,
   Stack,
   Typography,
-  Drawer,
-  Button,
+  Chip,
+  Box,
+  Paper,
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Chip,
+  useMediaQuery,
+  useTheme,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import TeamsView from "./TeamsView";
 import MatchesView from "./MatchesView";
 import StandingsView from "./StandingsView";
 import { useState, useEffect, useCallback } from "react";
-import PeopleIcon from "@mui/icons-material/People";
 import { useTranslation } from "react-i18next";
 import { apiGet } from "../../utils/api";
 
 function FootballArchiveView() {
   const { t } = useTranslation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [teams, setTeams] = useState([]);
   const [teamsLoading, setTeamsLoading] = useState(true);
   const [participantCount, setParticipantCount] = useState(0);
   const [selectedCompetition, setSelectedCompetition] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [tabValue, setTabValue] = useState(0);
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
 
   const fetchTeams = useCallback((competition) => {
     const endpoint = competition
@@ -34,17 +44,14 @@ function FootballArchiveView() {
 
     apiGet(endpoint)
       .then((data) => {
-        // Handle new response format: { data: [...], metadata: { count: ... } }
         const teamsData = data.data || [];
         const count = data.metadata?.count || 0;
 
-        let retrievedTeams = teamsData.map((element) => {
-          return {
-            id: element.id,
-            name: element.name,
-            city: element.city,
-          };
-        });
+        let retrievedTeams = teamsData.map((element) => ({
+          id: element.id,
+          name: element.name,
+          city: element.city,
+        }));
         setTeams(retrievedTeams);
         setParticipantCount(count);
         setTeamsLoading(false);
@@ -61,7 +68,7 @@ function FootballArchiveView() {
 
   useEffect(() => {
     fetchTeams();
-  }, []);
+  }, [fetchTeams]);
 
   useEffect(() => {
     if (selectedCompetition) {
@@ -69,74 +76,108 @@ function FootballArchiveView() {
     }
   }, [selectedCompetition, fetchTeams]);
 
-  return (
-    <>
+  const sidebarContent = (
+    <Stack spacing={2} sx={{ width: isMobile ? "100%" : "300px", flexShrink: 0 }}>
       <CompetitionSelector
         onCompetitionSelect={handleCompetitionSelect}
         selectedCompetitionId={selectedCompetition?.id}
       />
+    </Stack>
+  );
 
-      {selectedCompetition ? (
-        <Stack spacing={2}>
-          <Accordion disableGutters elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 1 }}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ width: "100%" }}>
-                <PeopleIcon color="action" />
-                <Typography variant="subtitle1" sx={{ fontWeight: "bold", flexGrow: 1 }}>
-                  {t("football.participants")}
-                </Typography>
-                {!teamsLoading && (
-                  <Chip 
-                    label={participantCount} 
-                    size="small" 
-                    color="primary" 
-                    variant="outlined"
-                    sx={{ fontWeight: "bold", height: 20 }}
-                  />
-                )}
-              </Stack>
-            </AccordionSummary>
-            <AccordionDetails sx={{ pt: 0 }}>
-              <TeamsView
-                teams={teams}
-                loading={teamsLoading}
-                onTeamAdded={() => {
-                  fetchTeams(selectedCompetition);
-                  setRefreshTrigger((prev) => prev + 1);
-                }}
-                competitionId={selectedCompetition?.id}
-              ></TeamsView>
-            </AccordionDetails>
-          </Accordion>
-
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <StandingsView
-                selectedCompetition={selectedCompetition}
-                refreshTrigger={refreshTrigger}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <MatchesView
-                selectedCompetition={selectedCompetition}
-                teams={teams}
-                teamsLoading={teamsLoading}
-                onMatchAdded={() => setRefreshTrigger((prev) => prev + 1)}
-                refreshTrigger={refreshTrigger}
-              />
-            </Grid>
-          </Grid>
-        </Stack>
-      ) : (
-        <Typography
-          variant="h5"
-          align="center"
-          style={{ marginTop: "40px", color: "#666" }}
+  const mainContent = selectedCompetition ? (
+    <Stack spacing={2} sx={{ flex: 1, minWidth: 0, width: "100%" }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          aria-label="football content tabs"
+          variant={isMobile ? "fullWidth" : "standard"}
         >
-          {t("football.select_competition_message", "Please select a competition from the side menu to view teams and matches.")}
-        </Typography>
-      )}
-    </>
+          <Tab
+            label={t("football.standings", "Classifica")}
+            sx={{ fontWeight: "bold", textTransform: "none" }}
+          />
+          <Tab
+            label={t("football.matches", "Partite")}
+            sx={{ fontWeight: "bold", textTransform: "none" }}
+          />
+          <Tab
+            label={t("football.participants", "Partecipanti")}
+            sx={{ fontWeight: "bold", textTransform: "none" }}
+          />
+        </Tabs>
+      </Box>
+
+      <Box sx={{ mt: 1 }}>
+        {tabValue === 0 && (
+          <StandingsView
+            selectedCompetition={selectedCompetition}
+            refreshTrigger={refreshTrigger}
+          />
+        )}
+        {tabValue === 1 && (
+          <MatchesView
+            selectedCompetition={selectedCompetition}
+            teams={teams}
+            teamsLoading={teamsLoading}
+            onMatchAdded={() => setRefreshTrigger((prev) => prev + 1)}
+            refreshTrigger={refreshTrigger}
+          />
+        )}
+        {tabValue === 2 && (
+          <TeamsView
+            teams={teams}
+            loading={teamsLoading}
+            onTeamAdded={() => {
+              fetchTeams(selectedCompetition);
+              setRefreshTrigger((prev) => prev + 1);
+            }}
+            competitionId={selectedCompetition?.id}
+            isCompact={false}
+          />
+        )}
+      </Box>
+    </Stack>
+  ) : (
+    <Box sx={{
+      flex: 1,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: "400px",
+      p: 4,
+      bgcolor: "action.hover",
+      borderRadius: 2,
+      border: "2px dashed",
+      borderColor: "divider"
+    }}>
+      <Typography
+        variant="h5"
+        align="center"
+        sx={{ color: "text.secondary", maxWidth: "400px" }}
+      >
+        {isMobile
+          ? t("football.select_competition_message_mobile", "Seleziona una competizione dal menu in alto per iniziare.")
+          : t("football.select_competition_message_desktop", "Seleziona una competizione dalla lista a sinistra per visualizzare i dettagli.")}
+      </Typography>
+    </Box>
+  );
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: isMobile ? "column" : "row",
+        gap: isMobile ? 3 : 4,
+        alignItems: "flex-start",
+        p: isMobile ? 1 : 2
+      }}
+    >
+      {sidebarContent}
+      {mainContent}
+    </Box>
   );
 }
 

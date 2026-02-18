@@ -5,16 +5,17 @@ const standingsService = require("./standings_service");
 
 async function insert(competitionEntry) {
   const query = `
-        INSERT INTO competitions
-            (name, country, type)
-        VALUES($1, $2, $3)
-        RETURNING *;
-    `;
+    INSERT INTO competitions
+        (name, country, type, metadata)
+    VALUES($1, $2, $3, $4)
+    RETURNING *;
+`;
 
   const values = [
     competitionEntry.name,
     competitionEntry.country,
     competitionEntry.type,
+    competitionEntry.metadata || {},
   ];
 
   const { rows } = await pool.query(query, values);
@@ -39,12 +40,36 @@ async function retrieveTeams(competitionId) {
   return rows;
 }
 
+async function update(id, competitionEntry) {
+  const query = `
+    UPDATE competitions
+    SET name = $1, country = $2, type = $3, metadata = $4
+    WHERE id = $5
+    RETURNING *;
+  `;
+
+  const values = [
+    competitionEntry.name,
+    competitionEntry.country,
+    competitionEntry.type,
+    competitionEntry.metadata || {},
+    id,
+  ];
+
+  const { rows } = await pool.query(query, values);
+  if (rows.length === 0) {
+    throw new Error(`Competition with id ${id} not found`);
+  }
+  logger.info({ competition: rows[0] }, "Updated competition");
+  return rows[0];
+}
+
 async function getStandings(competitionId, args = {}) {
   logger.info({ competitionId }, "Retrieving standings");
   const matches = await matchesDao.findMatches(competitionId);
   const totalRounds = matches
     .map((match) => match.round)
-    .reduce((max, round) => Math.max(max, round), 0); // TODO: find a better way to get total rounds
+    .reduce((max, round) => Math.max(max, round), 0);
   let { startInterval, endInterval } = {
     startInterval: 1,
     endInterval: totalRounds,
@@ -73,4 +98,5 @@ module.exports = {
   retrieveAll: retrieveAll,
   retrieveTeams: retrieveTeams,
   getStandings: getStandings,
+  update: update,
 };
