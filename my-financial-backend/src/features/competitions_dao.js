@@ -5,16 +5,17 @@ const standingsService = require("./standings_service");
 
 async function insert(competitionEntry) {
   const query = `
-        INSERT INTO competitions
-            (name, country, type)
-        VALUES($1, $2, $3)
-        RETURNING *;
-    `;
+    INSERT INTO competitions
+        (name, country, type, metadata)
+    VALUES($1, $2, $3, $4)
+    RETURNING *;
+`;
 
   const values = [
     competitionEntry.name,
     competitionEntry.country,
     competitionEntry.type,
+    competitionEntry.metadata || {},
   ];
 
   const { rows } = await pool.query(query, values);

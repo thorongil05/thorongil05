@@ -44,6 +44,7 @@ module.exports = {
       name: input.name,
       country: input.country,
       type: input.type,
+      metadata: input.metadata || {},
     };
   },
 };
