@@ -16,7 +16,12 @@ router.get("/", authenticateToken, (request, response) => {
   matchesDao
     .findMatches(competitionId, round, teamId, sortBy, sortOrder)
     .then((result) => {
-      response.send(result);
+      response.send({
+        data: result,
+        metadata: {
+          count: result.length,
+        },
+      });
     })
     .catch((error) => {
       response.status(500);
@@ -43,57 +48,75 @@ router.get("/rounds", authenticateToken, (request, response) => {
     });
 });
 
-router.post("/", authenticateToken, trackActivity("matches_added"), (request, response) => {
-  logger.info({ body: request.body }, "Received request");
-  if (Array.isArray(request.body)) {
-    throw new Exception("Not supported operation");
-  }
-  let matchEntry = mapper.mapToMatch(request.body);
-  matchesDao
-    .insert(matchEntry)
-    .then((result) => {
-      logger.info({ match: result }, "Match inserted");
-      response.status(201).send(result);
-    })
-    .catch((error) => {
-      response.status(500).send(error);
-      logger.error({ error }, "Error inserting match");
-    });
-});
+router.post(
+  "/",
+  authenticateToken,
+  trackActivity("matches_added"),
+  (request, response) => {
+    logger.info({ body: request.body }, "Received request");
+    if (Array.isArray(request.body)) {
+      throw new Exception("Not supported operation");
+    }
+    let matchEntry = mapper.mapToMatch(request.body);
+    matchesDao
+      .insert(matchEntry)
+      .then((result) => {
+        logger.info({ match: result }, "Match inserted");
+        response.status(201).send(result);
+      })
+      .catch((error) => {
+        response.status(500).send(error);
+        logger.error({ error }, "Error inserting match");
+      });
+  },
+);
 
-router.put("/:id", authenticateToken, trackActivity("matches_updated"), async (request, response) => {
-  logger.info({ body: request.body, id: request.params.id }, "Received update request");
-  
-  let matchEntry = mapper.mapToMatch(request.body);
-  matchesDao
-    .update(request.params.id, matchEntry)
-    .then((result) => {
-      response.send(result);
-    })
-    .catch((error) => {
-      response.status(500);
-      response.send(error);
-      console.log(error);
-    });
-});
+router.put(
+  "/:id",
+  authenticateToken,
+  trackActivity("matches_updated"),
+  async (request, response) => {
+    logger.info(
+      { body: request.body, id: request.params.id },
+      "Received update request",
+    );
 
-router.delete("/:id", authenticateToken, trackActivity("matches_deleted"), async (request, response) => {
-  logger.info({ id: request.params.id }, "Received delete request");  
-  matchesDao
-    .deleteMatch(request.params.id)
-    .then((result) => {
-      if (result) {
+    let matchEntry = mapper.mapToMatch(request.body);
+    matchesDao
+      .update(request.params.id, matchEntry)
+      .then((result) => {
         response.send(result);
-      } else {
-        response.status(404).send({ error: "Match not found" });
-      }
-    })
-    .catch((error) => {
-      response.status(500);
-      response.send(error);
-      console.log(error);
-    });
-});
+      })
+      .catch((error) => {
+        response.status(500);
+        response.send(error);
+        console.log(error);
+      });
+  },
+);
+
+router.delete(
+  "/:id",
+  authenticateToken,
+  trackActivity("matches_deleted"),
+  async (request, response) => {
+    logger.info({ id: request.params.id }, "Received delete request");
+    matchesDao
+      .deleteMatch(request.params.id)
+      .then((result) => {
+        if (result) {
+          response.send(result);
+        } else {
+          response.status(404).send({ error: "Match not found" });
+        }
+      })
+      .catch((error) => {
+        response.status(500);
+        response.send(error);
+        console.log(error);
+      });
+  },
+);
 
 router.options("/:id", (request, response) => {
   response.set({
