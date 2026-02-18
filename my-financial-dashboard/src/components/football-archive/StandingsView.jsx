@@ -12,11 +12,14 @@ import {
   useTheme,
   Box,
   Button,
+  TableSortLabel,
+  Stack,
 } from "@mui/material";
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { useTranslation } from "react-i18next";
 import { apiGet } from "../../utils/api";
 
@@ -26,9 +29,14 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [roundsInterval, setRoundsInterval] = useState([1, 10]);
-  const [sliderValue, setSliderValue] = useState([1, 10]);
+  const [roundsInterval, setRoundsInterval] = useState([1, 0]);
+  const [sliderValue, setSliderValue] = useState([1, 0]);
   const [maxRound, setMaxRound] = useState(0);
+  const [lastFetchedInterval, setLastFetchedInterval] = useState(null);
+
+  // Sorting state
+  const [sortBy, setSortBy] = useState("points");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -42,19 +50,93 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
     setSliderValue(newValue);
   };
 
+  const handleSort = (property) => {
+    const isAsc = sortBy === property && sortOrder === "asc";
+    setSortOrder(isAsc ? "desc" : "asc");
+    setSortBy(property);
+  };
+
+  const resetSorting = () => {
+    setSortBy("points");
+    setSortOrder("desc");
+  };
+
+  const sortedStandings = useMemo(() => {
+    if (!standings || standings.length === 0) return [];
+
+    const result = [...standings];
+    result.sort((a, b) => {
+      let aVal = a[sortBy];
+      let bVal = b[sortBy];
+
+      // Handle team name specially for alphabetical sort
+      if (sortBy === "teamName") {
+        aVal = (aVal || "").toLowerCase();
+        bVal = (bVal || "").toLowerCase();
+      }
+
+      if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
+
+      // Secondary sort by points if not already sorting by points
+      if (sortBy !== "points") {
+        if (a.points < b.points) return 1;
+        if (a.points > b.points) return -1;
+      }
+
+      // Tertiary sort by goal difference
+      if (sortBy !== "goalDifference") {
+        if (a.goalDifference < b.goalDifference) return 1;
+        if (a.goalDifference > b.goalDifference) return -1;
+      }
+
+      return 0;
+    });
+    return result;
+  }, [standings, sortBy, sortOrder]);
+
   useEffect(() => {
     if (!selectedCompetition) {
       setStandings([]);
       return;
     }
 
+    // Skip redundant fetch if interval hasn't changed
+    if (
+      lastFetchedInterval &&
+      roundsInterval[0] === lastFetchedInterval[0] &&
+      roundsInterval[1] === lastFetchedInterval[1]
+    ) {
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
-    apiGet(`/api/competitions/${selectedCompetition.id}/standings?startInterval=${roundsInterval[0]}&endInterval=${roundsInterval[1]}`)
+    const params = new URLSearchParams();
+    if (roundsInterval[1] > 0) {
+      params.append("startInterval", roundsInterval[0]);
+      params.append("endInterval", roundsInterval[1]);
+    }
+
+    const queryStr = params.toString() ? `?${params.toString()}` : "";
+
+    apiGet(`/api/competitions/${selectedCompetition.id}/standings${queryStr}`)
       .then((result) => {
         setStandings(result.standings);
         setMaxRound(result.totalRounds);
+
+        // If this was the first load (endInterval was 0), 
+        // initialize the slider and interval to the full range
+        if (roundsInterval[1] === 0) {
+          const fullRange = [1, result.totalRounds];
+          setSliderValue(fullRange);
+          setRoundsInterval(fullRange);
+          setLastFetchedInterval(fullRange);
+        } else {
+          setLastFetchedInterval(roundsInterval);
+        }
+
         setLoading(false);
       })
       .catch((error) => {
@@ -62,7 +144,16 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
         setError(error.message);
         setLoading(false);
       });
-  }, [selectedCompetition, refreshTrigger, roundsInterval]);
+  }, [selectedCompetition, refreshTrigger, roundsInterval, lastFetchedInterval]);
+
+  // Reset state when competition changes
+  useEffect(() => {
+    setRoundsInterval([1, 0]);
+    setSliderValue([1, 0]);
+    setLastFetchedInterval(null);
+    setMaxRound(0);
+    resetSorting();
+  }, [selectedCompetition]);
 
   if (!selectedCompetition) {
     return null;
@@ -74,15 +165,28 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
         <Typography variant="h5" sx={{ fontWeight: "bold" }}>
           {t("football.standings")}
         </Typography>
-        {isMobile && (
-          <Button
-            size="small"
-            onClick={() => setIsExpanded(!isExpanded)}
-            startIcon={isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          >
-            {isExpanded ? t("football.collapse") : t("football.expand")}
-          </Button>
-        )}
+        <Stack direction="row" spacing={1}>
+          {(sortBy !== "points" || sortOrder !== "desc") && (
+            <Button
+              size="small"
+              onClick={resetSorting}
+              startIcon={<RestartAltIcon />}
+              variant="outlined"
+              sx={{ py: 0 }}
+            >
+              {t("common.reset_sort", "Reset Sort")}
+            </Button>
+          )}
+          {isMobile && (
+            <Button
+              size="small"
+              onClick={() => setIsExpanded(!isExpanded)}
+              startIcon={isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            >
+              {isExpanded ? t("football.collapse") : t("football.expand")}
+            </Button>
+          )}
+        </Stack>
       </Box>
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 1 }}>
         <Slider
@@ -101,19 +205,91 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
         <TableHead>
           <TableRow>
             <TableCell sx={{ width: "40px" }}>Pos</TableCell>
-            <TableCell>Team</TableCell>
-            <TableCell align="center">P</TableCell>
+            <TableCell>
+              <TableSortLabel
+                active={sortBy === "teamName"}
+                direction={sortBy === "teamName" ? sortOrder : "asc"}
+                onClick={() => handleSort("teamName")}
+              >
+                Team
+              </TableSortLabel>
+            </TableCell>
+            <TableCell align="center">
+              <TableSortLabel
+                active={sortBy === "played"}
+                direction={sortBy === "played" ? sortOrder : "desc"}
+                onClick={() => handleSort("played")}
+              >
+                P
+              </TableSortLabel>
+            </TableCell>
             {showFullDetails && (
               <>
-                <TableCell align="center">W</TableCell>
-                <TableCell align="center">D</TableCell>
-                <TableCell align="center">L</TableCell>
-                <TableCell align="center">GF</TableCell>
-                <TableCell align="center">GA</TableCell>
-                <TableCell align="center">GD</TableCell>
+                <TableCell align="center">
+                  <TableSortLabel
+                    active={sortBy === "won"}
+                    direction={sortBy === "won" ? sortOrder : "desc"}
+                    onClick={() => handleSort("won")}
+                  >
+                    W
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="center">
+                  <TableSortLabel
+                    active={sortBy === "drawn"}
+                    direction={sortBy === "drawn" ? sortOrder : "desc"}
+                    onClick={() => handleSort("drawn")}
+                  >
+                    D
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="center">
+                  <TableSortLabel
+                    active={sortBy === "lost"}
+                    direction={sortBy === "lost" ? sortOrder : "desc"}
+                    onClick={() => handleSort("lost")}
+                  >
+                    L
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="center">
+                  <TableSortLabel
+                    active={sortBy === "goalsFor"}
+                    direction={sortBy === "goalsFor" ? sortOrder : "desc"}
+                    onClick={() => handleSort("goalsFor")}
+                  >
+                    GF
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="center">
+                  <TableSortLabel
+                    active={sortBy === "goalsAgainst"}
+                    direction={sortBy === "goalsAgainst" ? sortOrder : "desc"}
+                    onClick={() => handleSort("goalsAgainst")}
+                  >
+                    GA
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="center">
+                  <TableSortLabel
+                    active={sortBy === "goalDifference"}
+                    direction={sortBy === "goalDifference" ? sortOrder : "desc"}
+                    onClick={() => handleSort("goalDifference")}
+                  >
+                    GD
+                  </TableSortLabel>
+                </TableCell>
               </>
             )}
-            <TableCell align="center">Pts</TableCell>
+            <TableCell align="center">
+              <TableSortLabel
+                active={sortBy === "points"}
+                direction={sortBy === "points" ? sortOrder : "desc"}
+                onClick={() => handleSort("points")}
+              >
+                Pts
+              </TableSortLabel>
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -131,7 +307,7 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
               </TableCell>
             </TableRow>
           )}
-          {!loading && !error && standings.length === 0 && (
+          {!loading && !error && sortedStandings.length === 0 && (
             <TableRow>
               <TableCell colSpan={showFullDetails ? 10 : 4} align="center">
                 No standings available
@@ -140,7 +316,7 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
           )}
           {!loading &&
             !error &&
-            standings.map((team, index) => (
+            sortedStandings.map((team, index) => (
               <TableRow key={team.teamId}>
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{team.teamName}</TableCell>
