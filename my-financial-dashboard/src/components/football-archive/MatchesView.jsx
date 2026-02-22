@@ -35,6 +35,7 @@ function MatchesView({
   teamsLoading,
   onMatchAdded,
   refreshTrigger,
+  phases = [],
 }) {
   const { t } = useTranslation();
   const { user, token } = useAuth();
@@ -412,6 +413,7 @@ function MatchesView({
         teamsLoading={teamsLoading}
         selectedEdition={selectedEdition}
         selectedPhaseId={selectedPhaseId}
+        selectedPhase={phases?.find(p => p.id === selectedPhaseId)}
         selectedGroupId={selectedGroupId}
         matchToEdit={matchToEdit}
         defaultRound={lastUsedRound}
@@ -430,6 +432,7 @@ MatchesView.propTypes = {
   teamsLoading: PropTypes.bool.isRequired,
   onMatchAdded: PropTypes.func,
   refreshTrigger: PropTypes.number,
+  phases: PropTypes.array,
 };
 
 export default MatchesView;

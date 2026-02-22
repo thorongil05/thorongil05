@@ -181,6 +181,14 @@ function PhaseDetailView({ phase, onUpdate, onDelete }) {
                             onChange={(e) => handleMetadataChange("totalMatches", parseInt(e.target.value))}
                             helperText={editingPhase.type === "GROUP" ? "Formula calcolata: Partecipanti * 2 - 2" : "Inserisci manualmente il numero di partite."}
                         />
+                        <TextField
+                            label="Partite per Giornata (Max)"
+                            type="number"
+                            fullWidth
+                            value={editingPhase.metadata?.matchesPerRound ?? ""}
+                            onChange={(e) => handleMetadataChange("matchesPerRound", parseInt(e.target.value))}
+                            helperText="Se impostato, blocca l'aggiunta di partite oltre questo limite per una singola giornata."
+                        />
                     </Stack>
                 </Grid>
             </Grid>

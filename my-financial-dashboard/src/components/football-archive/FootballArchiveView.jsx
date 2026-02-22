@@ -203,6 +203,7 @@ function FootballArchiveView() {
             selectedEdition={selectedEdition}
             selectedPhaseId={selectedPhaseId}
             selectedGroupId={selectedGroupId}
+            phases={phases}
             teams={teams}
             teamsLoading={teamsLoading}
             onMatchAdded={() => setRefreshTrigger((prev) => prev + 1)}
