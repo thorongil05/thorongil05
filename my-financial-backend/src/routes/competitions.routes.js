@@ -4,8 +4,14 @@ const mapper = require("../features/mapper");
 const logger = require("pino")();
 
 const competitionsDao = require("../features/competitions_dao");
-const { authenticateToken } = require("../middleware/auth.middleware");
+const phasesDao = require("../features/phases_dao");
+const groupsDao = require("../features/groups_dao");
+const {
+  authenticateToken,
+  authorizeRole,
+} = require("../middleware/auth.middleware");
 const { trackActivity } = require("../middleware/activity.middleware");
+const UserRoles = require("../constants/roles");
 
 router.get("/", authenticateToken, (request, response) => {
   logger.info("Competition resourece, received get request", request);
@@ -58,6 +64,12 @@ router.get(
     if (request.query) {
       args.startInterval = parseInt(request.query.startInterval);
       args.endInterval = parseInt(request.query.endInterval);
+      args.phaseId = request.query.phaseId
+        ? parseInt(request.query.phaseId)
+        : null;
+      args.groupId = request.query.groupId
+        ? parseInt(request.query.groupId)
+        : null;
     }
     logger.info(
       `Competition resource, received get standings for edition ${editionId} with args ${JSON.stringify(args)}`,
@@ -153,6 +165,104 @@ router.put(
       .catch((error) => {
         response.status(500).send(error);
       });
+  },
+);
+
+// --- PHASES ROUTES ---
+
+router.get(
+  "/editions/:editionId/phases",
+  authenticateToken,
+  (request, response) => {
+    const editionId = request.params.editionId;
+    phasesDao
+      .retrieveByEdition(editionId)
+      .then((result) => response.send(result))
+      .catch((error) => response.status(500).send(error));
+  },
+);
+
+router.post(
+  "/editions/:editionId/phases",
+  authenticateToken,
+  authorizeRole([UserRoles.ADMIN, UserRoles.EDITOR]),
+  trackActivity("phase_added"),
+  (request, response) => {
+    const editionId = request.params.editionId;
+    phasesDao
+      .insert({ ...request.body, editionId })
+      .then((result) => response.send(result))
+      .catch((error) => response.status(500).send(error));
+  },
+);
+
+router.put(
+  "/phases/:phaseId",
+  authenticateToken,
+  authorizeRole([UserRoles.ADMIN, UserRoles.EDITOR]),
+  trackActivity("phase_updated"),
+  (request, response) => {
+    const phaseId = request.params.phaseId;
+    phasesDao
+      .update(phaseId, request.body)
+      .then((result) => response.send(result))
+      .catch((error) => response.status(500).send(error));
+  },
+);
+
+router.delete(
+  "/phases/:phaseId",
+  authenticateToken,
+  authorizeRole([UserRoles.ADMIN, UserRoles.EDITOR]),
+  trackActivity("phase_deleted"),
+  (request, response) => {
+    const phaseId = request.params.phaseId;
+    phasesDao
+      .deletePhase(phaseId)
+      .then((result) => response.send(result))
+      .catch((error) => response.status(500).send(error));
+  },
+);
+
+// --- GROUPS ROUTES ---
+
+router.get(
+  "/phases/:phaseId/groups",
+  authenticateToken,
+  (request, response) => {
+    const phaseId = request.params.phaseId;
+    groupsDao
+      .retrieveByPhase(phaseId)
+      .then((result) => response.send(result))
+      .catch((error) => response.status(500).send(error));
+  },
+);
+
+router.post(
+  "/phases/:phaseId/groups",
+  authenticateToken,
+  authorizeRole([UserRoles.ADMIN, UserRoles.EDITOR]),
+  trackActivity("group_added"),
+  (request, response) => {
+    const phaseId = request.params.phaseId;
+    groupsDao
+      .insert({ ...request.body, phaseId })
+      .then((result) => response.send(result))
+      .catch((error) => response.status(500).send(error));
+  },
+);
+
+router.delete(
+  "/groups/:groupId",
+  authenticateToken,
+  authorizeRole([UserRoles.ADMIN, UserRoles.EDITOR]),
+  trackActivity("group_deleted"),
+  (request, response) => {
+    const groupId = request.params.groupId;
+    groupsDao
+      .deleteGroup(groupId)
+      .then((result) => response.send(result))
+      .catch((error) => response.status(500).send(error));
   },
 );
 

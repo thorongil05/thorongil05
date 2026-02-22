@@ -81,6 +81,8 @@ function AddMatchDialog({
   teams,
   teamsLoading,
   selectedEdition,
+  selectedPhaseId,
+  selectedGroupId,
   open,
   onClose,
   matchToEdit,
@@ -102,6 +104,8 @@ function AddMatchDialog({
     homeTeamScore: null,
     awayTeamScore: null,
     round: "",
+    phaseId: null,
+    groupId: null,
   });
   const [roundMatches, setRoundMatches] = useState([]);
   const [roundRefreshTrigger, setRoundRefreshTrigger] = useState(0);
@@ -114,6 +118,8 @@ function AddMatchDialog({
         editionId: selectedEdition.id,
         round: roundToFetch
       });
+      if (selectedPhaseId) params.append("phaseId", selectedPhaseId);
+      if (selectedGroupId) params.append("groupId", selectedGroupId);
       apiGet(`/api/matches?${params}`)
         .then(response => {
           const data = response.data || response;
@@ -134,6 +140,8 @@ function AddMatchDialog({
           homeTeamScore: matchToEdit.homeScore,
           awayTeamScore: matchToEdit.awayScore,
           round: matchToEdit.round,
+          phaseId: matchToEdit.phaseId,
+          groupId: matchToEdit.groupId,
         });
         setAddAnother(false);
       } else {
@@ -143,6 +151,8 @@ function AddMatchDialog({
           homeTeamScore: null,
           awayTeamScore: null,
           round: defaultRound || "",
+          phaseId: selectedPhaseId || null,
+          groupId: selectedGroupId || null,
         });
         setAddAnother(false);
       }
@@ -204,6 +214,8 @@ function AddMatchDialog({
       awayGoals: match.awayTeamScore,
       matchDate: new Date().toISOString(),
       editionId: selectedEdition.id,
+      phaseId: match.phaseId,
+      groupId: match.groupId,
       round: match.round,
     };
 
@@ -236,6 +248,8 @@ function AddMatchDialog({
           homeTeamScore: null,
           awayTeamScore: null,
           round: match.round, // Keep round for convenience in batch entry
+          phaseId: match.phaseId,
+          groupId: match.groupId,
         });
         // Set submit completed to true to trigger focus back to home team input and other reset logic
         setSubmitCompleted(true);
@@ -541,6 +555,8 @@ AddMatchDialog.propTypes = {
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
   }),
+  selectedPhaseId: PropTypes.number,
+  selectedGroupId: PropTypes.number,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   matchToEdit: PropTypes.object,

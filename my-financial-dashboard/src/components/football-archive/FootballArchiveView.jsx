@@ -19,6 +19,7 @@ import MatchesView from "./MatchesView";
 import StandingsView from "./StandingsView";
 import CompetitionProgress from "./competitions/CompetitionProgress";
 import EditionSelector from "./competitions/EditionSelector";
+import PhaseGroupSelector from "./competitions/PhaseGroupSelector";
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { apiGet } from "../../utils/api";
@@ -36,6 +37,10 @@ function FootballArchiveView() {
   const [selectedEdition, setSelectedEdition] = useState(null);
   const [editionsLoading, setEditionsLoading] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [phases, setPhases] = useState([]);
+  const [selectedPhaseId, setSelectedPhaseId] = useState(null);
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
+  const [phasesLoading, setPhasesLoading] = useState(false);
   const [tabValue, setTabValue] = useState(0);
 
   const handleTabChange = (event, newValue) => {
@@ -71,10 +76,16 @@ function FootballArchiveView() {
     setSelectedCompetition(competition);
     setSelectedEdition(null);
     setEditions([]);
+    setPhases([]);
+    setSelectedPhaseId(null);
+    setSelectedGroupId(null);
   };
 
   const handleEditionSelect = (edition) => {
     setSelectedEdition(edition);
+    setSelectedPhaseId(null);
+    setSelectedGroupId(null);
+    setPhases([]);
   };
 
   useEffect(() => {
@@ -104,6 +115,19 @@ function FootballArchiveView() {
   useEffect(() => {
     if (selectedEdition) {
       fetchTeams(selectedEdition.id);
+      setPhasesLoading(true);
+      apiGet(`/api/competitions/editions/${selectedEdition.id}/phases`)
+        .then((data) => {
+          setPhases(data);
+          if (data && data.length > 0) {
+            setSelectedPhaseId(data[0].id); // Auto-select first phase
+          }
+          setPhasesLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching phases:", error);
+          setPhasesLoading(false);
+        });
     }
   }, [selectedEdition, fetchTeams, refreshTrigger]);
 
@@ -114,12 +138,24 @@ function FootballArchiveView() {
         selectedCompetitionId={selectedCompetition?.id}
       />
       {selectedCompetition && (
-        <EditionSelector
-          editions={editions}
-          selectedEditionId={selectedEdition?.id}
-          onEditionSelect={handleEditionSelect}
-          loading={editionsLoading}
-        />
+        <Stack spacing={2}>
+          <EditionSelector
+            editions={editions}
+            selectedEditionId={selectedEdition?.id}
+            onEditionSelect={handleEditionSelect}
+            loading={editionsLoading}
+          />
+          {selectedEdition && (
+            <PhaseGroupSelector
+              phases={phases}
+              selectedPhaseId={selectedPhaseId}
+              onPhaseSelect={setSelectedPhaseId}
+              selectedGroupId={selectedGroupId}
+              onGroupSelect={setSelectedGroupId}
+              loading={phasesLoading}
+            />
+          )}
+        </Stack>
       )}
     </Stack>
   );
@@ -157,12 +193,16 @@ function FootballArchiveView() {
         {tabValue === 0 && (
           <StandingsView
             selectedEdition={selectedEdition}
+            selectedPhaseId={selectedPhaseId}
+            selectedGroupId={selectedGroupId}
             refreshTrigger={refreshTrigger}
           />
         )}
         {tabValue === 1 && (
           <MatchesView
             selectedEdition={selectedEdition}
+            selectedPhaseId={selectedPhaseId}
+            selectedGroupId={selectedGroupId}
             teams={teams}
             teamsLoading={teamsLoading}
             onMatchAdded={() => setRefreshTrigger((prev) => prev + 1)}

@@ -9,12 +9,23 @@ const { trackActivity } = require("../middleware/activity.middleware");
 
 router.get("/", authenticateToken, (request, response) => {
   const editionId = request.query.editionId;
+  const phaseId = request.query.phaseId;
+  const groupId = request.query.groupId;
   const round = request.query.round;
   const teamId = request.query.teamId;
   const sortBy = request.query.sortBy;
   const sortOrder = request.query.sortOrder;
   matchesDao
-    .findMatches(null, round, teamId, sortBy, sortOrder, editionId)
+    .findMatches(
+      null,
+      round,
+      teamId,
+      sortBy,
+      sortOrder,
+      editionId,
+      phaseId,
+      groupId,
+    )
     .then((result) => {
       response.send({
         data: result,

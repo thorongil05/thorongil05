@@ -25,7 +25,7 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { useTranslation } from "react-i18next";
 import { apiGet } from "../../utils/api";
 
-function StandingsView({ selectedEdition, refreshTrigger }) {
+function StandingsView({ selectedEdition, selectedPhaseId, selectedGroupId, refreshTrigger }) {
   const { t } = useTranslation();
   const [standings, setStandings] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -131,6 +131,9 @@ function StandingsView({ selectedEdition, refreshTrigger }) {
       params.append("endInterval", roundsInterval[1]);
     }
 
+    if (selectedPhaseId) params.append("phaseId", selectedPhaseId);
+    if (selectedGroupId) params.append("groupId", selectedGroupId);
+
     const queryStr = params.toString() ? `?${params.toString()}` : "";
 
     apiGet(`/api/competitions/editions/${selectedEdition.id}/standings${queryStr}`)
@@ -156,7 +159,7 @@ function StandingsView({ selectedEdition, refreshTrigger }) {
         setError(error.message);
         setLoading(false);
       });
-  }, [selectedEdition, refreshTrigger, roundsInterval, lastFetchedInterval]);
+  }, [selectedEdition, refreshTrigger, roundsInterval, lastFetchedInterval, selectedPhaseId, selectedGroupId]);
 
   // Reset state when edition changes
   useEffect(() => {
@@ -165,7 +168,7 @@ function StandingsView({ selectedEdition, refreshTrigger }) {
     setLastFetchedInterval(null);
     setMaxRound(0);
     resetSorting();
-  }, [selectedEdition]);
+  }, [selectedEdition, selectedPhaseId, selectedGroupId]);
 
   if (!selectedEdition) {
     return null;
@@ -416,6 +419,8 @@ StandingsView.propTypes = {
     id: PropTypes.number.isRequired,
     name: PropTypes.string,
   }),
+  selectedPhaseId: PropTypes.number,
+  selectedGroupId: PropTypes.number,
   refreshTrigger: PropTypes.number,
 };
 

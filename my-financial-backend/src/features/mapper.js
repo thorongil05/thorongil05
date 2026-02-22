@@ -31,6 +31,8 @@ module.exports = {
     return {
       matchDate: input.matchDate,
       editionId: input.editionId,
+      phaseId: input.phaseId,
+      groupId: input.groupId,
       homeTeamId: input.homeTeamId,
       awayTeamId: input.awayTeamId,
       homeGoals: input.homeGoals,

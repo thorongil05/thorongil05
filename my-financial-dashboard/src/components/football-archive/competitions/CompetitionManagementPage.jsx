@@ -1,16 +1,21 @@
-import { Box, Paper, Typography, Container, Breadcrumbs, Link, IconButton, Stack, Divider } from "@mui/material";
+import {
+    Box, Paper, Typography, Container, Breadcrumbs, Link,
+    IconButton, Stack, Divider, Tooltip, Collapse, Button
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CompetitionForm from "./CompetitionForm";
 import EditionFormDialog from "./EditionFormDialog";
-import { apiGet } from "../../../utils/api";
+import PhaseManagement from "./PhaseManagement";
+import { apiGet, apiDelete } from "../../../utils/api";
+import SettingsIcon from "@mui/icons-material/Settings";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ListIcon from "@mui/icons-material/List";
-import { Button } from "@mui/material";
+
 
 function CompetitionManagementPage() {
     const { t } = useTranslation();
@@ -21,6 +26,7 @@ function CompetitionManagementPage() {
     const [loading, setLoading] = useState(!!id);
     const [editionDialogOpen, setEditionDialogOpen] = useState(false);
     const [editionToEdit, setEditionToEdit] = useState(null);
+    const [managingStructureId, setManagingStructureId] = useState(null);
 
     const fetchEditions = () => {
         if (id) {
@@ -145,45 +151,61 @@ function CompetitionManagementPage() {
                                     ) : (
                                         <Stack spacing={2}>
                                             {editions.map((edition) => (
-                                                <Paper
-                                                    key={edition.id}
-                                                    variant="outlined"
-                                                    sx={{
-                                                        p: 2,
-                                                        display: 'flex',
-                                                        justifyContent: 'space-between',
-                                                        alignItems: 'center',
-                                                        '&:hover': { bgcolor: 'action.hover' }
-                                                    }}
-                                                >
-                                                    <Box>
-                                                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                                                            {edition.name}
-                                                        </Typography>
-                                                        <Typography variant="caption" color="text.secondary">
-                                                            {edition.metadata?.totalMatches || 0} partite • {edition.metadata?.maxParticipants || 'N/A'} partecipanti
-                                                        </Typography>
-                                                    </Box>
-                                                    <Stack direction="row" spacing={1}>
-                                                        <IconButton
-                                                            size="small"
-                                                            color="primary"
-                                                            onClick={() => {
-                                                                setEditionToEdit(edition);
-                                                                setEditionDialogOpen(true);
-                                                            }}
-                                                        >
-                                                            <EditIcon fontSize="small" />
-                                                        </IconButton>
-                                                        <IconButton
-                                                            size="small"
-                                                            color="error"
-                                                            onClick={() => handleDeleteEdition(edition.id)}
-                                                        >
-                                                            <DeleteIcon fontSize="small" />
-                                                        </IconButton>
-                                                    </Stack>
-                                                </Paper>
+                                                <Box key={edition.id}>
+                                                    <Paper
+                                                        variant="outlined"
+                                                        sx={{
+                                                            p: 2,
+                                                            display: 'flex',
+                                                            justifyContent: 'space-between',
+                                                            alignItems: 'center',
+                                                            bgcolor: managingStructureId === edition.id ? 'action.selected' : 'inherit',
+                                                            '&:hover': { bgcolor: 'action.hover' }
+                                                        }}
+                                                    >
+                                                        <Box>
+                                                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                                                                {edition.name}
+                                                            </Typography>
+                                                            <Typography variant="caption" color="text.secondary">
+                                                                {edition.metadata?.totalMatches || 0} partite • {edition.metadata?.maxParticipants || 'N/A'} partecipanti
+                                                            </Typography>
+                                                        </Box>
+                                                        <Stack direction="row" spacing={1}>
+                                                            <Tooltip title="Gestisci Fasi e Gironi">
+                                                                <IconButton
+                                                                    size="small"
+                                                                    color={managingStructureId === edition.id ? "secondary" : "default"}
+                                                                    onClick={() => setManagingStructureId(managingStructureId === edition.id ? null : edition.id)}
+                                                                >
+                                                                    <SettingsIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                            <IconButton
+                                                                size="small"
+                                                                color="primary"
+                                                                onClick={() => {
+                                                                    setEditionToEdit(edition);
+                                                                    setEditionDialogOpen(true);
+                                                                }}
+                                                            >
+                                                                <EditIcon fontSize="small" />
+                                                            </IconButton>
+                                                            <IconButton
+                                                                size="small"
+                                                                color="error"
+                                                                onClick={() => handleDeleteEdition(edition.id)}
+                                                            >
+                                                                <DeleteIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Stack>
+                                                    </Paper>
+                                                    <Collapse in={managingStructureId === edition.id}>
+                                                        <Box sx={{ pb: 3, px: 2, borderLeft: '2px solid', borderColor: 'secondary.main', ml: 2, mt: 1 }}>
+                                                            <PhaseManagement editionId={edition.id} />
+                                                        </Box>
+                                                    </Collapse>
+                                                </Box>
                                             ))}
                                         </Stack>
                                     )}

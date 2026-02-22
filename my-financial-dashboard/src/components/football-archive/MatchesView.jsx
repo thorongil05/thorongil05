@@ -29,6 +29,8 @@ import DesktopMatchesView from "./matches/DesktopMatchesView";
 
 function MatchesView({
   selectedEdition,
+  selectedPhaseId,
+  selectedGroupId,
   teams,
   teamsLoading,
   onMatchAdded,
@@ -67,6 +69,9 @@ function MatchesView({
     const urlSearchParams = new URLSearchParams({
       editionId: selectedEdition.id,
     });
+    if (selectedPhaseId) urlSearchParams.append("phaseId", selectedPhaseId);
+    if (selectedGroupId) urlSearchParams.append("groupId", selectedGroupId);
+
     apiGet(`/api/matches/rounds?${urlSearchParams}`)
       .then((data) => {
         setRounds(data);
@@ -98,6 +103,12 @@ function MatchesView({
     if (selectedTeamId && selectedTeamId !== "All") {
       params.teamId = selectedTeamId;
     }
+    if (selectedPhaseId) {
+      params.phaseId = selectedPhaseId;
+    }
+    if (selectedGroupId) {
+      params.groupId = selectedGroupId;
+    }
     if (sortBy) {
       params.sortBy = sortBy;
       params.sortOrder = sortOrder;
@@ -120,7 +131,7 @@ function MatchesView({
         setError(error.message);
         setLoading(false);
       });
-  }, [selectedEdition, selectedRound, selectedTeamId, sortBy, sortOrder, refreshTrigger]);
+  }, [selectedEdition, selectedPhaseId, selectedGroupId, selectedRound, selectedTeamId, sortBy, sortOrder, refreshTrigger]);
 
   const handleResetFilters = () => {
     setSelectedRound("All");
@@ -400,6 +411,8 @@ function MatchesView({
         teams={teams}
         teamsLoading={teamsLoading}
         selectedEdition={selectedEdition}
+        selectedPhaseId={selectedPhaseId}
+        selectedGroupId={selectedGroupId}
         matchToEdit={matchToEdit}
         defaultRound={lastUsedRound}
       />
@@ -409,9 +422,10 @@ function MatchesView({
 
 MatchesView.propTypes = {
   selectedEdition: PropTypes.shape({
-    id: PropTypes.number.isRequired,
     name: PropTypes.string,
   }),
+  selectedPhaseId: PropTypes.number,
+  selectedGroupId: PropTypes.number,
   teams: PropTypes.array.isRequired,
   teamsLoading: PropTypes.bool.isRequired,
   onMatchAdded: PropTypes.func,

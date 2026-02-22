@@ -96,7 +96,7 @@ async function updateEdition(id, editionEntry) {
 }
 
 async function getStandings(editionId, args = {}) {
-  logger.info({ editionId }, "Retrieving standings");
+  logger.info({ editionId, args }, "Retrieving standings");
   const matches = await matchesDao.findMatches(
     null,
     null,
@@ -104,6 +104,8 @@ async function getStandings(editionId, args = {}) {
     "match_date",
     "DESC",
     editionId,
+    args.phaseId,
+    args.groupId,
   );
   const totalRounds = matches
     .map((match) => match.round)
