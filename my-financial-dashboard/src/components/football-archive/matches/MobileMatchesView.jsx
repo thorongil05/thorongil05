@@ -7,8 +7,11 @@ import {
     Box,
     Divider,
 } from "@mui/material";
+import { useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import { UserRoles } from "../../../constants/roles";
@@ -25,10 +28,33 @@ function MobileMatchesView({
     const { t } = useTranslation();
     const { user } = useAuth();
 
+    const [menuAnchor, setMenuAnchor] = useState(null);
+    const [selectedMatch, setSelectedMatch] = useState(null);
+
+    const handleContextMenu = (event, match) => {
+        event.preventDefault();
+        setSelectedMatch(match);
+        setMenuAnchor({ mouseX: event.clientX - 2, mouseY: event.clientY - 4 });
+    };
+
+    const handleCloseMenu = () => {
+        setMenuAnchor(null);
+    };
+
+    const handleEdit = () => {
+        if (selectedMatch) handleEditMatch(selectedMatch);
+        handleCloseMenu();
+    };
+
+    const handleDelete = () => {
+        if (selectedMatch) handleDeleteMatch(selectedMatch.id);
+        handleCloseMenu();
+    };
+
     const isSelectedTeam = (teamId) => teamId === Number(selectedTeamId);
 
     return (
-        <Stack spacing={2} sx={{ p: 1 }}>
+        <Stack spacing={1} sx={{ p: 1 }}>
             {loading && (
                 <Typography align="center" variant="body2" sx={{ py: 2 }}>
                     Loading matches...
@@ -48,83 +74,118 @@ function MobileMatchesView({
                 !error &&
                 matches.length > 0 &&
                 matches.map((match) => (
-                    <Card key={match.id} variant="outlined" sx={{ borderRadius: 2 }}>
-                        <CardContent sx={{ p: '12px !important' }}>
-                            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
-                                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 'bold' }}>
+                    <Card
+                        key={match.id}
+                        variant="outlined"
+                        sx={{
+                            borderRadius: 2,
+                            overflow: 'hidden',
+                            position: 'relative',
+                            transition: 'background-color 0.2s',
+                            '&:active': { bgcolor: 'action.hover' },
+                            userSelect: 'none',
+                            WebkitTouchCallout: 'none'
+                        }}
+                        onContextMenu={(e) => handleContextMenu(e, match)}
+                    >
+                        <Stack direction="row" sx={{ height: '70px' }}>
+                            {/* Vertical Round Indicator */}
+                            <Box
+                                sx={{
+                                    width: 32,
+                                    bgcolor: 'action.selected',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRight: '1px solid',
+                                    borderColor: 'divider',
+                                    flexShrink: 0
+                                }}
+                            >
+                                <Typography variant="caption" sx={{ fontWeight: 'bold', color: 'text.secondary', writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
                                     {t("football.round_short", "G.")} {match.round || "-"}
                                 </Typography>
-                                {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (
-                                    <Stack direction="row" spacing={1}>
-                                        <IconButton
-                                            size="small"
-                                            onClick={() => handleEditMatch(match)}
+                            </Box>
+
+                            <CardContent sx={{ p: '8px !important', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                <Stack spacing={0.5}>
+                                    {/* Home Team */}
+                                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                        <Typography
+                                            variant="body2"
+                                            noWrap
+                                            sx={{
+                                                fontWeight: isSelectedTeam(match.homeTeam?.id) ? "bold" : "500",
+                                                color: isSelectedTeam(match.homeTeam?.id) ? "secondary.main" : "text.primary",
+                                                flex: 1
+                                            }}
                                         >
-                                            <EditIcon fontSize="small" />
-                                        </IconButton>
-                                        <IconButton
-                                            size="small"
-                                            color="error"
-                                            onClick={() => handleDeleteMatch(match.id)}
+                                            {match.homeTeam?.name || "Unknown"}
+                                        </Typography>
+                                        <Typography
+                                            variant="body1"
+                                            sx={{
+                                                fontWeight: 'bold',
+                                                minWidth: '24px',
+                                                textAlign: 'right',
+                                                fontFamily: 'monospace'
+                                            }}
                                         >
-                                            <DeleteIcon fontSize="small" />
-                                        </IconButton>
+                                            {match.homeScore}
+                                        </Typography>
                                     </Stack>
-                                )}
-                            </Stack>
 
-                            <Stack spacing={1}>
-                                {/* Home Team */}
-                                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                    <Typography
-                                        variant="body1"
-                                        sx={{
-                                            fontWeight: isSelectedTeam(match.homeTeam?.id) ? "bold" : "normal",
-                                            color: isSelectedTeam(match.homeTeam?.id) ? "secondary.main" : "inherit",
-                                        }}
-                                    >
-                                        {match.homeTeam?.name || "Unknown"}
-                                    </Typography>
-                                    <Typography
-                                        variant="h6"
-                                        sx={{
-                                            fontWeight: 'bold',
-                                            minWidth: '24px',
-                                            textAlign: 'right'
-                                        }}
-                                    >
-                                        {match.homeScore}
-                                    </Typography>
+                                    {/* Away Team */}
+                                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                        <Typography
+                                            variant="body2"
+                                            noWrap
+                                            sx={{
+                                                fontWeight: isSelectedTeam(match.awayTeam?.id) ? "bold" : "500",
+                                                color: isSelectedTeam(match.awayTeam?.id) ? "secondary.main" : "text.primary",
+                                                flex: 1
+                                            }}
+                                        >
+                                            {match.awayTeam?.name || "Unknown"}
+                                        </Typography>
+                                        <Typography
+                                            variant="body1"
+                                            sx={{
+                                                fontWeight: 'bold',
+                                                minWidth: '24px',
+                                                textAlign: 'right',
+                                                fontFamily: 'monospace'
+                                            }}
+                                        >
+                                            {match.awayScore}
+                                        </Typography>
+                                    </Stack>
                                 </Stack>
-
-                                <Divider sx={{ borderStyle: 'dashed', my: 0.5 }} />
-
-                                {/* Away Team */}
-                                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                    <Typography
-                                        variant="body1"
-                                        sx={{
-                                            fontWeight: isSelectedTeam(match.awayTeam?.id) ? "bold" : "normal",
-                                            color: isSelectedTeam(match.awayTeam?.id) ? "secondary.main" : "inherit",
-                                        }}
-                                    >
-                                        {match.awayTeam?.name || "Unknown"}
-                                    </Typography>
-                                    <Typography
-                                        variant="h6"
-                                        sx={{
-                                            fontWeight: 'bold',
-                                            minWidth: '24px',
-                                            textAlign: 'right'
-                                        }}
-                                    >
-                                        {match.awayScore}
-                                    </Typography>
-                                </Stack>
-                            </Stack>
-                        </CardContent>
+                            </CardContent>
+                        </Stack>
                     </Card>
                 ))}
+
+            <Menu
+                open={menuAnchor !== null}
+                onClose={handleCloseMenu}
+                anchorReference="anchorPosition"
+                anchorPosition={
+                    menuAnchor !== null
+                        ? { top: menuAnchor.mouseY, left: menuAnchor.mouseX }
+                        : undefined
+                }
+            >
+                <MenuItem onClick={handleEdit}>
+                    <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
+                    <ListItemText>{t("common.edit", "Edit")}</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
+                    <ListItemIcon><DeleteIcon fontSize="small" color="error" /></ListItemIcon>
+                    <ListItemText>{t("common.delete", "Delete")}</ListItemText>
+                </MenuItem>
+            </Menu>
         </Stack>
     );
 }
