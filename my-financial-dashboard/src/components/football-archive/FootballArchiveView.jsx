@@ -17,6 +17,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import TeamsView from "./TeamsView";
 import MatchesView from "./MatchesView";
 import StandingsView from "./StandingsView";
+import CompetitionProgress from "./competitions/CompetitionProgress";
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { apiGet } from "../../utils/api";
@@ -74,7 +75,7 @@ function FootballArchiveView() {
     if (selectedCompetition) {
       fetchTeams(selectedCompetition);
     }
-  }, [selectedCompetition, fetchTeams]);
+  }, [selectedCompetition, fetchTeams, refreshTrigger]);
 
   const sidebarContent = (
     <Stack spacing={2} sx={{ width: isMobile ? "100%" : "300px", flexShrink: 0 }}>
@@ -87,6 +88,11 @@ function FootballArchiveView() {
 
   const mainContent = selectedCompetition ? (
     <Stack spacing={2} sx={{ flex: 1, minWidth: 0, width: "100%" }}>
+      <CompetitionProgress
+        competition={selectedCompetition}
+        refreshTrigger={refreshTrigger}
+      />
+
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs
           value={tabValue}
