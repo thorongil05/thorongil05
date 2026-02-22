@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import {
-    Box, Typography, TextField, MenuItem, Stack, Button,
-    Divider, IconButton, List, ListItem, ListItemText,
-    ListItemSecondaryAction, Paper, Alert
+    Box, Paper, Stack, Typography, Button, TextField,
+    IconButton, Card, CardActionArea, MenuItem, Chip, Divider, Alert
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
@@ -17,6 +17,7 @@ function PhaseDetailView({ phase, onUpdate, onDelete }) {
     const [isAddingGroup, setIsAddingGroup] = useState(false);
     const [groupName, setGroupName] = useState("");
     const [editingGroup, setEditingGroup] = useState(null);
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         if (phase) {
@@ -36,37 +37,31 @@ function PhaseDetailView({ phase, onUpdate, onDelete }) {
     };
 
     const handlePhaseChange = (name, value) => {
-        setEditingPhase(prev => {
-            const updated = { ...prev, [name]: value };
-
-            // Auto-calculate matches if metadata or type changes
-            if (name === "type" || name === "name") return updated;
-
-            return updated;
-        });
+        setEditingPhase(prev => ({ ...prev, [name]: value }));
     };
 
     const handleMetadataChange = (name, value) => {
         setEditingPhase(prev => {
             const newMetadata = { ...(prev.metadata || {}), [name]: value };
-
             if (name === "participantsCount" && prev.type === "GROUP") {
                 const count = parseInt(value);
                 if (!isNaN(count)) {
                     newMetadata.totalMatches = Math.max(0, count * 2 - 2);
                 }
             }
-
             return { ...prev, metadata: newMetadata };
         });
     };
 
     const handleSavePhase = async () => {
+        setIsSaving(true);
         try {
             await apiPut(`/api/competitions/phases/${phase.id}`, editingPhase);
             onUpdate();
         } catch (err) {
             console.error("Error updating phase:", err);
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -113,137 +108,149 @@ function PhaseDetailView({ phase, onUpdate, onDelete }) {
 
     return (
         <Stack spacing={4}>
-            {/* Header with Actions */}
-            <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                <Box>
-                    <Typography variant="h5" sx={{ fontWeight: 'bold' }}>{phase.name}</Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
-                        Configurazione Dettagliata
-                    </Typography>
-                </Box>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    startIcon={<SaveIcon />}
-                    onClick={handleSavePhase}
-                >
-                    Salva Modifiche
-                </Button>
-            </Stack>
+            {/* Header Area */}
+            <Box>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                        <Chip label="DETTAGLIO FASE" size="small" variant="outlined" sx={{ color: 'primary.main', fontWeight: 'bold', fontSize: '0.65rem' }} />
+                        <Typography variant="h5" sx={{ fontWeight: 800 }}>{phase.name}</Typography>
+                    </Stack>
+                    <Button
+                        variant="contained"
+                        startIcon={<SaveIcon />}
+                        onClick={handleSavePhase}
+                        disabled={isSaving}
+                        sx={{ borderRadius: 2, px: 3 }}
+                    >
+                        {isSaving ? "Salvataggio..." : "Salva Dettagli"}
+                    </Button>
+                </Stack>
+                <Typography variant="body2" color="text.secondary">
+                    Configura i parametri tecnici, i partecipanti e la struttura dei gironi per questa fase.
+                </Typography>
+            </Box>
 
-            <GridContainer>
-                {/* General Info */}
-                <Box sx={{ flex: 1 }}>
-                    <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 'bold', color: 'primary.main' }}>
-                        INFO GENERALI
+            <Divider />
+
+            {/* Config Sections */}
+            <Grid container spacing={4}>
+                {/* Basic Configuration */}
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 700, color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 1 }}>
+                        CONFIGURAZIONE BASE
                     </Typography>
-                    <Stack spacing={2}>
+                    <Stack spacing={2.5}>
                         <TextField
-                            label="Nome Fase"
-                            size="small"
+                            label="Nome Visualizzato"
                             fullWidth
                             value={editingPhase.name}
                             onChange={(e) => handlePhaseChange("name", e.target.value)}
                         />
                         <TextField
                             select
-                            label="Tipo"
-                            size="small"
+                            label="Modello di competizione"
                             fullWidth
                             value={editingPhase.type}
                             onChange={(e) => handlePhaseChange("type", e.target.value)}
+                            helperText="Definisce se la fase ha gironi all'italiana o scontri diretti."
                         >
-                            <MenuItem value="GROUP">Gironi (GROUP)</MenuItem>
-                            <MenuItem value="KNOCKOUT">Eliminazione Diretta (KNOCKOUT)</MenuItem>
+                            <MenuItem value="GROUP">Gironi (Campionato/Round Robin)</MenuItem>
+                            <MenuItem value="KNOCKOUT">Eliminazione Diretta (Playoff)</MenuItem>
                         </TextField>
                     </Stack>
-                </Box>
+                </Grid>
 
-                {/* Metadata */}
-                <Box sx={{ flex: 1 }}>
-                    <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 'bold', color: 'primary.main' }}>
-                        METADATI E REGOLE
+                {/* Technical Parameters */}
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 700, color: 'text.secondary' }}>
+                        PARAMETRI TECNICI
                     </Typography>
-                    <Stack spacing={2}>
+                    <Stack spacing={2.5}>
                         <TextField
-                            label="Numero Partecipanti"
+                            label="Posti Disponibili (Partecipanti)"
                             type="number"
-                            size="small"
                             fullWidth
                             value={editingPhase.metadata?.participantsCount ?? ""}
                             onChange={(e) => handleMetadataChange("participantsCount", parseInt(e.target.value))}
                         />
-                        <Box>
-                            <TextField
-                                label="Numero Totale Partite"
-                                type="number"
-                                size="small"
-                                fullWidth
-                                value={editingPhase.metadata?.totalMatches ?? ""}
-                                onChange={(e) => handleMetadataChange("totalMatches", parseInt(e.target.value))}
-                            />
-                            {editingPhase.type === "GROUP" && (
-                                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block', fontSize: '0.7rem' }}>
-                                    Formula calcolo: Partecipanti * 2 - 2
-                                </Typography>
-                            )}
-                        </Box>
+                        <TextField
+                            label="Partite Totali Previste"
+                            type="number"
+                            fullWidth
+                            value={editingPhase.metadata?.totalMatches ?? ""}
+                            onChange={(e) => handleMetadataChange("totalMatches", parseInt(e.target.value))}
+                            helperText={editingPhase.type === "GROUP" ? "Formula calcolata: Partecipanti * 2 - 2" : "Inserisci manualmente il numero di partite."}
+                        />
                     </Stack>
-                </Box>
-            </GridContainer>
+                </Grid>
+            </Grid>
 
-            <Divider />
-
-            {/* Groups Management */}
-            <Box>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-                        GESTIONE GIRONI
-                    </Typography>
-                    {phase.type === 'GROUP' && !isAddingGroup && (
-                        <Button
-                            size="small"
-                            startIcon={<AddIcon />}
-                            onClick={() => setIsAddingGroup(true)}
-                            variant="outlined"
-                        >
-                            Nuovo Girone
-                        </Button>
-                    )}
-                </Stack>
-
-                {phase.type !== 'GROUP' ? (
-                    <Alert severity="info" sx={{ borderRadius: 2 }}>
-                        Questa fase non prevede gironi. Le partite verranno gestite come eliminazione diretta.
-                    </Alert>
-                ) : (
-                    <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
-                        {isAddingGroup && (
-                            <Box sx={{ p: 2, bgcolor: 'action.hover', borderBottom: '1px solid', borderColor: 'divider' }}>
-                                <Stack direction="row" spacing={1}>
-                                    <TextField
-                                        label="Nome Girone"
-                                        size="small"
-                                        autoFocus
-                                        value={groupName}
-                                        onChange={(e) => setGroupName(e.target.value)}
-                                        sx={{ flex: 1 }}
-                                    />
-                                    <Button variant="contained" size="small" onClick={handleAddGroup}>Aggiungi</Button>
-                                    <Button size="small" onClick={() => setIsAddingGroup(false)}>Annulla</Button>
-                                </Stack>
-                            </Box>
+            {/* Groups Section - Integrated Look */}
+            <Box sx={{ mt: 2 }}>
+                <Paper variant="outlined" sx={{ p: 3, borderRadius: 3, borderStyle: 'dashed', bgcolor: 'background.default' }}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+                        <Box>
+                            <Typography variant="h6" sx={{ fontWeight: 700 }}>Struttura Gironi</Typography>
+                            <Typography variant="caption" color="text.secondary">Definisci i raggruppamenti per questa fase.</Typography>
+                        </Box>
+                        {phase.type === 'GROUP' && (
+                            <Button
+                                startIcon={<AddIcon />}
+                                onClick={() => setIsAddingGroup(true)}
+                                variant="outlined"
+                                size="small"
+                                sx={{ borderRadius: 1.5 }}
+                                disabled={isAddingGroup}
+                            >
+                                Aggiungi Girone
+                            </Button>
                         )}
+                    </Stack>
 
-                        <List disablePadding>
-                            {groups.map((group, index) => (
-                                <ListItem
+                    {phase.type !== 'GROUP' ? (
+                        <Alert severity="info" variant="outlined" sx={{ borderRadius: 2 }}>
+                            Questa fase è di tipo <strong>Eliminazione Diretta</strong>. Non sono previsti gironi; gli accoppiamenti verranno generati automaticamente in base al tabellone.
+                        </Alert>
+                    ) : (
+                        <Stack spacing={1.5}>
+                            {isAddingGroup && (
+                                <Paper elevation={0} sx={{ p: 2, border: '1px solid', borderColor: 'primary.main', bgcolor: 'primary.light', bgopacity: 0.05, borderRadius: 2 }}>
+                                    <Stack direction="row" spacing={1.5}>
+                                        <TextField
+                                            label="Nome Nuova Sezione"
+                                            size="small"
+                                            autoFocus
+                                            value={groupName}
+                                            onChange={(e) => setGroupName(e.target.value)}
+                                            fullWidth
+                                            placeholder="E.g. Gruppo A"
+                                            sx={{ bgcolor: 'background.paper' }}
+                                        />
+                                        <Button variant="contained" onClick={handleAddGroup}>Conferma</Button>
+                                        <Button onClick={() => setIsAddingGroup(false)}>Annulla</Button>
+                                    </Stack>
+                                </Paper>
+                            )}
+
+                            {groups.map((group) => (
+                                <Paper
                                     key={group.id}
-                                    divider={index !== groups.length - 1}
-                                    sx={{ '&:hover': { bgcolor: 'action.hover' } }}
+                                    elevation={0}
+                                    sx={{
+                                        p: 1.5,
+                                        pl: 2.5,
+                                        border: '1px solid',
+                                        borderColor: 'divider',
+                                        borderRadius: 2,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        bgcolor: 'background.paper',
+                                        '&:hover': { borderColor: 'primary.main', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }
+                                    }}
                                 >
                                     {editingGroup?.id === group.id ? (
-                                        <Stack direction="row" spacing={1} sx={{ width: '100%', py: 0.5 }}>
+                                        <Stack direction="row" spacing={1} sx={{ width: '100%' }}>
                                             <TextField
                                                 size="small"
                                                 fullWidth
@@ -256,62 +263,45 @@ function PhaseDetailView({ phase, onUpdate, onDelete }) {
                                         </Stack>
                                     ) : (
                                         <>
-                                            <ListItemText
-                                                primary={group.name}
-                                                primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}
-                                            />
-                                            <ListItemSecondaryAction>
+                                            <Typography variant="body1" sx={{ fontWeight: 600 }}>{group.name}</Typography>
+                                            <Stack direction="row">
                                                 <IconButton size="small" onClick={() => setEditingGroup({ ...group })}>
                                                     <EditIcon fontSize="small" />
                                                 </IconButton>
                                                 <IconButton size="small" color="error" onClick={() => handleDeleteGroup(group.id)}>
                                                     <DeleteIcon fontSize="small" />
                                                 </IconButton>
-                                            </ListItemSecondaryAction>
+                                            </Stack>
                                         </>
                                     )}
-                                </ListItem>
+                                </Paper>
                             ))}
+
                             {groups.length === 0 && !isAddingGroup && (
-                                <Box sx={{ p: 4, textAlign: 'center' }}>
-                                    <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                                        Nessun girone configurato. Clicca su "Nuovo Girone" per iniziare.
+                                <Box sx={{ py: 3, textAlign: 'center', bgcolor: 'action.hover', borderRadius: 2, border: '1px dashed', borderColor: 'divider' }}>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Nessun girone definito. Clicca su "Aggiungi Girone" per creare il primo gruppo.
                                     </Typography>
                                 </Box>
                             )}
-                        </List>
-                    </Paper>
-                )}
+                        </Stack>
+                    )}
+                </Paper>
             </Box>
 
-            <Divider />
-
-            {/* Danger Zone */}
-            <Box sx={{ pt: 2 }}>
+            <Box sx={{ pt: 2, display: 'flex', justifyContent: 'flex-end' }}>
                 <Button
                     variant="text"
                     color="error"
                     size="small"
                     startIcon={<DeleteIcon />}
                     onClick={onDelete}
+                    sx={{ opacity: 0.7, '&:hover': { opacity: 1 } }}
                 >
-                    Elimina intera fase
+                    Elimina Permanentemente questa Fase
                 </Button>
             </Box>
         </Stack>
-    );
-}
-
-// Simple internal component for layout
-function GridContainer({ children }) {
-    return (
-        <Box sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
-            gap: 4
-        }}>
-            {children}
-        </Box>
     );
 }
 

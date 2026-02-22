@@ -1,8 +1,9 @@
 import {
     Box, Paper, Typography, Container, Breadcrumbs, Link,
     IconButton, Stack, Divider, Tooltip, Button, Tabs, Tab,
-    Grid, Card, CardActionArea, TextField, Chip, CircularProgress, Alert
+    Card, CardActionArea, TextField, Chip, CircularProgress, Alert
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
@@ -91,7 +92,7 @@ function CompetitionManagementPage() {
     if (loading) return <Box sx={{ p: 4, textAlign: 'center' }}><CircularProgress /></Box>;
 
     return (
-        <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Container maxWidth={false} sx={{ py: 4, px: { xs: 2, md: 4 } }}>
             <Stack spacing={4}>
                 {/* Header Section */}
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -126,7 +127,7 @@ function CompetitionManagementPage() {
                     </Tabs>
                 </Box>
 
-                {/* Tab 1: Competition Setup */}
+                {/* Tab 1: Competition Setup - Fixed width for the form */}
                 {tab === 0 && (
                     <Box sx={{ maxWidth: '800px', mx: 'auto', width: '100%', mt: 2 }}>
                         <Paper variant="outlined" sx={{ p: 4, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
@@ -139,12 +140,21 @@ function CompetitionManagementPage() {
                     </Box>
                 )}
 
-                {/* Tab 2: Editions Dashboard */}
+                {/* Tab 2: Editions Dashboard - Fluid Full Width */}
                 {tab === 1 && (
                     <Grid container spacing={3}>
                         {/* Master: Edition Sidebar */}
-                        <Grid item xs={12} md={4} lg={3}>
-                            <Paper variant="outlined" sx={{ p: 2, borderRadius: 3, bgcolor: 'background.default', height: '100%', minHeight: '600px' }}>
+                        <Grid size={{ xs: 12, md: 3, lg: 2 }}>
+                            <Paper
+                                variant="outlined"
+                                sx={{
+                                    p: 2,
+                                    borderRadius: 3,
+                                    bgcolor: 'background.default',
+                                    height: 'calc(100vh - 250px)',
+                                    overflowY: 'auto'
+                                }}
+                            >
                                 <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
                                     <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: 'text.secondary' }}>
                                         STAGIONI ({editions.length})
@@ -216,15 +226,13 @@ function CompetitionManagementPage() {
                             </Paper>
                         </Grid>
 
-                        {/* Detail: Technical Config */}
-                        <Grid item xs={12} md={8} lg={9}>
-                            <Paper variant="outlined" sx={{ p: { xs: 2, sm: 4 }, borderRadius: 3, bgcolor: 'background.paper', height: '100%' }}>
-                                <EditionEditor
-                                    editionId={selectedEditionId}
-                                    onUpdate={fetchEditions}
-                                    onDelete={handleDeleteEdition}
-                                />
-                            </Paper>
+                        {/* Detail: Technical Config - No Paper wrapper here, let internal components manage boundaries */}
+                        <Grid size={{ xs: 12, md: 9, lg: 10 }}>
+                            <EditionEditor
+                                editionId={selectedEditionId}
+                                onUpdate={fetchEditions}
+                                onDelete={handleDeleteEdition}
+                            />
                         </Grid>
                     </Grid>
                 )}

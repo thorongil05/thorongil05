@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import {
     Stack, TextField, Button, Typography, Box, Paper, Divider,
-    FormControl, InputLabel, Select, MenuItem, Grid, Chip,
+    FormControl, InputLabel, Select, MenuItem, Chip,
     Alert, IconButton, Card, CardActionArea
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
@@ -86,7 +87,7 @@ function EditionEditor({ editionId, onUpdate, onDelete }) {
 
             <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, bgcolor: 'background.default' }}>
                 <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                         <TextField
                             label="Nome Edizione (Stagione)"
                             size="small"
@@ -95,7 +96,7 @@ function EditionEditor({ editionId, onUpdate, onDelete }) {
                             onChange={(e) => handleFieldChange("name", e.target.value)}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={3}>
+                    <Grid size={{ xs: 12, sm: 3 }}>
                         <TextField
                             label="N. Max Partecipanti"
                             type="number"
