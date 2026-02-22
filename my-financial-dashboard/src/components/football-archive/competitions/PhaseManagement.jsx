@@ -17,6 +17,7 @@ function PhaseManagement({ editionId }) {
     const [expandedPhaseId, setExpandedPhaseId] = useState(null);
     const [isAddingPhase, setIsAddingPhase] = useState(false);
     const [newPhase, setNewPhase] = useState({ name: "", type: "GROUP", orderIndex: 0 });
+    const [editingPhase, setEditingPhase] = useState(null); // { id, name, type, orderIndex }
 
     const fetchPhases = () => {
         if (!editionId) return;
@@ -55,6 +56,17 @@ function PhaseManagement({ editionId }) {
             fetchPhases();
         } catch (err) {
             console.error("Error deleting phase:", err);
+        }
+    };
+
+    const handleUpdatePhase = async () => {
+        if (!editingPhase || !editingPhase.name) return;
+        try {
+            await apiPut(`/api/competitions/phases/${editingPhase.id}`, editingPhase);
+            setEditingPhase(null);
+            fetchPhases();
+        } catch (err) {
+            console.error("Error updating phase:", err);
         }
     };
 
@@ -102,12 +114,43 @@ function PhaseManagement({ editionId }) {
                 </Paper>
             )}
 
+            {editingPhase && (
+                <Paper sx={{ p: 2, mb: 2, border: '1px solid', borderColor: 'secondary.main', bgcolor: 'action.hover' }}>
+                    <Typography variant="subtitle2" sx={{ mb: 2 }}>Modifica Fase</Typography>
+                    <Stack spacing={2}>
+                        <TextField
+                            label="Nome Fase"
+                            size="small"
+                            fullWidth
+                            value={editingPhase.name}
+                            onChange={(e) => setEditingPhase({ ...editingPhase, name: e.target.value })}
+                        />
+                        <TextField
+                            select
+                            label="Tipo"
+                            size="small"
+                            fullWidth
+                            value={editingPhase.type}
+                            onChange={(e) => setEditingPhase({ ...editingPhase, type: e.target.value })}
+                        >
+                            <MenuItem value="GROUP">Gironi (GROUP)</MenuItem>
+                            <MenuItem value="KNOCKOUT">Eliminazione Diretta (KNOCKOUT)</MenuItem>
+                        </TextField>
+                        <Stack direction="row" spacing={1} justifyContent="flex-end">
+                            <Button size="small" onClick={() => setEditingPhase(null)}>Annulla</Button>
+                            <Button size="small" variant="contained" color="secondary" onClick={handleUpdatePhase}>Aggiorna</Button>
+                        </Stack>
+                    </Stack>
+                </Paper>
+            )}
+
             <Stack spacing={2}>
                 {phases.map(phase => (
                     <PhaseItem
                         key={phase.id}
                         phase={phase}
                         onDelete={() => handleDeletePhase(phase.id)}
+                        onEdit={() => setEditingPhase({ ...phase })}
                         isExpanded={expandedPhaseId === phase.id}
                         onToggle={() => setExpandedPhaseId(expandedPhaseId === phase.id ? null : phase.id)}
                     />
@@ -122,10 +165,11 @@ function PhaseManagement({ editionId }) {
     );
 }
 
-function PhaseItem({ phase, onDelete, isExpanded, onToggle }) {
+function PhaseItem({ phase, onDelete, onEdit, isExpanded, onToggle }) {
     const [groups, setGroups] = useState([]);
     const [isAddingGroup, setIsAddingGroup] = useState(false);
     const [groupName, setGroupName] = useState("");
+    const [editingGroup, setEditingGroup] = useState(null); // { id, name }
 
     const fetchGroups = () => {
         apiGet(`/api/competitions/phases/${phase.id}/groups`)
@@ -160,6 +204,17 @@ function PhaseItem({ phase, onDelete, isExpanded, onToggle }) {
         }
     };
 
+    const handleUpdateGroup = async () => {
+        if (!editingGroup || !editingGroup.name) return;
+        try {
+            await apiPut(`/api/competitions/groups/${editingGroup.id}`, { name: editingGroup.name });
+            setEditingGroup(null);
+            fetchGroups();
+        } catch (err) {
+            console.error("Error updating group:", err);
+        }
+    };
+
     return (
         <Paper variant="outlined" sx={{ overflow: 'hidden' }}>
             <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', bgcolor: isExpanded ? 'action.hover' : 'inherit' }}>
@@ -177,7 +232,10 @@ function PhaseItem({ phase, onDelete, isExpanded, onToggle }) {
                     </Box>
                 </Stack>
                 <Stack direction="row" spacing={1}>
-                    <IconButton size="small" color="error" onClick={onDelete}>
+                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); onEdit(); }}>
+                        <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton size="small" color="error" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
                         <DeleteIcon fontSize="small" />
                     </IconButton>
                 </Stack>
@@ -202,7 +260,7 @@ function PhaseItem({ phase, onDelete, isExpanded, onToggle }) {
                             {isAddingGroup && (
                                 <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
                                     <TextField
-                                        label="Nome Girone"
+                                        label="Nuovo Girone"
                                         size="small"
                                         value={groupName}
                                         onChange={(e) => setGroupName(e.target.value)}
@@ -213,11 +271,29 @@ function PhaseItem({ phase, onDelete, isExpanded, onToggle }) {
                                 </Stack>
                             )}
 
+                            {editingGroup && (
+                                <Stack direction="row" spacing={1} sx={{ mb: 2, p: 1, bgcolor: 'action.selected', borderRadius: 1 }}>
+                                    <TextField
+                                        label="Modifica Girone"
+                                        size="small"
+                                        value={editingGroup.name}
+                                        onChange={(e) => setEditingGroup({ ...editingGroup, name: e.target.value })}
+                                        sx={{ flex: 1 }}
+                                        autoFocus
+                                    />
+                                    <Button variant="contained" size="small" color="secondary" onClick={handleUpdateGroup}>Modifica</Button>
+                                    <Button size="small" onClick={() => setEditingGroup(null)}>Annulla</Button>
+                                </Stack>
+                            )}
+
                             <List size="small" disablePadding>
                                 {groups.map(group => (
                                     <ListItem key={group.id} divider>
                                         <ListItemText primary={group.name} primaryTypographyProps={{ variant: 'body2' }} />
                                         <ListItemSecondaryAction>
+                                            <IconButton size="small" sx={{ mr: 1 }} onClick={() => setEditingGroup({ ...group })}>
+                                                <EditIcon fontSize="small" />
+                                            </IconButton>
                                             <IconButton size="small" edge="end" color="error" onClick={() => handleDeleteGroup(group.id)}>
                                                 <DeleteIcon fontSize="small" />
                                             </IconButton>
@@ -249,6 +325,7 @@ PhaseManagement.propTypes = {
 PhaseItem.propTypes = {
     phase: PropTypes.object.isRequired,
     onDelete: PropTypes.func.isRequired,
+    onEdit: PropTypes.func.isRequired,
     isExpanded: PropTypes.bool.isRequired,
     onToggle: PropTypes.func.isRequired
 };

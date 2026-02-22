@@ -11,12 +11,12 @@ async function insert(phase) {
     phase.editionId,
     phase.name,
     phase.type || "GROUP",
-    phase.orderIndex || 0,
+    phase.orderIndex !== undefined ? phase.orderIndex : phase.order_index || 0,
     phase.metadata || {},
   ];
   const { rows } = await pool.query(query, values);
   logger.info({ phase: rows[0] }, "Phase inserted");
-  return rows[0];
+  return mapRowToPhase(rows[0]);
 }
 
 async function retrieveByEdition(editionId) {
@@ -26,7 +26,7 @@ async function retrieveByEdition(editionId) {
         ORDER BY order_index ASC;
     `;
   const { rows } = await pool.query(query, [editionId]);
-  return rows;
+  return rows.map(mapRowToPhase);
 }
 
 async function update(id, phase) {
@@ -36,17 +36,35 @@ async function update(id, phase) {
         WHERE id = $5
         RETURNING *;
     `;
-  const values = [phase.name, phase.type, phase.orderIndex, phase.metadata, id];
+  const values = [
+    phase.name,
+    phase.type,
+    phase.orderIndex !== undefined ? phase.orderIndex : phase.order_index || 0,
+    phase.metadata || {},
+    id,
+  ];
   const { rows } = await pool.query(query, values);
   logger.info({ phase: rows[0] }, "Phase updated");
-  return rows[0];
+  return mapRowToPhase(rows[0]);
 }
 
 async function deletePhase(id) {
   const query = "DELETE FROM competition_phases WHERE id = $1 RETURNING *;";
   const { rows } = await pool.query(query, [id]);
   logger.info({ id }, "Phase deleted");
-  return rows[0];
+  return mapRowToPhase(rows[0]);
+}
+
+function mapRowToPhase(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    editionId: row.edition_id,
+    name: row.name,
+    type: row.type,
+    orderIndex: row.order_index,
+    metadata: row.metadata,
+  };
 }
 
 module.exports = {

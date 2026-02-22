@@ -203,8 +203,9 @@ router.put(
   trackActivity("phase_updated"),
   (request, response) => {
     const phaseId = request.params.phaseId;
+    const phaseEntry = mapper.mapToPhase(request.body);
     phasesDao
-      .update(phaseId, request.body)
+      .update(phaseId, phaseEntry)
       .then((result) => response.send(result))
       .catch((error) => response.status(500).send(error));
   },
@@ -247,6 +248,21 @@ router.post(
     const phaseId = request.params.phaseId;
     groupsDao
       .insert({ ...request.body, phaseId })
+      .then((result) => response.send(result))
+      .catch((error) => response.status(500).send(error));
+  },
+);
+
+router.put(
+  "/groups/:groupId",
+  authenticateToken,
+  authorizeRole([UserRoles.ADMIN, UserRoles.EDITOR]),
+  trackActivity("group_updated"),
+  (request, response) => {
+    const groupId = request.params.groupId;
+    const groupEntry = mapper.mapToGroup(request.body);
+    groupsDao
+      .update(groupId, groupEntry)
       .then((result) => response.send(result))
       .catch((error) => response.status(500).send(error));
   },

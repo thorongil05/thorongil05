@@ -49,4 +49,22 @@ module.exports = {
       metadata: input.metadata || {},
     };
   },
+  mapToPhase: function (input) {
+    return {
+      name: input.name,
+      type: input.type || "GROUP",
+      orderIndex:
+        input.orderIndex !== undefined
+          ? input.orderIndex
+          : input.order_index !== undefined
+            ? input.order_index
+            : 0,
+      metadata: input.metadata || {},
+    };
+  },
+  mapToGroup: function (input) {
+    return {
+      name: input.name,
+    };
+  },
 };
