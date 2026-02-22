@@ -106,7 +106,7 @@ function EditionEditor({ editionId, onUpdate, onDelete }) {
                             onChange={(e) => handleMetadataChange("maxParticipants", parseInt(e.target.value))}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={3}>
+                    <Grid size={{ xs: 12, sm: 3 }}>
                         <FormControl fullWidth size="small">
                             <InputLabel>Formato</InputLabel>
                             <Select
