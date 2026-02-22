@@ -4,14 +4,14 @@ const logger = require("pino")();
 async function insert(matchEntry) {
   const query = `
         INSERT INTO matches
-            (match_date, competition_id, home_team_id, away_team_id, home_goals, away_goals, stadium, round)
+            (match_date, edition_id, home_team_id, away_team_id, home_goals, away_goals, stadium, round)
         VALUES($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *;
     `;
 
   const values = [
     matchEntry.matchDate,
-    matchEntry.competitionId,
+    matchEntry.editionId,
     matchEntry.homeTeamId,
     matchEntry.awayTeamId,
     matchEntry.homeGoals,
@@ -25,8 +25,18 @@ async function insert(matchEntry) {
   return rows[0];
 }
 
-async function findMatches(competitionId = null, round = null, teamId = null, sortBy = "match_date", sortOrder = "DESC") {
-  logger.info({ competitionId, round, teamId, sortBy, sortOrder }, "Retrieving matches");
+async function findMatches(
+  competitionId = null,
+  round = null,
+  teamId = null,
+  sortBy = "match_date",
+  sortOrder = "DESC",
+  editionId = null,
+) {
+  logger.info(
+    { competitionId, round, teamId, sortBy, sortOrder, editionId },
+    "Retrieving matches",
+  );
   let query = `
     SELECT
       m.*,
@@ -41,10 +51,10 @@ async function findMatches(competitionId = null, round = null, teamId = null, so
 
   const values = [];
   let whereClause = [];
-  
-  if (competitionId) {
-    values.push(competitionId);
-    whereClause.push(`m.competition_id = $${values.length}`);
+
+  if (editionId) {
+    values.push(editionId);
+    whereClause.push(`m.edition_id = $${values.length}`);
   }
 
   if (round) {
@@ -54,13 +64,15 @@ async function findMatches(competitionId = null, round = null, teamId = null, so
 
   if (teamId) {
     values.push(teamId);
-    whereClause.push(`(m.home_team_id = $${values.length} OR m.away_team_id = $${values.length})`);
+    whereClause.push(
+      `(m.home_team_id = $${values.length} OR m.away_team_id = $${values.length})`,
+    );
   }
 
   if (whereClause.length > 0) {
     query += " WHERE " + whereClause.join(" AND ");
   }
-  
+
   // Handle dynamic sorting
   const order = sortOrder.toUpperCase() === "ASC" ? "ASC" : "DESC";
   if (sortBy === "round") {
@@ -75,7 +87,7 @@ async function findMatches(competitionId = null, round = null, teamId = null, so
   const domainMatches = rows.map((row) => ({
     id: row.id,
     matchDate: row.match_date,
-    competitionId: row.competition_id,
+    editionId: row.edition_id,
     homeScore: row.home_goals,
     awayScore: row.away_goals,
     stadium: row.stadium,
@@ -97,24 +109,24 @@ async function findMatches(competitionId = null, round = null, teamId = null, so
   return domainMatches;
 }
 
-async function findRounds(competitionId) {
-  logger.info({ competitionId }, "Retrieving rounds");
+async function findRounds(editionId) {
+  logger.info({ editionId }, "Retrieving rounds");
   const query = `
     SELECT round
     FROM matches
-    WHERE competition_id = $1
+    WHERE edition_id = $1
     GROUP BY round
     ORDER BY LENGTH(round), round
   `;
-  const { rows } = await pool.query(query, [competitionId]);
-  return rows.map(r => r.round).filter(r => r);
+  const { rows } = await pool.query(query, [editionId]);
+  return rows.map((r) => r.round).filter((r) => r);
 }
 
 async function update(id, match) {
   const query = `
     UPDATE matches
     SET match_date = $1, 
-        competition_id = $2, 
+        edition_id = $2, 
         home_team_id = $3, 
         away_team_id = $4, 
         home_goals = $5, 
@@ -127,7 +139,7 @@ async function update(id, match) {
 
   const values = [
     match.matchDate,
-    match.competitionId,
+    match.editionId,
     match.homeTeamId,
     match.awayTeamId,
     match.homeGoals,

@@ -23,12 +23,7 @@ function CompetitionForm({ competitionToEdit, onSubmitSuccess, onCancel }) {
         name: "",
         country: "",
         type: "LEAGUE",
-        metadata: {
-            totalMatches: "",
-            phasesCount: "",
-            maxParticipants: "",
-            competitionFormat: "",
-        },
+        metadata: {},
     };
 
     let [formData, setFormData] = useState(initialFormState);
@@ -40,12 +35,7 @@ function CompetitionForm({ competitionToEdit, onSubmitSuccess, onCancel }) {
                 name: competitionToEdit.name || "",
                 country: competitionToEdit.country || "",
                 type: competitionToEdit.type || "LEAGUE",
-                metadata: {
-                    totalMatches: competitionToEdit.metadata?.totalMatches || "",
-                    phasesCount: competitionToEdit.metadata?.phasesCount || "",
-                    maxParticipants: competitionToEdit.metadata?.maxParticipants || "",
-                    competitionFormat: competitionToEdit.metadata?.competitionFormat || "",
-                },
+                metadata: {},
             });
         } else {
             setFormData(initialFormState);
@@ -125,69 +115,6 @@ function CompetitionForm({ competitionToEdit, onSubmitSuccess, onCancel }) {
                     </Select>
                 </FormControl>
 
-                <Divider />
-
-                <Accordion
-                    defaultExpanded
-                    variant="outlined"
-                    sx={{ border: '1px solid', borderColor: 'divider', borderRadius: '8px !important' }}
-                >
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                            Configurazione Avanzata
-                        </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Stack spacing={3} sx={{ py: 1 }}>
-                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                                <TextField
-                                    label="Numero Partite Totali"
-                                    name="totalMatches"
-                                    type="number"
-                                    value={formData.metadata.totalMatches}
-                                    onChange={handleMetadataChange}
-                                    fullWidth
-                                    helperText="Usato per calcolare il progresso della competizione"
-                                />
-                                <TextField
-                                    label="Numero Fasi"
-                                    name="phasesCount"
-                                    type="number"
-                                    value={formData.metadata.phasesCount}
-                                    onChange={handleMetadataChange}
-                                    fullWidth
-                                    helperText="Es. 1 per campionato, più fasi per tornei complessi"
-                                />
-                            </Stack>
-
-                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                                <TextField
-                                    label="N. Massimo Partecipanti"
-                                    name="maxParticipants"
-                                    type="number"
-                                    value={formData.metadata.maxParticipants}
-                                    onChange={handleMetadataChange}
-                                    fullWidth
-                                />
-                                <FormControl fullWidth>
-                                    <InputLabel id="format-select-label">Formato Competizione</InputLabel>
-                                    <Select
-                                        labelId="format-select-label"
-                                        id="format-select"
-                                        value={formData.metadata.competitionFormat}
-                                        label="Formato Competizione"
-                                        name="competitionFormat"
-                                        onChange={handleMetadataChange}
-                                    >
-                                        <MenuItem value=""><em>Non definito</em></MenuItem>
-                                        <MenuItem value="LEAGUE">Girone all'italiana</MenuItem>
-                                        <MenuItem value="COMPOSTA">Formato misto (Gironi + Playoff)</MenuItem>
-                                    </Select>
-                                </FormControl>
-                            </Stack>
-                        </Stack>
-                    </AccordionDetails>
-                </Accordion>
 
                 <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 2 }}>
                     <Button

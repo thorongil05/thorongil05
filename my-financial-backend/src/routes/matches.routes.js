@@ -8,13 +8,13 @@ const { authenticateToken } = require("../middleware/auth.middleware");
 const { trackActivity } = require("../middleware/activity.middleware");
 
 router.get("/", authenticateToken, (request, response) => {
-  const competitionId = request.query.competitionId;
+  const editionId = request.query.editionId;
   const round = request.query.round;
   const teamId = request.query.teamId;
   const sortBy = request.query.sortBy;
   const sortOrder = request.query.sortOrder;
   matchesDao
-    .findMatches(competitionId, round, teamId, sortBy, sortOrder)
+    .findMatches(null, round, teamId, sortBy, sortOrder, editionId)
     .then((result) => {
       response.send({
         data: result,
@@ -31,13 +31,13 @@ router.get("/", authenticateToken, (request, response) => {
 });
 
 router.get("/rounds", authenticateToken, (request, response) => {
-  const competitionId = request.query.competitionId;
-  if (!competitionId) {
-    response.status(400).send({ error: "competitionId is required" });
+  const editionId = request.query.editionId;
+  if (!editionId) {
+    response.status(400).send({ error: "editionId is required" });
     return;
   }
   matchesDao
-    .findRounds(competitionId)
+    .findRounds(editionId)
     .then((result) => {
       response.send(result);
     })

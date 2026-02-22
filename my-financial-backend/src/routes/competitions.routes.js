@@ -21,49 +21,61 @@ router.get("/", authenticateToken, (request, response) => {
     });
 });
 
-router.get("/:id/teams", authenticateToken, (request, response) => {
+router.get("/:id/editions", authenticateToken, (request, response) => {
   const competitionId = request.params.id;
   competitionsDao
-    .retrieveTeams(competitionId)
+    .retrieveEditions(competitionId)
     .then((result) => {
-      response.send({ data: result, metadata: { count: result.length } });
-    })
-    .catch((error) => {
-      response.status(500);
-      response.send(error);
-      console.log(error);
-    });
-});
-
-router.get("/:id/standings", authenticateToken, (request, response) => {
-  // TODO: add validation for args
-  // TODO: add caching
-  const competitionId = request.params.id;
-  let args = {};
-  if (request.query) {
-    args.startInterval = parseInt(request.query.startInterval);
-    args.endInterval = parseInt(request.query.endInterval);
-  }
-  logger.info(
-    `Competition resource, received get standings for competition ${competitionId} with args ${JSON.stringify(args)}`,
-  );
-  competitionsDao
-    .getStandings(competitionId, args)
-    .then((result) => {
-      logger.info(
-        `Competition resource, successfully retrieved standings for competition ${competitionId} with args ${JSON.stringify(args)}`,
-      );
       response.send(result);
     })
     .catch((error) => {
-      response.status(500);
-      response.send(error);
-      logger.error(
-        `Competition resource, error getting standings for competition ${competitionId} with args ${JSON.stringify(args)}`,
-        error,
-      );
+      response.status(500).send(error);
     });
 });
+
+router.get(
+  "/editions/:editionId/teams",
+  authenticateToken,
+  (request, response) => {
+    const editionId = request.params.editionId;
+    competitionsDao
+      .retrieveTeams(editionId)
+      .then((result) => {
+        response.send({ data: result, metadata: { count: result.length } });
+      })
+      .catch((error) => {
+        response.status(500).send(error);
+      });
+  },
+);
+
+router.get(
+  "/editions/:editionId/standings",
+  authenticateToken,
+  (request, response) => {
+    const editionId = request.params.editionId;
+    let args = {};
+    if (request.query) {
+      args.startInterval = parseInt(request.query.startInterval);
+      args.endInterval = parseInt(request.query.endInterval);
+    }
+    logger.info(
+      `Competition resource, received get standings for edition ${editionId} with args ${JSON.stringify(args)}`,
+    );
+    competitionsDao
+      .getStandings(editionId, args)
+      .then((result) => {
+        response.send(result);
+      })
+      .catch((error) => {
+        response.status(500).send(error);
+        logger.error(
+          `Competition resource, error getting standings for edition ${editionId}`,
+          error,
+        );
+      });
+  },
+);
 
 router.post(
   "/",
@@ -87,6 +99,28 @@ router.post(
   },
 );
 
+router.post(
+  "/:id/editions",
+  authenticateToken,
+  trackActivity("edition_added"),
+  (request, response) => {
+    const competitionId = request.params.id;
+    const editionEntry = {
+      competitionId,
+      name: request.body.name,
+      metadata: request.body.metadata || {},
+    };
+    competitionsDao
+      .insertEdition(editionEntry)
+      .then((result) => {
+        response.send(result);
+      })
+      .catch((error) => {
+        response.status(500).send(error);
+      });
+  },
+);
+
 router.put(
   "/:id",
   authenticateToken,
@@ -100,9 +134,24 @@ router.put(
         response.send(result);
       })
       .catch((error) => {
-        response.status(500);
-        response.send(error);
-        console.log(error);
+        response.status(500).send(error);
+      });
+  },
+);
+
+router.put(
+  "/editions/:editionId",
+  authenticateToken,
+  trackActivity("edition_updated"),
+  (request, response) => {
+    const editionId = request.params.editionId;
+    competitionsDao
+      .updateEdition(editionId, request.body)
+      .then((result) => {
+        response.send(result);
+      })
+      .catch((error) => {
+        response.status(500).send(error);
       });
   },
 );

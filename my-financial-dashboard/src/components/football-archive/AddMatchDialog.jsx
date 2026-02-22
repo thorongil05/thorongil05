@@ -80,7 +80,7 @@ function AddMatchDialog({
   onMatchAdded,
   teams,
   teamsLoading,
-  selectedCompetition,
+  selectedEdition,
   open,
   onClose,
   matchToEdit,
@@ -109,9 +109,9 @@ function AddMatchDialog({
   // Fetch matches for the current round to filter out teams that already played
   useEffect(() => {
     const roundToFetch = match.round?.toString().trim();
-    if (open && selectedCompetition && roundToFetch && roundToFetch !== "All") {
+    if (open && selectedEdition && roundToFetch && roundToFetch !== "All") {
       const params = new URLSearchParams({
-        competitionId: selectedCompetition.id,
+        editionId: selectedEdition.id,
         round: roundToFetch
       });
       apiGet(`/api/matches?${params}`)
@@ -123,7 +123,7 @@ function AddMatchDialog({
     } else {
       setRoundMatches([]);
     }
-  }, [open, selectedCompetition, match.round, roundRefreshTrigger]);
+  }, [open, selectedEdition, match.round, roundRefreshTrigger]);
 
   useEffect(() => {
     if (open) {
@@ -203,7 +203,7 @@ function AddMatchDialog({
       homeGoals: match.homeTeamScore,
       awayGoals: match.awayTeamScore,
       matchDate: new Date().toISOString(),
-      competitionId: selectedCompetition?.id || null,
+      editionId: selectedEdition.id,
       round: match.round,
     };
 
@@ -290,7 +290,7 @@ function AddMatchDialog({
       {!isMobile && <DialogTitle>{dialogTitle}</DialogTitle>}
       <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
         <DialogContent dividers={isMobile}>
-          {selectedCompetition ? (
+          {selectedEdition ? (
             <Box
               sx={{
                 mb: 2,
@@ -302,7 +302,7 @@ function AddMatchDialog({
               }}
             >
               <Typography variant="body2">
-                <strong>Competition:</strong> {selectedCompetition.name}
+                <strong>Edition:</strong> {selectedEdition.name}
               </Typography>
             </Box>
           ) : (
@@ -316,7 +316,7 @@ function AddMatchDialog({
               }}
             >
               <Typography variant="body2">
-                <strong>Warning:</strong> No competition selected.
+                <strong>Warning:</strong> No edition selected.
               </Typography>
             </Box>
           )}
@@ -537,7 +537,10 @@ AddMatchDialog.propTypes = {
   onMatchAdded: PropTypes.func,
   teams: PropTypes.array.isRequired,
   teamsLoading: PropTypes.bool.isRequired,
-  selectedCompetition: PropTypes.object,
+  selectedEdition: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+  }),
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   matchToEdit: PropTypes.object,

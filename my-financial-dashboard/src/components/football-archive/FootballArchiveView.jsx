@@ -18,6 +18,7 @@ import TeamsView from "./TeamsView";
 import MatchesView from "./MatchesView";
 import StandingsView from "./StandingsView";
 import CompetitionProgress from "./competitions/CompetitionProgress";
+import EditionSelector from "./competitions/EditionSelector";
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { apiGet } from "../../utils/api";
@@ -31,6 +32,9 @@ function FootballArchiveView() {
   const [teamsLoading, setTeamsLoading] = useState(true);
   const [participantCount, setParticipantCount] = useState(0);
   const [selectedCompetition, setSelectedCompetition] = useState(null);
+  const [editions, setEditions] = useState([]);
+  const [selectedEdition, setSelectedEdition] = useState(null);
+  const [editionsLoading, setEditionsLoading] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [tabValue, setTabValue] = useState(0);
 
@@ -38,9 +42,9 @@ function FootballArchiveView() {
     setTabValue(newValue);
   };
 
-  const fetchTeams = useCallback((competition) => {
-    const endpoint = competition
-      ? `/api/competitions/${competition.id}/teams`
+  const fetchTeams = useCallback((editionId) => {
+    const endpoint = editionId
+      ? `/api/competitions/editions/${editionId}/teams`
       : `/api/teams`;
 
     apiGet(endpoint)
@@ -65,17 +69,43 @@ function FootballArchiveView() {
 
   const handleCompetitionSelect = (competition) => {
     setSelectedCompetition(competition);
+    setSelectedEdition(null);
+    setEditions([]);
+  };
+
+  const handleEditionSelect = (edition) => {
+    setSelectedEdition(edition);
   };
 
   useEffect(() => {
-    fetchTeams();
-  }, [fetchTeams]);
+    if (!selectedCompetition) {
+      fetchTeams();
+    }
+  }, [fetchTeams, selectedCompetition]);
 
   useEffect(() => {
     if (selectedCompetition) {
-      fetchTeams(selectedCompetition);
+      setEditionsLoading(true);
+      apiGet(`/api/competitions/${selectedCompetition.id}/editions`)
+        .then((data) => {
+          setEditions(data);
+          if (data && data.length > 0) {
+            setSelectedEdition(data[0]); // Auto-select latest
+          }
+          setEditionsLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching editions:", error);
+          setEditionsLoading(false);
+        });
     }
-  }, [selectedCompetition, fetchTeams, refreshTrigger]);
+  }, [selectedCompetition]);
+
+  useEffect(() => {
+    if (selectedEdition) {
+      fetchTeams(selectedEdition.id);
+    }
+  }, [selectedEdition, fetchTeams, refreshTrigger]);
 
   const sidebarContent = (
     <Stack spacing={2} sx={{ width: isMobile ? "100%" : "300px", flexShrink: 0 }}>
@@ -83,13 +113,21 @@ function FootballArchiveView() {
         onCompetitionSelect={handleCompetitionSelect}
         selectedCompetitionId={selectedCompetition?.id}
       />
+      {selectedCompetition && (
+        <EditionSelector
+          editions={editions}
+          selectedEditionId={selectedEdition?.id}
+          onEditionSelect={handleEditionSelect}
+          loading={editionsLoading}
+        />
+      )}
     </Stack>
   );
 
   const mainContent = selectedCompetition ? (
     <Stack spacing={2} sx={{ flex: 1, minWidth: 0, width: "100%" }}>
       <CompetitionProgress
-        competition={selectedCompetition}
+        edition={selectedEdition}
         refreshTrigger={refreshTrigger}
       />
 
@@ -118,13 +156,13 @@ function FootballArchiveView() {
       <Box sx={{ mt: 1 }}>
         {tabValue === 0 && (
           <StandingsView
-            selectedCompetition={selectedCompetition}
+            selectedEdition={selectedEdition}
             refreshTrigger={refreshTrigger}
           />
         )}
         {tabValue === 1 && (
           <MatchesView
-            selectedCompetition={selectedCompetition}
+            selectedEdition={selectedEdition}
             teams={teams}
             teamsLoading={teamsLoading}
             onMatchAdded={() => setRefreshTrigger((prev) => prev + 1)}
@@ -136,10 +174,10 @@ function FootballArchiveView() {
             teams={teams}
             loading={teamsLoading}
             onTeamAdded={() => {
-              fetchTeams(selectedCompetition);
+              if (selectedEdition) fetchTeams(selectedEdition.id);
               setRefreshTrigger((prev) => prev + 1);
             }}
-            competitionId={selectedCompetition?.id}
+            editionId={selectedEdition?.id}
             isCompact={false}
           />
         )}

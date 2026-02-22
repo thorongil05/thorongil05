@@ -25,7 +25,7 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { useTranslation } from "react-i18next";
 import { apiGet } from "../../utils/api";
 
-function StandingsView({ selectedCompetition, refreshTrigger }) {
+function StandingsView({ selectedEdition, refreshTrigger }) {
   const { t } = useTranslation();
   const [standings, setStandings] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -108,7 +108,7 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
   }, [standings, sortBy, sortOrder]);
 
   useEffect(() => {
-    if (!selectedCompetition) {
+    if (!selectedEdition) {
       setStandings([]);
       return;
     }
@@ -133,7 +133,7 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
 
     const queryStr = params.toString() ? `?${params.toString()}` : "";
 
-    apiGet(`/api/competitions/${selectedCompetition.id}/standings${queryStr}`)
+    apiGet(`/api/competitions/editions/${selectedEdition.id}/standings${queryStr}`)
       .then((result) => {
         setStandings(result.standings);
         setMaxRound(result.totalRounds);
@@ -156,18 +156,18 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
         setError(error.message);
         setLoading(false);
       });
-  }, [selectedCompetition, refreshTrigger, roundsInterval, lastFetchedInterval]);
+  }, [selectedEdition, refreshTrigger, roundsInterval, lastFetchedInterval]);
 
-  // Reset state when competition changes
+  // Reset state when edition changes
   useEffect(() => {
     setRoundsInterval([1, 0]);
     setSliderValue([1, 0]);
     setLastFetchedInterval(null);
     setMaxRound(0);
     resetSorting();
-  }, [selectedCompetition]);
+  }, [selectedEdition]);
 
-  if (!selectedCompetition) {
+  if (!selectedEdition) {
     return null;
   }
 
@@ -412,7 +412,7 @@ function StandingsView({ selectedCompetition, refreshTrigger }) {
 }
 
 StandingsView.propTypes = {
-  selectedCompetition: PropTypes.shape({
+  selectedEdition: PropTypes.shape({
     id: PropTypes.number.isRequired,
     name: PropTypes.string,
   }),

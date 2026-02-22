@@ -4,7 +4,7 @@ import { Dialog, DialogTitle, Stack, TextField, Button, Checkbox, FormControlLab
 import { apiPost } from "../../utils/api";
 
 
-function AddTeamDialog({ onClose, open, onInsert, competitionId }) {
+function AddTeamDialog({ onClose, open, onInsert, editionId }) {
   const nameInputRef = useRef(null);
   const [addAnother, setAddAnother] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,7 +30,7 @@ function AddTeamDialog({ onClose, open, onInsert, competitionId }) {
     setIsSubmitting(true);
 
     try {
-      await apiPost(`/api/teams/`, { ...formData, competitionId });
+      await apiPost(`/api/teams/`, { ...formData, editionId });
 
       if (addAnother) {
         setFormData({ name: "", city: "" });
@@ -115,7 +115,7 @@ AddTeamDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
   onInsert: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  competitionId: PropTypes.number,
+  editionId: PropTypes.number,
 };
 
 export default AddTeamDialog;

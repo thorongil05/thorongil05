@@ -24,13 +24,13 @@ module.exports = {
     return {
       name: input.name,
       city: input.city,
-      competitionId: input.competitionId,
+      editionId: input.editionId,
     };
   },
   mapToMatch: function (input) {
     return {
       matchDate: input.matchDate,
-      competitionId: input.competitionId,
+      editionId: input.editionId,
       homeTeamId: input.homeTeamId,
       awayTeamId: input.awayTeamId,
       homeGoals: input.homeGoals,

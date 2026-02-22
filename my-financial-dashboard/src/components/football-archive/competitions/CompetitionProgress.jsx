@@ -4,18 +4,18 @@ import { useTranslation } from "react-i18next";
 import { apiGet } from "../../../utils/api";
 import PropTypes from "prop-types";
 
-function CompetitionProgress({ competition, refreshTrigger }) {
+function CompetitionProgress({ edition, refreshTrigger }) {
     const { t } = useTranslation();
     const [matchesCount, setMatchesCount] = useState(0);
     const [loading, setLoading] = useState(false);
 
-    const totalMatches = competition?.metadata?.totalMatches;
+    const totalMatches = edition?.metadata?.totalMatches;
 
     const fetchMatchCount = useCallback(() => {
-        if (!competition?.id) return;
+        if (!edition?.id) return;
 
         setLoading(true);
-        apiGet(`/api/matches?competitionId=${competition.id}`)
+        apiGet(`/api/matches?editionId=${edition.id}`)
             .then((response) => {
                 const count = response.metadata?.count ?? (response.data?.length || response.length || 0);
                 setMatchesCount(count);
@@ -26,7 +26,7 @@ function CompetitionProgress({ competition, refreshTrigger }) {
             .finally(() => {
                 setLoading(false);
             });
-    }, [competition?.id]);
+    }, [edition?.id]);
 
     useEffect(() => {
         fetchMatchCount();
@@ -91,7 +91,7 @@ function CompetitionProgress({ competition, refreshTrigger }) {
 }
 
 CompetitionProgress.propTypes = {
-    competition: PropTypes.shape({
+    edition: PropTypes.shape({
         id: PropTypes.number.isRequired,
         metadata: PropTypes.shape({
             totalMatches: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
