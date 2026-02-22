@@ -70,6 +70,28 @@ function PhaseManagement({ editionId }) {
         }
     };
 
+    const handleEditMetadataChange = (name, value) => {
+        setEditingPhase(prev => {
+            const newMetadata = {
+                ...(prev.metadata || {}),
+                [name]: value
+            };
+
+            // Auto-calculation logic for totalMatches in GROUP phases
+            if (name === "participantsCount" && prev.type === "GROUP") {
+                const count = parseInt(value);
+                if (!isNaN(count)) {
+                    newMetadata.totalMatches = Math.max(0, count * 2 - 2);
+                }
+            }
+
+            return {
+                ...prev,
+                metadata: newMetadata
+            };
+        });
+    };
+
     return (
         <Box sx={{ mt: 3 }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
@@ -136,7 +158,37 @@ function PhaseManagement({ editionId }) {
                             <MenuItem value="GROUP">Gironi (GROUP)</MenuItem>
                             <MenuItem value="KNOCKOUT">Eliminazione Diretta (KNOCKOUT)</MenuItem>
                         </TextField>
-                        <Stack direction="row" spacing={1} justifyContent="flex-end">
+
+                        <Divider sx={{ my: 1 }} />
+                        <Typography variant="caption" sx={{ fontWeight: 'bold' }}>METADATI</Typography>
+
+                        <Stack direction="row" spacing={2} alignItems="flex-start">
+                            <TextField
+                                label="Numero Partecipanti"
+                                type="number"
+                                size="small"
+                                sx={{ width: 150 }}
+                                value={editingPhase.metadata?.participantsCount ?? ""}
+                                onChange={(e) => handleEditMetadataChange("participantsCount", parseInt(e.target.value))}
+                            />
+                            <Box sx={{ width: 180 }}>
+                                <TextField
+                                    label="Numero Totale Partite"
+                                    type="number"
+                                    size="small"
+                                    fullWidth
+                                    value={editingPhase.metadata?.totalMatches ?? ""}
+                                    onChange={(e) => handleEditMetadataChange("totalMatches", parseInt(e.target.value))}
+                                />
+                                {editingPhase.type === "GROUP" && (
+                                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block', fontSize: '0.65rem' }}>
+                                        Girone all'italiana: N*2 - 2
+                                    </Typography>
+                                )}
+                            </Box>
+                        </Stack>
+
+                        <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ mt: 1 }}>
                             <Button size="small" onClick={() => setEditingPhase(null)}>Annulla</Button>
                             <Button size="small" variant="contained" color="secondary" onClick={handleUpdatePhase}>Aggiorna</Button>
                         </Stack>

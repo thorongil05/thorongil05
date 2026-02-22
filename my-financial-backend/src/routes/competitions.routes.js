@@ -39,6 +39,18 @@ router.get("/:id/editions", authenticateToken, (request, response) => {
     });
 });
 
+router.get("/editions/:editionId", authenticateToken, (request, response) => {
+  const editionId = request.params.editionId;
+  competitionsDao
+    .retrieveEdition(editionId)
+    .then((result) => {
+      response.send(result);
+    })
+    .catch((error) => {
+      response.status(500).send(error);
+    });
+});
+
 router.get(
   "/editions/:editionId/teams",
   authenticateToken,

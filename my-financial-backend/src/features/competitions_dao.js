@@ -43,6 +43,12 @@ async function retrieveEditions(competitionId) {
   return rows;
 }
 
+async function retrieveEdition(editionId) {
+  const query = `SELECT * FROM competition_editions WHERE id = $1;`;
+  const { rows } = await pool.query(query, [editionId]);
+  return rows[0];
+}
+
 async function retrieveAll() {
   const query = `SELECT * FROM competitions;`;
   const { rows } = await pool.query(query);
@@ -142,6 +148,7 @@ module.exports = {
   insertEdition: insertEdition,
   retrieveAll: retrieveAll,
   retrieveEditions: retrieveEditions,
+  retrieveEdition: retrieveEdition,
   retrieveTeams: retrieveTeams,
   getStandings: getStandings,
   update: update,
