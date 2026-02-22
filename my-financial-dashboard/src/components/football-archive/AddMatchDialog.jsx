@@ -104,13 +104,15 @@ function AddMatchDialog({
     round: "",
   });
   const [roundMatches, setRoundMatches] = useState([]);
+  const [roundRefreshTrigger, setRoundRefreshTrigger] = useState(0);
 
   // Fetch matches for the current round to filter out teams that already played
   useEffect(() => {
-    if (open && selectedCompetition && match.round) {
+    const roundToFetch = match.round?.toString().trim();
+    if (open && selectedCompetition && roundToFetch && roundToFetch !== "All") {
       const params = new URLSearchParams({
         competitionId: selectedCompetition.id,
-        round: match.round
+        round: roundToFetch
       });
       apiGet(`/api/matches?${params}`)
         .then(response => {
@@ -121,7 +123,7 @@ function AddMatchDialog({
     } else {
       setRoundMatches([]);
     }
-  }, [open, selectedCompetition, match.round]);
+  }, [open, selectedCompetition, match.round, roundRefreshTrigger]);
 
   useEffect(() => {
     if (open) {
@@ -154,7 +156,11 @@ function AddMatchDialog({
     const playedTeamIds = new Set(
       roundMatches
         .filter(rm => !matchToEdit || rm.id !== matchToEdit.id)
-        .flatMap(rm => [rm.homeTeamId, rm.awayTeamId])
+        .flatMap(rm => [
+          rm.homeTeamId || rm.homeTeam?.id,
+          rm.awayTeamId || rm.awayTeam?.id
+        ])
+        .filter(id => id !== undefined && id !== null)
     );
 
     // Filter out the selected away team AND teams that already played this round
@@ -233,6 +239,8 @@ function AddMatchDialog({
         });
         // Set submit completed to true to trigger focus back to home team input and other reset logic
         setSubmitCompleted(true);
+        // Trigger a refresh of the round matches to update team options
+        setRoundRefreshTrigger(prev => prev + 1);
       }
     } catch (error) {
       console.error(`Error ${matchToEdit ? "updating" : "creating"} match:`, error);
