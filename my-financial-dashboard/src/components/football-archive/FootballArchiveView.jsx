@@ -17,6 +17,9 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import TeamsView from "./TeamsView";
 import MatchesView from "./MatchesView";
 import StandingsView from "./StandingsView";
+import CompetitionProgress from "./competitions/CompetitionProgress";
+import EditionSelector from "./competitions/EditionSelector";
+import PhaseGroupSelector from "./competitions/PhaseGroupSelector";
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { apiGet } from "../../utils/api";
@@ -30,16 +33,23 @@ function FootballArchiveView() {
   const [teamsLoading, setTeamsLoading] = useState(true);
   const [participantCount, setParticipantCount] = useState(0);
   const [selectedCompetition, setSelectedCompetition] = useState(null);
+  const [editions, setEditions] = useState([]);
+  const [selectedEdition, setSelectedEdition] = useState(null);
+  const [editionsLoading, setEditionsLoading] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [phases, setPhases] = useState([]);
+  const [selectedPhaseId, setSelectedPhaseId] = useState(null);
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
+  const [phasesLoading, setPhasesLoading] = useState(false);
   const [tabValue, setTabValue] = useState(0);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
 
-  const fetchTeams = useCallback((competition) => {
-    const endpoint = competition
-      ? `/api/competitions/${competition.id}/teams`
+  const fetchTeams = useCallback((editionId) => {
+    const endpoint = editionId
+      ? `/api/competitions/editions/${editionId}/teams`
       : `/api/teams`;
 
     apiGet(endpoint)
@@ -64,17 +74,62 @@ function FootballArchiveView() {
 
   const handleCompetitionSelect = (competition) => {
     setSelectedCompetition(competition);
+    setSelectedEdition(null);
+    setEditions([]);
+    setPhases([]);
+    setSelectedPhaseId(null);
+    setSelectedGroupId(null);
+  };
+
+  const handleEditionSelect = (edition) => {
+    setSelectedEdition(edition);
+    setSelectedPhaseId(null);
+    setSelectedGroupId(null);
+    setPhases([]);
   };
 
   useEffect(() => {
-    fetchTeams();
-  }, [fetchTeams]);
+    if (!selectedCompetition) {
+      fetchTeams();
+    }
+  }, [fetchTeams, selectedCompetition]);
 
   useEffect(() => {
     if (selectedCompetition) {
-      fetchTeams(selectedCompetition);
+      setEditionsLoading(true);
+      apiGet(`/api/competitions/${selectedCompetition.id}/editions`)
+        .then((data) => {
+          setEditions(data);
+          if (data && data.length > 0) {
+            setSelectedEdition(data[0]); // Auto-select latest
+          }
+          setEditionsLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching editions:", error);
+          setEditionsLoading(false);
+        });
     }
-  }, [selectedCompetition, fetchTeams]);
+  }, [selectedCompetition]);
+
+  useEffect(() => {
+    if (selectedEdition) {
+      fetchTeams(selectedEdition.id);
+      setPhasesLoading(true);
+      apiGet(`/api/competitions/editions/${selectedEdition.id}/phases`)
+        .then((data) => {
+          setPhases(data);
+          if (data && data.length > 0) {
+            setSelectedPhaseId(data[0].id); // Auto-select first phase
+          }
+          setPhasesLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching phases:", error);
+          setPhasesLoading(false);
+        });
+    }
+  }, [selectedEdition, fetchTeams, refreshTrigger]);
 
   const sidebarContent = (
     <Stack spacing={2} sx={{ width: isMobile ? "100%" : "300px", flexShrink: 0 }}>
@@ -82,11 +137,36 @@ function FootballArchiveView() {
         onCompetitionSelect={handleCompetitionSelect}
         selectedCompetitionId={selectedCompetition?.id}
       />
+      {selectedCompetition && (
+        <Stack spacing={2}>
+          <EditionSelector
+            editions={editions}
+            selectedEditionId={selectedEdition?.id}
+            onEditionSelect={handleEditionSelect}
+            loading={editionsLoading}
+          />
+          {selectedEdition && (
+            <PhaseGroupSelector
+              phases={phases}
+              selectedPhaseId={selectedPhaseId}
+              onPhaseSelect={setSelectedPhaseId}
+              selectedGroupId={selectedGroupId}
+              onGroupSelect={setSelectedGroupId}
+              loading={phasesLoading}
+            />
+          )}
+        </Stack>
+      )}
     </Stack>
   );
 
   const mainContent = selectedCompetition ? (
     <Stack spacing={2} sx={{ flex: 1, minWidth: 0, width: "100%" }}>
+      <CompetitionProgress
+        edition={selectedEdition}
+        refreshTrigger={refreshTrigger}
+      />
+
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs
           value={tabValue}
@@ -112,13 +192,17 @@ function FootballArchiveView() {
       <Box sx={{ mt: 1 }}>
         {tabValue === 0 && (
           <StandingsView
-            selectedCompetition={selectedCompetition}
+            selectedEdition={selectedEdition}
+            selectedPhaseId={selectedPhaseId}
+            selectedGroupId={selectedGroupId}
             refreshTrigger={refreshTrigger}
           />
         )}
         {tabValue === 1 && (
           <MatchesView
-            selectedCompetition={selectedCompetition}
+            selectedEdition={selectedEdition}
+            selectedPhaseId={selectedPhaseId}
+            selectedGroupId={selectedGroupId}
             teams={teams}
             teamsLoading={teamsLoading}
             onMatchAdded={() => setRefreshTrigger((prev) => prev + 1)}
@@ -130,10 +214,10 @@ function FootballArchiveView() {
             teams={teams}
             loading={teamsLoading}
             onTeamAdded={() => {
-              fetchTeams(selectedCompetition);
+              if (selectedEdition) fetchTeams(selectedEdition.id);
               setRefreshTrigger((prev) => prev + 1);
             }}
-            competitionId={selectedCompetition?.id}
+            editionId={selectedEdition?.id}
             isCompact={false}
           />
         )}

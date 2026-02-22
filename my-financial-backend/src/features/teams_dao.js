@@ -18,19 +18,14 @@ async function insert(teamEntry) {
     ]);
     const teamRow = insertResult.rows[0];
     const teamId = teamRow.id;
-    logger.info({team: teamRow }, "Inserted team");
+    logger.info({ team: teamRow }, "Inserted team");
 
-    // Link to competition if competitionId is provided
-    if (teamEntry.competitionId) {
-      // Check if link already exists - technically redundant if team is new, 
-      // but good defensive practice if API allows providing an existing ID in future (though currently it creates new).
-      // Since we just created a NEW team ID, it cannot be linked. So we can just insert.
+    // Link to edition if editionId is provided
+    if (teamEntry.editionId) {
       const linkQuery =
-          "INSERT INTO competition_teams (competition_id, team_id) VALUES ($1, $2)";
-      await client.query(linkQuery, [teamEntry.competitionId, teamId]);
-      logger.info(
-        `Linked team ${teamId} to competition ${teamEntry.competitionId}`,
-      );
+        "INSERT INTO edition_teams (edition_id, team_id) VALUES ($1, $2)";
+      await client.query(linkQuery, [teamEntry.editionId, teamId]);
+      logger.info(`Linked team ${teamId} to edition ${teamEntry.editionId}`);
     }
 
     await client.query("COMMIT");

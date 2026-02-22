@@ -80,7 +80,9 @@ function AddMatchDialog({
   onMatchAdded,
   teams,
   teamsLoading,
-  selectedCompetition,
+  selectedEdition,
+  selectedPhaseId,
+  selectedGroupId,
   open,
   onClose,
   matchToEdit,
@@ -102,16 +104,22 @@ function AddMatchDialog({
     homeTeamScore: null,
     awayTeamScore: null,
     round: "",
+    phaseId: null,
+    groupId: null,
   });
   const [roundMatches, setRoundMatches] = useState([]);
+  const [roundRefreshTrigger, setRoundRefreshTrigger] = useState(0);
 
   // Fetch matches for the current round to filter out teams that already played
   useEffect(() => {
-    if (open && selectedCompetition && match.round) {
+    const roundToFetch = match.round?.toString().trim();
+    if (open && selectedEdition && roundToFetch && roundToFetch !== "All") {
       const params = new URLSearchParams({
-        competitionId: selectedCompetition.id,
-        round: match.round
+        editionId: selectedEdition.id,
+        round: roundToFetch
       });
+      if (selectedPhaseId) params.append("phaseId", selectedPhaseId);
+      if (selectedGroupId) params.append("groupId", selectedGroupId);
       apiGet(`/api/matches?${params}`)
         .then(response => {
           const data = response.data || response;
@@ -121,7 +129,7 @@ function AddMatchDialog({
     } else {
       setRoundMatches([]);
     }
-  }, [open, selectedCompetition, match.round]);
+  }, [open, selectedEdition, match.round, roundRefreshTrigger]);
 
   useEffect(() => {
     if (open) {
@@ -132,6 +140,8 @@ function AddMatchDialog({
           homeTeamScore: matchToEdit.homeScore,
           awayTeamScore: matchToEdit.awayScore,
           round: matchToEdit.round,
+          phaseId: matchToEdit.phaseId,
+          groupId: matchToEdit.groupId,
         });
         setAddAnother(false);
       } else {
@@ -141,6 +151,8 @@ function AddMatchDialog({
           homeTeamScore: null,
           awayTeamScore: null,
           round: defaultRound || "",
+          phaseId: selectedPhaseId || null,
+          groupId: selectedGroupId || null,
         });
         setAddAnother(false);
       }
@@ -154,7 +166,11 @@ function AddMatchDialog({
     const playedTeamIds = new Set(
       roundMatches
         .filter(rm => !matchToEdit || rm.id !== matchToEdit.id)
-        .flatMap(rm => [rm.homeTeamId, rm.awayTeamId])
+        .flatMap(rm => [
+          rm.homeTeamId || rm.homeTeam?.id,
+          rm.awayTeamId || rm.awayTeam?.id
+        ])
+        .filter(id => id !== undefined && id !== null)
     );
 
     // Filter out the selected away team AND teams that already played this round
@@ -197,7 +213,9 @@ function AddMatchDialog({
       homeGoals: match.homeTeamScore,
       awayGoals: match.awayTeamScore,
       matchDate: new Date().toISOString(),
-      competitionId: selectedCompetition?.id || null,
+      editionId: selectedEdition.id,
+      phaseId: match.phaseId,
+      groupId: match.groupId,
       round: match.round,
     };
 
@@ -230,9 +248,13 @@ function AddMatchDialog({
           homeTeamScore: null,
           awayTeamScore: null,
           round: match.round, // Keep round for convenience in batch entry
+          phaseId: match.phaseId,
+          groupId: match.groupId,
         });
         // Set submit completed to true to trigger focus back to home team input and other reset logic
         setSubmitCompleted(true);
+        // Trigger a refresh of the round matches to update team options
+        setRoundRefreshTrigger(prev => prev + 1);
       }
     } catch (error) {
       console.error(`Error ${matchToEdit ? "updating" : "creating"} match:`, error);
@@ -282,7 +304,7 @@ function AddMatchDialog({
       {!isMobile && <DialogTitle>{dialogTitle}</DialogTitle>}
       <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
         <DialogContent dividers={isMobile}>
-          {selectedCompetition ? (
+          {selectedEdition ? (
             <Box
               sx={{
                 mb: 2,
@@ -294,7 +316,7 @@ function AddMatchDialog({
               }}
             >
               <Typography variant="body2">
-                <strong>Competition:</strong> {selectedCompetition.name}
+                <strong>Edition:</strong> {selectedEdition.name}
               </Typography>
             </Box>
           ) : (
@@ -308,7 +330,7 @@ function AddMatchDialog({
               }}
             >
               <Typography variant="body2">
-                <strong>Warning:</strong> No competition selected.
+                <strong>Warning:</strong> No edition selected.
               </Typography>
             </Box>
           )}
@@ -529,7 +551,12 @@ AddMatchDialog.propTypes = {
   onMatchAdded: PropTypes.func,
   teams: PropTypes.array.isRequired,
   teamsLoading: PropTypes.bool.isRequired,
-  selectedCompetition: PropTypes.object,
+  selectedEdition: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+  }),
+  selectedPhaseId: PropTypes.number,
+  selectedGroupId: PropTypes.number,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   matchToEdit: PropTypes.object,

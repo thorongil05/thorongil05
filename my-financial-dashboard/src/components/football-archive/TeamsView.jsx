@@ -20,7 +20,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import AddTeamDialog from "./AddTeamDialog";
 
-function TeamsView({ teams, loading, onTeamAdded, competitionId, isCompact = false }) {
+function TeamsView({ teams, loading, onTeamAdded, editionId, isCompact = false }) {
   const { t } = useTranslation();
   const { user, token } = useAuth();
   const [open, setOpen] = useState(false);
@@ -175,7 +175,7 @@ function TeamsView({ teams, loading, onTeamAdded, competitionId, isCompact = fal
         open={open}
         onClose={handleClose}
         onInsert={handleInsertCompleted}
-        competitionId={competitionId}
+        editionId={editionId}
       />
 
       <EditTeamDialog
@@ -210,7 +210,7 @@ TeamsView.propTypes = {
   ).isRequired,
   loading: PropTypes.bool.isRequired,
   onTeamAdded: PropTypes.func,
-  competitionId: PropTypes.number,
+  editionId: PropTypes.number,
   isCompact: PropTypes.bool,
 };
 

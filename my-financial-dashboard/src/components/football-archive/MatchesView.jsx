@@ -28,7 +28,9 @@ import MobileMatchesView from "./matches/MobileMatchesView";
 import DesktopMatchesView from "./matches/DesktopMatchesView";
 
 function MatchesView({
-  selectedCompetition,
+  selectedEdition,
+  selectedPhaseId,
+  selectedGroupId,
   teams,
   teamsLoading,
   onMatchAdded,
@@ -59,14 +61,17 @@ function MatchesView({
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const fetchRounds = useCallback(() => {
-    if (!selectedCompetition) {
+    if (!selectedEdition) {
       setRounds([]);
       return;
     }
 
     const urlSearchParams = new URLSearchParams({
-      competitionId: selectedCompetition.id,
+      editionId: selectedEdition.id,
     });
+    if (selectedPhaseId) urlSearchParams.append("phaseId", selectedPhaseId);
+    if (selectedGroupId) urlSearchParams.append("groupId", selectedGroupId);
+
     apiGet(`/api/matches/rounds?${urlSearchParams}`)
       .then((data) => {
         setRounds(data);
@@ -77,26 +82,32 @@ function MatchesView({
         }
       })
       .catch((err) => console.error("Error fetching rounds:", err));
-  }, [selectedCompetition, refreshTrigger]);
+  }, [selectedEdition, refreshTrigger]);
 
   const fetchMatches = useCallback(() => {
     setError(null);
     setLoading(true);
 
-    if (!selectedCompetition) {
+    if (!selectedEdition) {
       setMatches([]);
       setLoading(false);
       return;
     }
 
     const params = {
-      competitionId: selectedCompetition.id,
+      editionId: selectedEdition.id,
     };
     if (selectedRound && selectedRound !== "All") {
       params.round = selectedRound;
     }
     if (selectedTeamId && selectedTeamId !== "All") {
       params.teamId = selectedTeamId;
+    }
+    if (selectedPhaseId) {
+      params.phaseId = selectedPhaseId;
+    }
+    if (selectedGroupId) {
+      params.groupId = selectedGroupId;
     }
     if (sortBy) {
       params.sortBy = sortBy;
@@ -120,7 +131,7 @@ function MatchesView({
         setError(error.message);
         setLoading(false);
       });
-  }, [selectedCompetition, selectedRound, selectedTeamId, sortBy, sortOrder, refreshTrigger]);
+  }, [selectedEdition, selectedPhaseId, selectedGroupId, selectedRound, selectedTeamId, sortBy, sortOrder, refreshTrigger]);
 
   const handleResetFilters = () => {
     setSelectedRound("All");
@@ -229,7 +240,7 @@ function MatchesView({
                     value={selectedRound}
                     label={t("football.round", "Round")}
                     onChange={(e) => setSelectedRound(e.target.value)}
-                    disabled={!selectedCompetition}
+                    disabled={!selectedEdition}
                     sx={{ borderRadius: 2 }}
                   >
                     <MenuItem value="All">{t("football.all_rounds", "All Rounds")}</MenuItem>
@@ -253,7 +264,7 @@ function MatchesView({
                         setMatchToEdit(null);
                         setMatchDialogOpen(true);
                       }}
-                      disabled={!selectedCompetition}
+                      disabled={!selectedEdition}
                       sx={{
                         bgcolor: "primary.main",
                         color: "white",
@@ -286,7 +297,7 @@ function MatchesView({
                   value={selectedRound}
                   label={t("football.round", "Round")}
                   onChange={(e) => setSelectedRound(e.target.value)}
-                  disabled={!selectedCompetition}
+                  disabled={!selectedEdition}
                   sx={{ borderRadius: 2 }}
                 >
                   <MenuItem value="All">{t("football.all_rounds", "All Rounds")}</MenuItem>
@@ -312,7 +323,7 @@ function MatchesView({
                 value={selectedTeamId}
                 label={t("football.team", "Team")}
                 onChange={(e) => setSelectedTeamId(e.target.value)}
-                disabled={!selectedCompetition}
+                disabled={!selectedEdition}
                 sx={{ borderRadius: 2 }}
               >
                 <MenuItem value="All">{t("football.all_teams", "All Teams")}</MenuItem>
@@ -346,7 +357,7 @@ function MatchesView({
                     setMatchToEdit(null);
                     setMatchDialogOpen(true);
                   }}
-                  disabled={!selectedCompetition}
+                  disabled={!selectedEdition}
                   fullWidth
                   sx={{ borderRadius: 2 }}
                 >
@@ -399,7 +410,9 @@ function MatchesView({
         }}
         teams={teams}
         teamsLoading={teamsLoading}
-        selectedCompetition={selectedCompetition}
+        selectedEdition={selectedEdition}
+        selectedPhaseId={selectedPhaseId}
+        selectedGroupId={selectedGroupId}
         matchToEdit={matchToEdit}
         defaultRound={lastUsedRound}
       />
@@ -408,10 +421,11 @@ function MatchesView({
 }
 
 MatchesView.propTypes = {
-  selectedCompetition: PropTypes.shape({
-    id: PropTypes.number.isRequired,
+  selectedEdition: PropTypes.shape({
     name: PropTypes.string,
   }),
+  selectedPhaseId: PropTypes.number,
+  selectedGroupId: PropTypes.number,
   teams: PropTypes.array.isRequired,
   teamsLoading: PropTypes.bool.isRequired,
   onMatchAdded: PropTypes.func,

@@ -4,14 +4,16 @@ const logger = require("pino")();
 async function insert(matchEntry) {
   const query = `
         INSERT INTO matches
-            (match_date, competition_id, home_team_id, away_team_id, home_goals, away_goals, stadium, round)
-        VALUES($1, $2, $3, $4, $5, $6, $7, $8)
+            (match_date, edition_id, phase_id, group_id, home_team_id, away_team_id, home_goals, away_goals, stadium, round)
+        VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING *;
     `;
 
   const values = [
     matchEntry.matchDate,
-    matchEntry.competitionId,
+    matchEntry.editionId,
+    matchEntry.phaseId,
+    matchEntry.groupId,
     matchEntry.homeTeamId,
     matchEntry.awayTeamId,
     matchEntry.homeGoals,
@@ -25,8 +27,29 @@ async function insert(matchEntry) {
   return rows[0];
 }
 
-async function findMatches(competitionId = null, round = null, teamId = null, sortBy = "match_date", sortOrder = "DESC") {
-  logger.info({ competitionId, round, teamId, sortBy, sortOrder }, "Retrieving matches");
+async function findMatches(
+  competitionId = null,
+  round = null,
+  teamId = null,
+  sortBy = "match_date",
+  sortOrder = "DESC",
+  editionId = null,
+  phaseId = null,
+  groupId = null,
+) {
+  logger.info(
+    {
+      competitionId,
+      round,
+      teamId,
+      sortBy,
+      sortOrder,
+      editionId,
+      phaseId,
+      groupId,
+    },
+    "Retrieving matches",
+  );
   let query = `
     SELECT
       m.*,
@@ -41,10 +64,20 @@ async function findMatches(competitionId = null, round = null, teamId = null, so
 
   const values = [];
   let whereClause = [];
-  
-  if (competitionId) {
-    values.push(competitionId);
-    whereClause.push(`m.competition_id = $${values.length}`);
+
+  if (editionId) {
+    values.push(editionId);
+    whereClause.push(`m.edition_id = $${values.length}`);
+  }
+
+  if (phaseId) {
+    values.push(phaseId);
+    whereClause.push(`m.phase_id = $${values.length}`);
+  }
+
+  if (groupId) {
+    values.push(groupId);
+    whereClause.push(`m.group_id = $${values.length}`);
   }
 
   if (round) {
@@ -54,13 +87,15 @@ async function findMatches(competitionId = null, round = null, teamId = null, so
 
   if (teamId) {
     values.push(teamId);
-    whereClause.push(`(m.home_team_id = $${values.length} OR m.away_team_id = $${values.length})`);
+    whereClause.push(
+      `(m.home_team_id = $${values.length} OR m.away_team_id = $${values.length})`,
+    );
   }
 
   if (whereClause.length > 0) {
     query += " WHERE " + whereClause.join(" AND ");
   }
-  
+
   // Handle dynamic sorting
   const order = sortOrder.toUpperCase() === "ASC" ? "ASC" : "DESC";
   if (sortBy === "round") {
@@ -75,7 +110,9 @@ async function findMatches(competitionId = null, round = null, teamId = null, so
   const domainMatches = rows.map((row) => ({
     id: row.id,
     matchDate: row.match_date,
-    competitionId: row.competition_id,
+    editionId: row.edition_id,
+    phaseId: row.phase_id,
+    groupId: row.group_id,
     homeScore: row.home_goals,
     awayScore: row.away_goals,
     stadium: row.stadium,
@@ -97,37 +134,41 @@ async function findMatches(competitionId = null, round = null, teamId = null, so
   return domainMatches;
 }
 
-async function findRounds(competitionId) {
-  logger.info({ competitionId }, "Retrieving rounds");
+async function findRounds(editionId) {
+  logger.info({ editionId }, "Retrieving rounds");
   const query = `
     SELECT round
     FROM matches
-    WHERE competition_id = $1
+    WHERE edition_id = $1
     GROUP BY round
     ORDER BY LENGTH(round), round
   `;
-  const { rows } = await pool.query(query, [competitionId]);
-  return rows.map(r => r.round).filter(r => r);
+  const { rows } = await pool.query(query, [editionId]);
+  return rows.map((r) => r.round).filter((r) => r);
 }
 
 async function update(id, match) {
   const query = `
     UPDATE matches
     SET match_date = $1, 
-        competition_id = $2, 
-        home_team_id = $3, 
-        away_team_id = $4, 
-        home_goals = $5, 
-        away_goals = $6, 
-        stadium = $7, 
-        round = $8
-    WHERE id = $9
+        edition_id = $2, 
+        phase_id = $3,
+        group_id = $4,
+        home_team_id = $5, 
+        away_team_id = $6, 
+        home_goals = $7, 
+        away_goals = $8, 
+        stadium = $9, 
+        round = $10
+    WHERE id = $11
     RETURNING *;
   `;
 
   const values = [
     match.matchDate,
-    match.competitionId,
+    match.editionId,
+    match.phaseId,
+    match.groupId,
     match.homeTeamId,
     match.awayTeamId,
     match.homeGoals,

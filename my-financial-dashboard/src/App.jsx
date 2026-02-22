@@ -11,6 +11,7 @@ import RegisterView from "./components/auth/RegisterView";
 import { useAuth } from "./context/AuthContext";
 
 import AdminDashboardView from "./components/admin/AdminDashboardView";
+import CompetitionManagementPage from "./components/football-archive/competitions/CompetitionManagementPage";
 import { UserRoles } from "./constants/roles";
 
 const ProtectedRoute = ({ children }) => {
@@ -48,6 +49,22 @@ function App() {
           element={
             <ProtectedRoute>
               <FootballArchiveView></FootballArchiveView>
+            </ProtectedRoute>
+          }
+        ></Route>
+        <Route
+          path="/football-archive/competition/add"
+          element={
+            <ProtectedRoute>
+              <CompetitionManagementPage />
+            </ProtectedRoute>
+          }
+        ></Route>
+        <Route
+          path="/football-archive/competition/edit/:id"
+          element={
+            <ProtectedRoute>
+              <CompetitionManagementPage />
             </ProtectedRoute>
           }
         ></Route>
