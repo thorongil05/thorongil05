@@ -17,6 +17,7 @@ import {
   Stack,
   AppBar,
   Toolbar,
+  Alert,
 } from "@mui/material";
 import { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
@@ -81,6 +82,7 @@ function AddMatchDialog({
   teams,
   teamsLoading,
   selectedEdition,
+  selectedPhase,
   selectedPhaseId,
   selectedGroupId,
   open,
@@ -109,6 +111,11 @@ function AddMatchDialog({
   });
   const [roundMatches, setRoundMatches] = useState([]);
   const [roundRefreshTrigger, setRoundRefreshTrigger] = useState(0);
+
+  const maxMatches = selectedPhase?.metadata?.matchesPerRound;
+  const maxMatchesNum = maxMatches ? parseInt(maxMatches, 10) : null;
+  const isLimitReached = !matchToEdit && maxMatchesNum && (roundMatches.length >= maxMatchesNum);
+  const submitDisabled = Boolean(isSubmitting || isLimitReached || teamsLoading);
 
   // Fetch matches for the current round to filter out teams that already played
   useEffect(() => {
@@ -295,7 +302,7 @@ function AddMatchDialog({
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
               {dialogTitle}
             </Typography>
-            <Button autoFocus color="inherit" onClick={handleSubmit} disabled={isSubmitting}>
+            <Button autoFocus color="inherit" onClick={handleSubmit} disabled={submitDisabled}>
               {matchToEdit ? "Save" : "Add"}
             </Button>
           </Toolbar>
@@ -333,6 +340,14 @@ function AddMatchDialog({
                 <strong>Warning:</strong> No edition selected.
               </Typography>
             </Box>
+          )}
+
+          {isLimitReached && (
+            <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
+              <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                Limite raggiunto: sono già presenti {roundMatches.length} partite (su un massimo di {maxMatchesNum}) per la Giornata {match.round}.
+              </Typography>
+            </Alert>
           )}
 
           {isMobile ? (
@@ -537,7 +552,7 @@ function AddMatchDialog({
             <Button onClick={onClose} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button type="submit" variant="contained" disabled={isSubmitting}>
+            <Button type="submit" variant="contained" disabled={submitDisabled}>
               {isSubmitting ? (matchToEdit ? "Updating..." : "Adding...") : (matchToEdit ? "Update Match" : "Add Match")}
             </Button>
           </DialogActions>
@@ -555,6 +570,7 @@ AddMatchDialog.propTypes = {
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
   }),
+  selectedPhase: PropTypes.object,
   selectedPhaseId: PropTypes.number,
   selectedGroupId: PropTypes.number,
   open: PropTypes.bool.isRequired,

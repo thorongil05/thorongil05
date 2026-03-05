@@ -65,20 +65,32 @@ router.post(
   trackActivity("matches_added"),
   (request, response) => {
     logger.info({ body: request.body }, "Received request");
+
     if (Array.isArray(request.body)) {
-      throw new Exception("Not supported operation");
+      const matchEntries = request.body.map((item) => mapper.mapToMatch(item));
+      matchesDao
+        .bulkInsert(matchEntries)
+        .then((result) => {
+          logger.info({ count: result.length }, "Matches inserted in bulk");
+          response.status(201).send(result);
+        })
+        .catch((error) => {
+          response.status(500).send(error);
+          logger.error({ error }, "Error inserting matches in bulk");
+        });
+    } else {
+      let matchEntry = mapper.mapToMatch(request.body);
+      matchesDao
+        .insert(matchEntry)
+        .then((result) => {
+          logger.info({ match: result }, "Match inserted");
+          response.status(201).send(result);
+        })
+        .catch((error) => {
+          response.status(500).send(error);
+          logger.error({ error }, "Error inserting match");
+        });
     }
-    let matchEntry = mapper.mapToMatch(request.body);
-    matchesDao
-      .insert(matchEntry)
-      .then((result) => {
-        logger.info({ match: result }, "Match inserted");
-        response.status(201).send(result);
-      })
-      .catch((error) => {
-        response.status(500).send(error);
-        logger.error({ error }, "Error inserting match");
-      });
   },
 );
 

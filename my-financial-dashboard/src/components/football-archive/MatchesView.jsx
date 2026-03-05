@@ -19,7 +19,8 @@ import AddIcon from "@mui/icons-material/Add";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
-import AddMatchDialog from "./AddMatchDialog";
+import MatchdayBuilder from "./MatchdayBuilder";
+import EditMatchDialog from "./EditMatchDialog";
 import { useAuth } from "../../context/AuthContext";
 import { UserRoles } from "../../constants/roles";
 import { useTranslation } from "react-i18next";
@@ -35,6 +36,7 @@ function MatchesView({
   teamsLoading,
   onMatchAdded,
   refreshTrigger,
+  phases = [],
 }) {
   const { t } = useTranslation();
   const { user, token } = useAuth();
@@ -43,6 +45,7 @@ function MatchesView({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [matchDialogOpen, setMatchDialogOpen] = useState(false);
+  const [builderOpen, setBuilderOpen] = useState(false);
   const [matchToEdit, setMatchToEdit] = useState(null);
   const [rounds, setRounds] = useState([]);
   const [selectedRound, setSelectedRound] = useState("All");
@@ -85,14 +88,13 @@ function MatchesView({
   }, [selectedEdition, refreshTrigger]);
 
   const fetchMatches = useCallback(() => {
-    setError(null);
-    setLoading(true);
-
     if (!selectedEdition) {
       setMatches([]);
-      setLoading(false);
       return;
     }
+
+    setError(null);
+    setLoading(true);
 
     const params = {
       editionId: selectedEdition.id,
@@ -261,8 +263,7 @@ function MatchesView({
                     <IconButton
                       size="small"
                       onClick={() => {
-                        setMatchToEdit(null);
-                        setMatchDialogOpen(true);
+                        setBuilderOpen(true);
                       }}
                       disabled={!selectedEdition}
                       sx={{
@@ -354,14 +355,13 @@ function MatchesView({
                   variant="contained"
                   startIcon={<AddIcon />}
                   onClick={() => {
-                    setMatchToEdit(null);
-                    setMatchDialogOpen(true);
+                    setBuilderOpen(true);
                   }}
                   disabled={!selectedEdition}
                   fullWidth
                   sx={{ borderRadius: 2 }}
                 >
-                  {t("football.add_match", "Add Match")}
+                  Crea Giornata
                 </Button>
               )}
             </Stack>
@@ -392,13 +392,30 @@ function MatchesView({
         )}
       </TableContainer>
 
-      <AddMatchDialog
+      <EditMatchDialog
         open={matchDialogOpen}
         onClose={() => {
           setMatchDialogOpen(false);
           setMatchToEdit(null);
         }}
-        onMatchAdded={(round) => {
+        onMatchUpdated={(round) => {
+          if (round) {
+            setLastUsedRound(round);
+          }
+          fetchMatches();
+          fetchRounds();
+          if (onMatchAdded) {
+            onMatchAdded();
+          }
+        }}
+        matchToEdit={matchToEdit}
+        selectedEdition={selectedEdition}
+      />
+
+      <MatchdayBuilder
+        open={builderOpen}
+        onClose={() => setBuilderOpen(false)}
+        onMatchesCreated={(round) => {
           if (round) {
             setLastUsedRound(round);
           }
@@ -409,11 +426,9 @@ function MatchesView({
           }
         }}
         teams={teams}
-        teamsLoading={teamsLoading}
         selectedEdition={selectedEdition}
         selectedPhaseId={selectedPhaseId}
         selectedGroupId={selectedGroupId}
-        matchToEdit={matchToEdit}
         defaultRound={lastUsedRound}
       />
     </Stack>
@@ -430,6 +445,7 @@ MatchesView.propTypes = {
   teamsLoading: PropTypes.bool.isRequired,
   onMatchAdded: PropTypes.func,
   refreshTrigger: PropTypes.number,
+  phases: PropTypes.array,
 };
 
 export default MatchesView;

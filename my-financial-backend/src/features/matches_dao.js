@@ -27,6 +27,44 @@ async function insert(matchEntry) {
   return rows[0];
 }
 
+async function bulkInsert(matchEntries) {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const results = [];
+    for (const matchEntry of matchEntries) {
+      const query = `
+        INSERT INTO matches
+            (match_date, edition_id, phase_id, group_id, home_team_id, away_team_id, home_goals, away_goals, stadium, round)
+        VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        RETURNING *;
+      `;
+      const values = [
+        matchEntry.matchDate,
+        matchEntry.editionId,
+        matchEntry.phaseId,
+        matchEntry.groupId,
+        matchEntry.homeTeamId,
+        matchEntry.awayTeamId,
+        matchEntry.homeGoals,
+        matchEntry.awayGoals,
+        matchEntry.stadium,
+        matchEntry.round,
+      ];
+      const { rows } = await client.query(query, values);
+      results.push(rows[0]);
+    }
+    await client.query("COMMIT");
+    logger.info({ count: results.length }, "Bulk matches inserted in Database");
+    return results;
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
 async function findMatches(
   competitionId = null,
   round = null,
@@ -192,6 +230,7 @@ async function deleteMatch(id) {
 
 module.exports = {
   insert: insert,
+  bulkInsert: bulkInsert,
   findMatches: findMatches,
   update: update,
   findRounds: findRounds,
