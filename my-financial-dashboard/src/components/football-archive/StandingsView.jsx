@@ -39,6 +39,23 @@ function StandingsView({ selectedEdition, selectedPhaseId, selectedGroupId, refr
   const [sortBy, setSortBy] = useState("points");
   const [sortOrder, setSortOrder] = useState("desc");
 
+  // Context tracking to reset states smoothly without double-renders
+  const contextKey = `${selectedEdition?.id}-${selectedPhaseId}-${selectedGroupId}`;
+  const [activeContextKey, setActiveContextKey] = useState(contextKey);
+
+  if (contextKey !== activeContextKey) {
+    setActiveContextKey(contextKey);
+    setRoundsInterval([1, 0]);
+    setSliderValue([1, 0]);
+    setLastFetchedInterval(null);
+    setMaxRound(0);
+    setSortBy("points");
+    setSortOrder("desc");
+    setStandings([]);
+    // React will immediately halt this render and restart with the new reset state, 
+    // ensuring `useEffect` only runs ONCE with the reset params!
+  }
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
@@ -113,7 +130,7 @@ function StandingsView({ selectedEdition, selectedPhaseId, selectedGroupId, refr
       return;
     }
 
-    // Skip redundant fetch if interval hasn't changed
+    // Skip redundant fetch if interval hasn't changed (e.g., just a refreshTrigger that didn't change)
     if (
       lastFetchedInterval &&
       roundsInterval[0] === lastFetchedInterval[0] &&
@@ -141,10 +158,9 @@ function StandingsView({ selectedEdition, selectedPhaseId, selectedGroupId, refr
         setStandings(result.standings);
         setMaxRound(result.totalRounds);
 
-        // If this was the first load (endInterval was 0), 
-        // initialize the slider and interval to the full range
         if (roundsInterval[1] === 0) {
-          const fullRange = [1, result.totalRounds];
+          const safeMax = Math.max(1, result.totalRounds || 1);
+          const fullRange = [1, safeMax];
           setSliderValue(fullRange);
           setRoundsInterval(fullRange);
           setLastFetchedInterval(fullRange);
@@ -159,16 +175,16 @@ function StandingsView({ selectedEdition, selectedPhaseId, selectedGroupId, refr
         setError(error.message);
         setLoading(false);
       });
-  }, [selectedEdition, refreshTrigger, roundsInterval, lastFetchedInterval, selectedPhaseId, selectedGroupId]);
+  }, [
+    selectedEdition,
+    selectedPhaseId,
+    selectedGroupId,
+    roundsInterval,
+    refreshTrigger,
+    lastFetchedInterval
+  ]);
 
-  // Reset state when edition changes
-  useEffect(() => {
-    setRoundsInterval([1, 0]);
-    setSliderValue([1, 0]);
-    setLastFetchedInterval(null);
-    setMaxRound(0);
-    resetSorting();
-  }, [selectedEdition, selectedPhaseId, selectedGroupId]);
+
 
   if (!selectedEdition) {
     return null;

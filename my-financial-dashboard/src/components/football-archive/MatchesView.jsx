@@ -86,14 +86,13 @@ function MatchesView({
   }, [selectedEdition, refreshTrigger]);
 
   const fetchMatches = useCallback(() => {
-    setError(null);
-    setLoading(true);
-
     if (!selectedEdition) {
       setMatches([]);
-      setLoading(false);
       return;
     }
+
+    setError(null);
+    setLoading(true);
 
     const params = {
       editionId: selectedEdition.id,
