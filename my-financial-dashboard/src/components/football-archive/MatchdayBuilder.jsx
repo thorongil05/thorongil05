@@ -84,12 +84,13 @@ function DropZone({ id, team, label, onRemove }) {
         border: '2px dashed',
         borderColor: isOver ? 'primary.main' : 'divider',
         borderRadius: '4px',
-        minHeight: '40px',
+        height: '40px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         transition: 'all 0.2s',
         flex: 1,
+        minWidth: 0,
         position: 'relative',
         p: 0.5
     };
@@ -102,10 +103,19 @@ function DropZone({ id, team, label, onRemove }) {
                     size="small"
                     onDelete={onRemove}
                     color="primary"
-                    sx={{ width: '100%' }}
+                    sx={{
+                        width: '100%',
+                        '& .MuiChip-label': {
+                            display: 'block',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            px: 1
+                        }
+                    }}
                 />
             ) : (
-                <Typography variant="caption" color="text.secondary">{label}</Typography>
+                <Typography variant="caption" color="text.secondary" noWrap>{label}</Typography>
             )}
         </Box>
     );
