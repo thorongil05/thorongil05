@@ -16,19 +16,153 @@ import {
     Divider,
     Paper,
     TextField,
-    MenuItem,
-    Select,
-    FormControl,
-    InputLabel,
-    Alert
+    Alert,
+    Grid
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import CloseIcon from "@mui/icons-material/Close";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { apiPost } from "../../utils/api";
+
+// DND Kit Imports
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragOverlay,
+    useDraggable,
+    useDroppable,
+} from '@dnd-kit/core';
+import { restrictToWindowEdges } from '@dnd-kit/modifiers';
+
+// --- Sub-components for DND ---
+
+function DraggableTeam({ team, disabled }) {
+    const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+        id: `team-${team.id}`,
+        data: { team },
+        disabled
+    });
+
+    const style = transform ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        opacity: isDragging ? 0.5 : 1,
+        zIndex: isDragging ? 999 : 1,
+    } : undefined;
+
+    return (
+        <Chip
+            ref={setNodeRef}
+            label={team.name}
+            {...listeners}
+            {...attributes}
+            style={style}
+            color="primary"
+            variant="outlined"
+            sx={{
+                cursor: 'grab',
+                touchAction: 'none',
+                '&:active': { cursor: 'grabbing' },
+                m: 0.5
+            }}
+        />
+    );
+}
+
+function DropZone({ id, team, label, onRemove }) {
+    const { isOver, setNodeRef } = useDroppable({
+        id: id,
+    });
+
+    const style = {
+        backgroundColor: isOver ? 'rgba(25, 118, 210, 0.08)' : 'transparent',
+        border: '2px dashed',
+        borderColor: isOver ? 'primary.main' : 'divider',
+        borderRadius: '4px',
+        minHeight: '40px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'all 0.2s',
+        flex: 1,
+        position: 'relative',
+        p: 0.5
+    };
+
+    return (
+        <Box ref={setNodeRef} sx={style}>
+            {team ? (
+                <Chip
+                    label={team.name}
+                    size="small"
+                    onDelete={onRemove}
+                    color="primary"
+                    sx={{ width: '100%' }}
+                />
+            ) : (
+                <Typography variant="caption" color="text.secondary">{label}</Typography>
+            )}
+        </Box>
+    );
+}
+
+function AvailableArea({ teams }) {
+    const { setNodeRef, isOver } = useDroppable({ id: 'available-area' });
+
+    return (
+        <Paper
+            ref={setNodeRef}
+            variant="outlined"
+            sx={{
+                p: 2,
+                minHeight: '80px',
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 0,
+                bgcolor: isOver ? 'action.selected' : 'transparent',
+                borderStyle: 'dashed'
+            }}
+        >
+            {teams.length === 0 && (
+                <Typography variant="body2" color="text.secondary" sx={{ width: '100%', textAlign: 'center' }}>
+                    Tutte le squadre sono state assegnate.
+                </Typography>
+            )}
+            {teams.map(team => (
+                <DraggableTeam key={team.id} team={team} />
+            ))}
+        </Paper>
+    );
+}
+
+function MatchSlot({ index, match, onRemove }) {
+    return (
+        <Paper variant="outlined" sx={{ p: 1, bgcolor: 'background.paper' }}>
+            <Stack direction="row" spacing={1} alignItems="center">
+                <DropZone
+                    id={`match-${index}-home`}
+                    team={match.homeTeam}
+                    label="CASA"
+                    onRemove={() => onRemove('home')}
+                />
+                <Typography variant="caption" sx={{ fontWeight: 'bold', color: 'text.secondary' }}>VS</Typography>
+                <DropZone
+                    id={`match-${index}-away`}
+                    team={match.awayTeam}
+                    label="TRASF."
+                    onRemove={() => onRemove('away')}
+                />
+            </Stack>
+        </Paper>
+    );
+}
+
+// --- Main component ---
 
 function MatchdayBuilder({
     open,
@@ -45,62 +179,144 @@ function MatchdayBuilder({
 
     const [round, setRound] = useState(defaultRound || "");
     const [availableTeams, setAvailableTeams] = useState([]);
-    const [selectedForPairing, setSelectedForPairing] = useState(null);
-    const [pairs, setPairs] = useState([]);
+    const [matches, setMatches] = useState([]); // Array of { id, homeTeam, awayTeam }
+    const [activeTeam, setActiveTeam] = useState(null); // For drag overlay
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 5,
+            },
+        }),
+        useSensor(KeyboardSensor)
+    );
 
     useEffect(() => {
         if (open) {
             setAvailableTeams([...teams]);
-            setPairs([]);
-            setSelectedForPairing(null);
+            // Initialize empty matches based on team count (e.g. 10 matches for 20 teams)
+            const numMatches = Math.ceil(teams.length / 2);
+            const initialMatches = Array.from({ length: numMatches }, (_, i) => ({
+                id: `match-${i}`,
+                homeTeam: null,
+                awayTeam: null
+            }));
+            setMatches(initialMatches);
             setRound(defaultRound || "");
             setError(null);
         }
     }, [open, teams, defaultRound]);
 
-    const handleTeamClick = (team) => {
-        if (selectedForPairing === null) {
-            setSelectedForPairing(team);
-        } else if (selectedForPairing.id === team.id) {
-            setSelectedForPairing(null);
-        } else {
-            // Create a pair
-            setPairs([...pairs, { home: selectedForPairing, away: team }]);
-            setAvailableTeams(availableTeams.filter(t => t.id !== team.id && t.id !== selectedForPairing.id));
-            setSelectedForPairing(null);
+    const handleDragStart = (event) => {
+        const { active } = event;
+        const teamIdStr = active.id.toString().replace('team-', '');
+        const team = teams.find(t => t.id.toString() === teamIdStr);
+        setActiveTeam(team);
+    };
+
+    const handleDragEnd = (event) => {
+        const { active, over } = event;
+        setActiveTeam(null);
+
+        if (!over) return;
+
+        const teamIdStr = active.id.toString().replace('team-', '');
+        const teamId = parseInt(teamIdStr);
+        const team = teams.find(t => t.id === teamId);
+
+        // Find where the team came from
+        let sourceMatch = matches.find(m => m.homeTeam?.id === teamId || m.awayTeam?.id === teamId);
+
+        // Target handling
+        if (over.id.toString().startsWith('match-')) {
+            const parts = over.id.toString().split('-');
+            const matchIdx = parseInt(parts[1]);
+            const slotType = parts[2]; // 'home' or 'away'
+
+            setMatches(prev => {
+                const newMatches = [...prev];
+                const targetMatch = newMatches[matchIdx];
+                const existingTeamInSlot = slotType === 'home' ? targetMatch.homeTeam : targetMatch.awayTeam;
+
+                // 1. Clear the source if it was a match slot
+                if (sourceMatch) {
+                    const m = newMatches.find(match => match.id === sourceMatch.id);
+                    if (m.homeTeam?.id === teamId) m.homeTeam = null;
+                    else m.awayTeam = null;
+                } else {
+                    // Remove from available if it was there
+                    setAvailableTeams(avail => avail.filter(t => t.id !== teamId));
+                }
+
+                // 2. If there was a team in the target slot, put it back
+                if (existingTeamInSlot) {
+                    if (sourceMatch) {
+                        // Swap logic: put existing team into the source slot
+                        const m = newMatches.find(match => match.id === sourceMatch.id);
+                        if (sourceMatch.homeTeam?.id === teamId || (sourceMatch.homeTeam === null && sourceMatch.awayTeam?.id !== teamId)) {
+                            m.homeTeam = existingTeamInSlot;
+                        } else {
+                            m.awayTeam = existingTeamInSlot;
+                        }
+                    } else {
+                        // Put back to available
+                        setAvailableTeams(avail => [...avail, existingTeamInSlot]);
+                    }
+                }
+
+                // 3. Place the new team in the target slot
+                if (slotType === 'home') targetMatch.homeTeam = team;
+                else targetMatch.awayTeam = team;
+
+                return newMatches;
+            });
+        } else if (over.id === 'available-area') {
+            if (sourceMatch) {
+                setMatches(prev => {
+                    const newMatches = [...prev];
+                    const m = newMatches.find(match => match.id === sourceMatch.id);
+                    if (m.homeTeam?.id === teamId) m.homeTeam = null;
+                    else m.awayTeam = null;
+                    return newMatches;
+                });
+                setAvailableTeams(avail => [...avail, team]);
+            }
         }
     };
 
-    const removePair = (index) => {
-        const pair = pairs[index];
-        setPairs(pairs.filter((_, i) => i !== index));
-        setAvailableTeams([...availableTeams, pair.home, pair.away]);
-    };
-
-    const resetBuilder = () => {
-        setAvailableTeams([...teams]);
-        setPairs([]);
-        setSelectedForPairing(null);
+    const removeFromSlot = (matchId, slotType) => {
+        setMatches(prev => {
+            const newMatches = [...prev];
+            const m = newMatches.find(match => match.id === matchId);
+            const team = slotType === 'home' ? m.homeTeam : m.awayTeam;
+            if (team) {
+                setAvailableTeams(avail => [...avail, team]);
+                if (slotType === 'home') m.homeTeam = null;
+                else m.awayTeam = null;
+            }
+            return newMatches;
+        });
     };
 
     const handleSave = async () => {
         if (!round) {
-            setError("Please specify a round number/name");
+            setError("Specifica il numero della giornata");
             return;
         }
-        if (pairs.length === 0) {
-            setError("Create at least one match pair");
+        const finalPairs = matches.filter(m => m.homeTeam && m.awayTeam);
+        if (finalPairs.length === 0) {
+            setError("Crea almeno un accoppiamento (Casa vs Trasferta)");
             return;
         }
 
         setIsSubmitting(true);
         setError(null);
 
-        const matchesData = pairs.map(pair => ({
-            homeTeamId: pair.home.id,
-            awayTeamId: pair.away.id,
+        const matchesData = finalPairs.map(m => ({
+            homeTeamId: m.homeTeam.id,
+            awayTeamId: m.awayTeam.id,
             homeGoals: null,
             awayGoals: null,
             matchDate: new Date().toISOString(),
@@ -116,165 +332,110 @@ function MatchdayBuilder({
             onClose();
         } catch (err) {
             console.error("Error bulk inserting matches:", err);
-            setError("Failed to create matches. Please try again.");
+            setError("Errore durante il salvataggio delle partite.");
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const dialogTitle = "Crea Giornata (Bulk)";
+    const resetBuilder = () => {
+        setAvailableTeams([...teams]);
+        const numMatches = Math.ceil(teams.length / 2);
+        setMatches(Array.from({ length: numMatches }, (_, i) => ({
+            id: `match-${i}`,
+            homeTeam: null,
+            awayTeam: null
+        })));
+        setError(null);
+    };
 
     return (
-        <Dialog
-            open={open}
-            onClose={onClose}
-            fullWidth
-            maxWidth="md"
-            fullScreen={isMobile}
-        >
-            {isMobile && (
-                <AppBar sx={{ position: "relative" }}>
-                    <Toolbar>
-                        <IconButton edge="start" color="inherit" onClick={onClose}>
-                            <CloseIcon />
-                        </IconButton>
-                        <Typography sx={{ ml: 2, flex: 1 }} variant="h6">
-                            {dialogTitle}
-                        </Typography>
-                        <Button color="inherit" onClick={handleSave} disabled={isSubmitting || pairs.length === 0}>
-                            SALVA
-                        </Button>
-                    </Toolbar>
-                </AppBar>
-            )}
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="md" fullScreen={isMobile}>
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+            >
+                {isMobile && (
+                    <AppBar sx={{ position: "relative" }}>
+                        <Toolbar>
+                            <IconButton edge="start" color="inherit" onClick={onClose}><CloseIcon /></IconButton>
+                            <Typography sx={{ ml: 2, flex: 1 }} variant="h6">Matchday Builder</Typography>
+                            <Button color="inherit" onClick={handleSave} disabled={isSubmitting}>SALVA</Button>
+                        </Toolbar>
+                    </AppBar>
+                )}
 
-            <DialogTitle sx={{ display: isMobile ? 'none' : 'block' }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    {dialogTitle}
-                    <IconButton onClick={onClose} size="small">
-                        <CloseIcon />
-                    </IconButton>
-                </Stack>
-            </DialogTitle>
-
-            <DialogContent dividers>
-                <Stack spacing={3}>
-                    {/* Round Header */}
-                    <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover' }}>
-                        <Stack direction={isMobile ? "column" : "row"} spacing={2} alignItems={isMobile ? "stretch" : "center"}>
-                            <TextField
-                                label="Giornata / Round"
-                                value={round}
-                                onChange={(e) => setRound(e.target.value)}
-                                size="small"
-                                fullWidth={isMobile}
-                                sx={{ minWidth: 200 }}
-                            />
-                            <Typography variant="body2" color="text.secondary">
-                                Seleziona due squadre per formare un accoppiamento.
-                            </Typography>
+                {!isMobile && (
+                    <DialogTitle>
+                        <Stack direction="row" justifyContent="space-between" alignItems="center">
+                            Crea Giornata (Bulk)
+                            <IconButton onClick={onClose} size="small"><CloseIcon /></IconButton>
                         </Stack>
-                    </Paper>
+                    </DialogTitle>
+                )}
 
-                    {error && <Alert severity="error">{error}</Alert>}
-
-                    {/* Builder Section */}
-                    <Box>
-                        <Typography variant="subtitle2" gutterBottom>
-                            SQUADRE DISPONIBILI ({availableTeams.length})
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
-                            {availableTeams.length === 0 && pairs.length > 0 && (
-                                <Typography variant="body2" color="success.main" sx={{ fontStyle: 'italic' }}>
-                                    Tutte le squadre sono state accoppiate!
-                                </Typography>
-                            )}
-                            {availableTeams.length === 0 && pairs.length === 0 && (
-                                <Typography variant="body2" color="text.secondary">
-                                    Nessuna squadra disponibile.
-                                </Typography>
-                            )}
-                            {availableTeams.map(team => (
-                                <Chip
-                                    key={team.id}
-                                    label={team.name}
-                                    onClick={() => handleTeamClick(team)}
-                                    color={selectedForPairing?.id === team.id ? "primary" : "default"}
-                                    variant={selectedForPairing?.id === team.id ? "filled" : "outlined"}
-                                    sx={{
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s',
-                                        '&:hover': { transform: 'scale(1.05)' }
-                                    }}
+                <DialogContent dividers>
+                    <Stack spacing={3}>
+                        <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover' }}>
+                            <Stack direction={isMobile ? "column" : "row"} spacing={2} alignItems="center">
+                                <TextField
+                                    label="Giornata / Round"
+                                    value={round}
+                                    onChange={(e) => setRound(e.target.value)}
+                                    size="small"
+                                    sx={{ minWidth: 150 }}
                                 />
-                            ))}
+                                <Typography variant="body2" color="text.secondary">
+                                    Trascina le squadre negli slot per formare le partite.
+                                </Typography>
+                                <Box sx={{ flex: 1 }} />
+                                <Button startIcon={<RestartAltIcon />} size="small" onClick={resetBuilder}>Reset</Button>
+                            </Stack>
+                        </Paper>
+
+                        {error && <Alert severity="error">{error}</Alert>}
+
+                        <Box>
+                            <Typography variant="subtitle2" gutterBottom>SQUADRE DISPONIBILI</Typography>
+                            <AvailableArea teams={availableTeams} />
                         </Box>
-                    </Box>
 
-                    <Divider />
+                        <Divider />
 
-                    {/* Pairs List */}
-                    <Box>
-                        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-                            <Typography variant="subtitle2">
-                                GIORNATA IN PREPARAZIONE ({pairs.length} Partite)
-                            </Typography>
-                            <Button
-                                startIcon={<RestartAltIcon />}
-                                size="small"
-                                onClick={resetBuilder}
-                                disabled={pairs.length === 0 && !selectedForPairing}
-                            >
-                                Reset
-                            </Button>
-                        </Stack>
+                        <Box>
+                            <Typography variant="subtitle2" gutterBottom>ACCOPPIAMENTI</Typography>
+                            <Grid container spacing={1}>
+                                {matches.map((match, index) => (
+                                    <Grid item xs={12} sm={6} key={match.id}>
+                                        <MatchSlot
+                                            index={index}
+                                            match={match}
+                                            onRemove={(slot) => removeFromSlot(match.id, slot)}
+                                        />
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        </Box>
+                    </Stack>
+                </DialogContent>
 
-                        <Stack spacing={1}>
-                            {pairs.length === 0 && (
-                                <Paper variant="outlined" sx={{ p: 3, textAlign: 'center', borderStyle: 'dashed' }}>
-                                    <Typography variant="body2" color="text.secondary">
-                                        Nessun accoppiamento creato. Clicca sulle squadre sopra per iniziare.
-                                    </Typography>
-                                </Paper>
-                            )}
-                            {pairs.map((pair, index) => (
-                                <Paper
-                                    key={index}
-                                    variant="outlined"
-                                    sx={{ p: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-                                >
-                                    <Stack direction="row" spacing={2} alignItems="center" sx={{ flex: 1 }}>
-                                        <Box sx={{ flex: 1, textAlign: 'right' }}>
-                                            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>{pair.home.name}</Typography>
-                                        </Box>
-                                        <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'bold' }}>VS</Typography>
-                                        <Box sx={{ flex: 1 }}>
-                                            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>{pair.away.name}</Typography>
-                                        </Box>
-                                    </Stack>
-                                    <IconButton size="small" color="error" onClick={() => removePair(index)}>
-                                        <DeleteIcon fontSize="small" />
-                                    </IconButton>
-                                </Paper>
-                            ))}
-                        </Stack>
-                    </Box>
-                </Stack>
-            </DialogContent>
+                {!isMobile && (
+                    <DialogActions sx={{ p: 2 }}>
+                        <Button onClick={onClose}>Annulla</Button>
+                        <Button variant="contained" onClick={handleSave} disabled={isSubmitting} startIcon={<AddIcon />}>
+                            {isSubmitting ? "Salvataggio..." : "Crea Partite"}
+                        </Button>
+                    </DialogActions>
+                )}
 
-            {!isMobile && (
-                <DialogActions sx={{ p: 2 }}>
-                    <Button onClick={onClose} color="inherit">Annulla</Button>
-                    <Button
-                        variant="contained"
-                        onClick={handleSave}
-                        disabled={isSubmitting || pairs.length === 0}
-                        startIcon={<AddIcon />}
-                    >
-                        {isSubmitting ? "Salvataggio..." : "Crea Partite"}
-                    </Button>
-                </DialogActions>
-            )}
+                <DragOverlay modifiers={[restrictToWindowEdges]}>
+                    {activeTeam ? (
+                        <Chip label={activeTeam.name} color="primary" variant="filled" sx={{ opacity: 0.8 }} />
+                    ) : null}
+                </DragOverlay>
+            </DndContext>
         </Dialog>
     );
 }
