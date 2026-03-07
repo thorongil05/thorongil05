@@ -54,6 +54,20 @@ function MatchesView({
   const [sortOrder, setSortOrder] = useState("desc");
   const [lastUsedRound, setLastUsedRound] = useState("");
 
+  // Context tracking to reset states smoothly without double-renders
+  const contextKey = `${selectedEdition?.id}-${selectedPhaseId}-${selectedGroupId}`;
+  const [activeContextKey, setActiveContextKey] = useState(contextKey);
+
+  if (contextKey !== activeContextKey) {
+    setActiveContextKey(contextKey);
+    setMatches([]);
+    setMatchesCount(0);
+    setRounds([]);
+    setSelectedRound(null); // Use null as "not yet synchronized"
+    setError(null);
+    setLoading(false);
+  }
+
   useEffect(() => {
     if (selectedRound && selectedRound !== "All") {
       setLastUsedRound(selectedRound);
@@ -78,18 +92,23 @@ function MatchesView({
     apiGet(`/api/matches/rounds?${urlSearchParams}`)
       .then((data) => {
         setRounds(data);
-        if (selectedRound === "All" && data && data.length > 0) {
-          setSelectedRound(data[data.length - 1]);
-        } else if (!data || data.length === 0) {
-          setSelectedRound("All");
+        let nextRound = "All";
+        if (data && data.length > 0) {
+          nextRound = data[data.length - 1];
         }
+
+        // Step 2: Update selected round
+        setSelectedRound(nextRound);
+
+        // Note: fetchMatches useEffect will capture this change
       })
       .catch((err) => console.error("Error fetching rounds:", err));
-  }, [selectedEdition, refreshTrigger]);
+  }, [selectedEdition, selectedPhaseId, selectedGroupId, refreshTrigger]);
 
   const fetchMatches = useCallback(() => {
-    if (!selectedEdition) {
-      setMatches([]);
+    // Step 3: Fetch matches (only if round is synchronized)
+    if (!selectedEdition || selectedRound === null) {
+      if (!selectedEdition) setMatches([]);
       return;
     }
 
@@ -120,7 +139,6 @@ function MatchesView({
 
     apiGet(`/api/matches?${urlSearchParams}`)
       .then((response) => {
-        // Handle new response format: { data: [...], metadata: { count: ... } }
         const data = response.data || response;
         const count = response.metadata?.count ?? data.length;
 
@@ -176,8 +194,10 @@ function MatchesView({
   }, [fetchRounds]);
 
   useEffect(() => {
-    fetchMatches();
-  }, [fetchMatches]);
+    if (selectedRound !== null) {
+      fetchMatches();
+    }
+  }, [selectedRound, fetchMatches]);
 
   return (
     <Stack spacing={2}>
