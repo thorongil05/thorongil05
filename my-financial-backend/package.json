@@ -10,6 +10,7 @@
     "start": "node src/server.js",
     "dev": "node --watch --env-file=.env src/server.js",
     "test": "node --test",
+    "lint": "eslint .",
     "migrate:up": "node src/features/migrate.js",
     "migrate:down": "node-pg-migrate down",
     "migrate:create": "node-pg-migrate create"
@@ -29,6 +30,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
+    "eslint": "^9.39.2",
     "eslint-plugin-sonarjs": "^4.0.1",
     "globals": "^17.3.0"
   }

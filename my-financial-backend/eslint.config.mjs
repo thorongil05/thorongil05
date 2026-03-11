@@ -1,9 +1,8 @@
 import js from "@eslint/js";
 import globals from "globals";
 import sonarjs from "eslint-plugin-sonarjs";
-import { defineConfig } from "eslint/config";
 
-export default defineConfig([
+export default [
   {
     files: ["**/*.js"],
     plugins: {
@@ -29,4 +28,4 @@ export default defineConfig([
       "max-params": ["warn", 4],
     },
   },
-]);
+];
