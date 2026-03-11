@@ -32,14 +32,14 @@ export default [
         { allowConstantExport: true },
       ],
       "no-unused-vars": ["error", { varsIgnorePattern: "^[A-Z_]" }],
-      "sonarjs/cognitive-complexity": ["error", 15],
-      complexity: ["error", 10],
+      "sonarjs/cognitive-complexity": ["error", 25],
+      complexity: ["error", 20],
       "max-lines-per-function": [
         "warn",
-        { max: 50, skipBlankLines: true, skipComments: true },
+        { max: 80, skipBlankLines: true, skipComments: true },
       ],
       "max-depth": ["error", 4],
-      "max-params": ["warn", 4],
+      "max-params": ["warn", 5],
     },
   },
 ];

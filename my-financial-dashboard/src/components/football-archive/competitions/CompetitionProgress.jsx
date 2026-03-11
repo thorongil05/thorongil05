@@ -7,14 +7,12 @@ import PropTypes from "prop-types";
 function CompetitionProgress({ edition, refreshTrigger }) {
     const { t } = useTranslation();
     const [matchesCount, setMatchesCount] = useState(0);
-    const [loading, setLoading] = useState(false);
 
     const totalMatches = edition?.metadata?.totalMatches;
 
     const fetchMatchCount = useCallback(() => {
         if (!edition?.id) return;
 
-        setLoading(true);
         apiGet(`/api/matches?editionId=${edition.id}`)
             .then((response) => {
                 const count = response.metadata?.count ?? (response.data?.length || response.length || 0);
@@ -22,9 +20,6 @@ function CompetitionProgress({ edition, refreshTrigger }) {
             })
             .catch((error) => {
                 console.error("Error fetching match count:", error);
-            })
-            .finally(() => {
-                setLoading(false);
             });
     }, [edition?.id]);
 

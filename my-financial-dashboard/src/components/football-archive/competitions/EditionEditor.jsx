@@ -9,7 +9,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import PropTypes from "prop-types";
-import { apiGet, apiPost, apiDelete, apiPut } from "../../../utils/api";
+import { apiGet, apiPut } from "../../../utils/api";
 import PhaseManagement from "./phase-management/PhaseManagement";
 
 function EditionEditor({ editionId, onUpdate, onDelete }) {

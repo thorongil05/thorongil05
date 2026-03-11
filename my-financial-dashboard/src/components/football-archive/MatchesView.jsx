@@ -33,13 +33,10 @@ function MatchesView({
   selectedPhaseId,
   selectedGroupId,
   teams,
-  teamsLoading,
   onMatchAdded,
-  refreshTrigger,
-  phases = [],
 }) {
   const { t } = useTranslation();
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const [matches, setMatches] = useState([]);
   const [matchesCount, setMatchesCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -103,7 +100,7 @@ function MatchesView({
         // Note: fetchMatches useEffect will capture this change
       })
       .catch((err) => console.error("Error fetching rounds:", err));
-  }, [selectedEdition, selectedPhaseId, selectedGroupId, refreshTrigger]);
+  }, [selectedEdition, selectedPhaseId, selectedGroupId]);
 
   const fetchMatches = useCallback(() => {
     // Step 3: Fetch matches (only if round is synchronized)
@@ -151,7 +148,7 @@ function MatchesView({
         setError(error.message);
         setLoading(false);
       });
-  }, [selectedEdition, selectedPhaseId, selectedGroupId, selectedRound, selectedTeamId, sortBy, sortOrder, refreshTrigger]);
+  }, [selectedEdition, selectedPhaseId, selectedGroupId, selectedRound, selectedTeamId, sortBy, sortOrder]);
 
   const handleResetFilters = () => {
     setSelectedRound("All");
@@ -462,10 +459,7 @@ MatchesView.propTypes = {
   selectedPhaseId: PropTypes.number,
   selectedGroupId: PropTypes.number,
   teams: PropTypes.array.isRequired,
-  teamsLoading: PropTypes.bool.isRequired,
   onMatchAdded: PropTypes.func,
-  refreshTrigger: PropTypes.number,
-  phases: PropTypes.array,
 };
 
 export default MatchesView;

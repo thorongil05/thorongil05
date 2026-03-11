@@ -4,6 +4,21 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { apiGet } from "../../../utils/api";
 
+function fetchAndSelectGroups(phaseId, selectedGroupId, onGroupSelect, setGroups, setGroupsLoading) {
+    setGroupsLoading(true);
+    apiGet(`/api/competitions/phases/${phaseId}/groups`)
+        .then(data => {
+            setGroups(data);
+            if (data && data.length > 0 && !selectedGroupId) {
+                onGroupSelect(data[0].id);
+            } else if (!data || data.length === 0) {
+                onGroupSelect(null);
+            }
+        })
+        .catch(err => console.error("Error fetching groups:", err))
+        .finally(() => setGroupsLoading(false));
+}
+
 
 function PhaseGroupSelector({
     phases,
@@ -21,24 +36,12 @@ function PhaseGroupSelector({
 
     useEffect(() => {
         if (selectedPhaseId && selectedPhase?.type === 'GROUP') {
-            setGroupsLoading(true);
-            apiGet(`/api/competitions/phases/${selectedPhaseId}/groups`)
-                .then(data => {
-                    setGroups(data);
-                    // Auto-select first group if none selected
-                    if (data && data.length > 0 && !selectedGroupId) {
-                        onGroupSelect(data[0].id);
-                    } else if (!data || data.length === 0) {
-                        onGroupSelect(null);
-                    }
-                })
-                .catch(err => console.error("Error fetching groups:", err))
-                .finally(() => setGroupsLoading(false));
+            fetchAndSelectGroups(selectedPhaseId, selectedGroupId, onGroupSelect, setGroups, setGroupsLoading);
         } else {
             setGroups([]);
             onGroupSelect(null);
         }
-    }, [selectedPhaseId, selectedPhase?.type, onGroupSelect]);
+    }, [selectedPhaseId, selectedPhase?.type, onGroupSelect, selectedGroupId]);
 
     if (loading) {
         return <CircularProgress size={20} sx={{ ml: 2 }} />;

@@ -1,0 +1,90 @@
+
+> my-financial-dashboard@0.0.48 lint
+> eslint .
+
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\admin\AdminDashboardView.jsx
+  27:1  warning  Function 'AdminDashboardView' has too many lines (84). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\auth\RegisterView.jsx
+  15:1  warning  Function 'RegisterView' has too many lines (88). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\core\Navbar.jsx
+  44:16  warning  Function 'Navbar' has too many lines (120). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\AddMatchDialog.jsx
+  28:1  warning  Function 'AddMatchDialog' has too many lines (120). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\AddTeamDialog.jsx
+  7:1  warning  Function 'AddTeamDialog' has too many lines (100). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\EditMatchDialog.jsx
+  78:1  warning  Function 'EditMatchDialog' has too many lines (148). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\FootballArchiveView.jsx
+  157:16  warning  Function 'FootballArchiveView' has too many lines (162). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\MatchdayBuilder.jsx
+  175:1  warning  Function 'applyDragToMatchSlot' has too many parameters (7). Maximum allowed is 5  max-params
+  208:1  warning  Function 'MatchdayBuilder' has too many lines (209). Maximum allowed is 80         max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\MatchesView.jsx
+  31:1  warning  Function 'MatchesView' has too many lines (388). Maximum allowed is 80  max-lines-per-function
+  31:1  error    Function 'MatchesView' has a complexity of 27. Maximum allowed is 20    complexity
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\StandingsView.jsx
+  48:1  warning  Function 'StandingsView' has too many lines (342). Maximum allowed is 80  max-lines-per-function
+  48:1  error    Function 'StandingsView' has a complexity of 30. Maximum allowed is 20    complexity
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\TeamsView.jsx
+  23:1  warning  Function 'TeamsView' has too many lines (162). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\CompetitionDialog.jsx
+  48:1  warning  Function 'CompetitionDialog' has too many lines (136). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\CompetitionForm.jsx
+  28:1  warning  Function 'CompetitionForm' has too many lines (97). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\CompetitionManagementPage.jsx
+  18:1  warning  Function 'CompetitionManagementPage' has too many lines (209). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\EditionEditor.jsx
+  15:1  warning  Function 'EditionEditor' has too many lines (114). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\EditionFormDialog.jsx
+  46:1  warning  Function 'EditionFormDialog' has too many lines (114). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\MobileCompetitionSelector.jsx
+  23:1  warning  Function 'MobileCompetitionSelector' has too many lines (87). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\PhaseGroupSelector.jsx
+  23:1  warning  Function 'PhaseGroupSelector' has too many lines (86). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\PhaseManagement.jsx
+   14:1  warning  Function 'PhaseManagement' has too many lines (189). Maximum allowed is 80  max-lines-per-function
+  220:1  warning  Function 'PhaseItem' has too many lines (142). Maximum allowed is 80        max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\phase-management\DesktopPhaseManagement.jsx
+  13:1  warning  Function 'DesktopPhaseManagement' has too many lines (130). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\phase-management\MobilePhaseManagement.jsx
+  14:1  warning  Function 'MobilePhaseManagement' has too many lines (123). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\phase-management\PhaseDetailView.jsx
+  14:1  warning  Function 'PhaseDetailView' has too many lines (283). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\hooks\useMatchForm.js
+  24:8  warning  Function 'useMatchForm' has too many lines (146). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\matches\DesktopMatchesView.jsx
+  21:1  warning  Function 'DesktopMatchesView' has too many lines (170). Maximum allowed is 80  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\matches\MobileMatchesView.jsx
+  18:1   warning  Function 'MobileMatchesView' has too many lines (161). Maximum allowed is 80  max-lines-per-function
+  73:29  warning  Arrow function has too many lines (91). Maximum allowed is 80                 max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\context\AuthContext.jsx
+  6:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+✖ 31 problems (2 errors, 29 warnings)
+

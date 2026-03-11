@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
     Box, Paper, Stack, Typography, Button, TextField,
     IconButton, Card, CardActionArea, MenuItem, Chip, Divider, Alert
@@ -19,6 +19,12 @@ function PhaseDetailView({ phase, onUpdate, onDelete }) {
     const [editingGroup, setEditingGroup] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
 
+    const fetchGroups = useCallback(() => {
+        apiGet(`/api/competitions/phases/${phase.id}/groups`)
+            .then(setGroups)
+            .catch(err => console.error("Error fetching groups:", err));
+    }, [phase?.id]);
+
     useEffect(() => {
         if (phase) {
             setEditingPhase({ ...phase });
@@ -28,13 +34,7 @@ function PhaseDetailView({ phase, onUpdate, onDelete }) {
                 setGroups([]);
             }
         }
-    }, [phase]);
-
-    const fetchGroups = () => {
-        apiGet(`/api/competitions/phases/${phase.id}/groups`)
-            .then(setGroups)
-            .catch(err => console.error("Error fetching groups:", err));
-    };
+    }, [phase, fetchGroups]);
 
     const handlePhaseChange = (name, value) => {
         setEditingPhase(prev => ({ ...prev, [name]: value }));

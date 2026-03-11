@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Box, useMediaQuery, useTheme, CircularProgress } from "@mui/material";
 import PropTypes from "prop-types";
 import { apiGet } from "../../../../utils/api";
@@ -12,7 +12,7 @@ function PhaseManagement({ editionId }) {
     const [loading, setLoading] = useState(false);
     const [selectedPhaseId, setSelectedPhaseId] = useState(null);
 
-    const fetchPhases = () => {
+    const fetchPhases = useCallback(() => {
         if (!editionId) return;
         setLoading(true);
         apiGet(`/api/competitions/editions/${editionId}/phases`)
@@ -28,11 +28,11 @@ function PhaseManagement({ editionId }) {
                 console.error("Error fetching phases:", err);
                 setLoading(false);
             });
-    };
+    }, [editionId, isMobile, selectedPhaseId]);
 
     useEffect(() => {
         fetchPhases();
-    }, [editionId]);
+    }, [fetchPhases]);
 
     const handlePhaseAdded = (newPhaseId) => {
         apiGet(`/api/competitions/editions/${editionId}/phases`)

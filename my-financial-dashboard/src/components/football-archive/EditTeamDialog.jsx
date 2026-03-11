@@ -9,13 +9,11 @@ import {
   DialogContent, 
   DialogActions 
 } from "@mui/material";
-import { useAuth } from "../../context/AuthContext";
 import { useTranslation } from "react-i18next";
 import { apiPut } from "../../utils/api";
 
 function EditTeamDialog({ onClose, open, onUpdate, team }) {
   const { t } = useTranslation();
-  const { token } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",

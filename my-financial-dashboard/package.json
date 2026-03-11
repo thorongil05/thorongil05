@@ -4,7 +4,7 @@
   "version": "0.0.49",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "npm run lint && vite",
     "start": "npm run build && npm run preview-containerized",
     "build": "vite build",
     "lint": "eslint .",

@@ -21,34 +21,34 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import PropTypes from "prop-types";
 import { apiPost, apiPut } from "../../../utils/api";
 
-function EditionFormDialog({ open, onClose, editionToEdit, competitionId, onSuccess }) {
-    const initialFormState = {
-        name: "",
+function mapEditionToFormData(edition) {
+    return {
+        name: edition.name || "",
         metadata: {
-            totalMatches: "",
-            phasesCount: "1",
-            maxParticipants: "",
-            competitionFormat: "LEAGUE",
+            totalMatches: edition.metadata?.totalMatches || "",
+            phasesCount: edition.metadata?.phasesCount || "1",
+            maxParticipants: edition.metadata?.maxParticipants || "",
+            competitionFormat: edition.metadata?.competitionFormat || "LEAGUE",
         },
     };
+}
 
+const initialFormState = {
+    name: "",
+    metadata: {
+        totalMatches: "",
+        phasesCount: "1",
+        maxParticipants: "",
+        competitionFormat: "LEAGUE",
+    },
+};
+
+function EditionFormDialog({ open, onClose, editionToEdit, competitionId, onSuccess }) {
     const [formData, setFormData] = useState(initialFormState);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        if (editionToEdit) {
-            setFormData({
-                name: editionToEdit.name || "",
-                metadata: {
-                    totalMatches: editionToEdit.metadata?.totalMatches || "",
-                    phasesCount: editionToEdit.metadata?.phasesCount || "1",
-                    maxParticipants: editionToEdit.metadata?.maxParticipants || "",
-                    competitionFormat: editionToEdit.metadata?.competitionFormat || "LEAGUE",
-                },
-            });
-        } else {
-            setFormData(initialFormState);
-        }
+        setFormData(editionToEdit ? mapEditionToFormData(editionToEdit) : initialFormState);
     }, [editionToEdit, open]);
 
     const handleChange = (e) => {

@@ -40,16 +40,6 @@ const navigation = [
   }
 ];
 
-function updateNavigationItems(selectedElement, elements) {
-  elements.map((element) => {
-    if (element.id == selectedElement.id) {
-      element.current = true;
-    } else {
-      element.current = false;
-    }
-  });
-  return elements;
-}
 
 export default function Navbar() {
   const { t } = useTranslation();
