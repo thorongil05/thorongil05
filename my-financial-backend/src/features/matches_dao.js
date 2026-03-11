@@ -65,87 +65,45 @@ async function bulkInsert(matchEntries) {
   }
 }
 
-async function findMatches(
-  competitionId = null,
-  round = null,
-  teamId = null,
-  sortBy = "match_date",
-  sortOrder = "DESC",
-  editionId = null,
-  phaseId = null,
-  groupId = null,
-) {
-  logger.info(
-    {
-      competitionId,
-      round,
-      teamId,
-      sortBy,
-      sortOrder,
-      editionId,
-      phaseId,
-      groupId,
-    },
-    "Retrieving matches",
-  );
-  let query = `
-    SELECT
-      m.*,
-      ht.name as home_team_name,
-      ht.city as home_team_city,
-      at.name as away_team_name,
-      at.city as away_team_city
-    FROM matches m
-    JOIN teams ht ON m.home_team_id = ht.id
-    JOIN teams at ON m.away_team_id = at.id
-  `;
-
+function buildMatchesWhereClause(params) {
+  const { round, teamId, editionId, phaseId, groupId } = params;
   const values = [];
-  let whereClause = [];
+  const whereClause = [];
 
   if (editionId) {
     values.push(editionId);
     whereClause.push(`m.edition_id = $${values.length}`);
   }
-
   if (phaseId) {
     values.push(phaseId);
     whereClause.push(`m.phase_id = $${values.length}`);
   }
-
   if (groupId) {
     values.push(groupId);
     whereClause.push(`m.group_id = $${values.length}`);
   }
-
   if (round) {
     values.push(round);
     whereClause.push(`m.round = $${values.length}`);
   }
-
   if (teamId) {
     values.push(teamId);
-    whereClause.push(
-      `(m.home_team_id = $${values.length} OR m.away_team_id = $${values.length})`,
-    );
+    whereClause.push(`(m.home_team_id = $${values.length} OR m.away_team_id = $${values.length})`);
   }
 
-  if (whereClause.length > 0) {
-    query += " WHERE " + whereClause.join(" AND ");
-  }
+  return { values, whereClause };
+}
 
-  // Handle dynamic sorting
-  const order = sortOrder.toUpperCase() === "ASC" ? "ASC" : "DESC";
+function buildMatchesOrderBy(sortBy, sortOrder) {
+  const order = sortOrder?.toUpperCase() === "ASC" ? "ASC" : "DESC";
   if (sortBy === "round") {
-    query += ` ORDER BY LENGTH(m.round) ${order}, m.round ${order}, m.id ${order}`;
-  } else {
-    // Default to match_date
-    query += ` ORDER BY m.match_date ${order}, m.id ${order}`;
+    return ` ORDER BY LENGTH(m.round) ${order}, m.round ${order}, m.id ${order}`;
   }
+  return ` ORDER BY m.match_date ${order}, m.id ${order}`;
+}
 
-  const { rows } = await pool.query(query, values);
-
-  const domainMatches = rows.map((row) => ({
+function mapRowToMatch(row) {
+  return {
     id: row.id,
     matchDate: row.match_date,
     editionId: row.edition_id,
@@ -155,20 +113,35 @@ async function findMatches(
     awayScore: row.away_goals,
     stadium: row.stadium,
     round: row.round,
-    homeTeam: {
-      id: row.home_team_id,
-      name: row.home_team_name,
-      city: row.home_team_city,
-    },
-    awayTeam: {
-      id: row.away_team_id,
-      name: row.away_team_name,
-      city: row.away_team_city,
-    },
-  }));
+    homeTeam: { id: row.home_team_id, name: row.home_team_name, city: row.home_team_city },
+    awayTeam: { id: row.away_team_id, name: row.away_team_name, city: row.away_team_city },
+  };
+}
+
+async function findMatches(args = {}) {
+  logger.info({ args }, "Retrieving matches");
+  
+  let query = `
+    SELECT
+      m.*, ht.name as home_team_name, ht.city as home_team_city,
+      at.name as away_team_name, at.city as away_team_city
+    FROM matches m
+    JOIN teams ht ON m.home_team_id = ht.id
+    JOIN teams at ON m.away_team_id = at.id
+  `;
+
+  const { values, whereClause } = buildMatchesWhereClause(args);
+
+  if (whereClause.length > 0) {
+    query += " WHERE " + whereClause.join(" AND ");
+  }
+
+  query += buildMatchesOrderBy(args.sortBy, args.sortOrder);
+
+  const { rows } = await pool.query(query, values);
+  const domainMatches = rows.map(mapRowToMatch);
 
   logger.info({ count: domainMatches.length }, "Retrieved matches");
-
   return domainMatches;
 }
 

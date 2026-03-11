@@ -3,7 +3,10 @@ const router = express.Router();
 const mapper = require("../features/mapper");
 
 const teamsDao = require("../features/teams_dao");
-const { authenticateToken, authorizeRole } = require("../middleware/auth.middleware");
+const {
+  authenticateToken,
+  authorizeRole,
+} = require("../middleware/auth.middleware");
 const UserRoles = require("../constants/roles");
 const { trackActivity } = require("../middleware/activity.middleware");
 
@@ -20,49 +23,76 @@ router.get("/", authenticateToken, (request, response) => {
     });
 });
 
-router.post("/", authenticateToken, trackActivity("teams_added"), (request, response) => {
-  if (Array.isArray(request.body)) {
-    throw new Exception("Not supported operation");
-  }
-  let teamEntry = mapper.mapToTeam(request.body);
-  teamsDao
-    .insert(teamEntry)
-    .then((result) => {
-      response.send(result);
-    })
-    .catch((error) => {
-      response.status(500);
-      response.send(error);
-      console.log(error);
-    });
-});
+router.post(
+  "/",
+  authenticateToken,
+  trackActivity("teams_added"),
+  (request, response) => {
+    if (Array.isArray(request.body)) {
+      const teamEntries = request.body.map((item) => mapper.mapToTeam(item));
+      teamsDao
+        .bulkInsert(teamEntries)
+        .then((result) => {
+          response.send(result);
+        })
+        .catch((error) => {
+          response.status(500).send(error);
+          console.log(error);
+        });
+    } else {
+      let teamEntry = mapper.mapToTeam(request.body);
+      teamsDao
+        .insert(teamEntry)
+        .then((result) => {
+          response.send(result);
+        })
+        .catch((error) => {
+          response.status(500);
+          response.send(error);
+          console.log(error);
+        });
+    }
+  },
+);
 
-router.put("/:id", authenticateToken, authorizeRole([UserRoles.ADMIN, UserRoles.EDITOR]), trackActivity("teams_updated"), async (request, response) => {
-  const id = request.params.id;
-  const teamEntry = mapper.mapToTeam(request.body);
-  teamsDao
-    .update(id, teamEntry)
-    .then((result) => {
-      response.send(result);
-    })
-    .catch((error) => {
-      response.status(500).send(error);
-      console.log(error);
-    });
-});
+router.put(
+  "/:id",
+  authenticateToken,
+  authorizeRole([UserRoles.ADMIN, UserRoles.EDITOR]),
+  trackActivity("teams_updated"),
+  async (request, response) => {
+    const id = request.params.id;
+    const teamEntry = mapper.mapToTeam(request.body);
+    teamsDao
+      .update(id, teamEntry)
+      .then((result) => {
+        response.send(result);
+      })
+      .catch((error) => {
+        response.status(500).send(error);
+        console.log(error);
+      });
+  },
+);
 
-router.delete("/:id", authenticateToken, authorizeRole([UserRoles.ADMIN, UserRoles.EDITOR]), trackActivity("teams_deleted"), async (request, response) => {
-  const id = request.params.id;
-  teamsDao
-    .deleteTeam(id)
-    .then((result) => {
-      response.send(result);
-    })
-    .catch((error) => {
-      response.status(500).send(error);
-      console.log(error);
-    });
-});
+router.delete(
+  "/:id",
+  authenticateToken,
+  authorizeRole([UserRoles.ADMIN, UserRoles.EDITOR]),
+  trackActivity("teams_deleted"),
+  async (request, response) => {
+    const id = request.params.id;
+    teamsDao
+      .deleteTeam(id)
+      .then((result) => {
+        response.send(result);
+      })
+      .catch((error) => {
+        response.status(500).send(error);
+        console.log(error);
+      });
+  },
+);
 
 router.options("/", (request, response) => {
   response.set({

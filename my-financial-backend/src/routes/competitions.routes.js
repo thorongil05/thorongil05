@@ -107,19 +107,31 @@ router.post(
   trackActivity("competitions_added"),
   (request, response) => {
     if (Array.isArray(request.body)) {
-      throw new Exception("Not supported operation");
+      const competitionEntries = request.body.map((item) =>
+        mapper.mapToCompetition(item),
+      );
+      competitionsDao
+        .bulkInsert(competitionEntries)
+        .then((result) => {
+          response.send(result);
+        })
+        .catch((error) => {
+          response.status(500).send(error);
+          console.log(error);
+        });
+    } else {
+      let competitionEntry = mapper.mapToCompetition(request.body);
+      competitionsDao
+        .insert(competitionEntry)
+        .then((result) => {
+          response.send(result);
+        })
+        .catch((error) => {
+          response.status(500);
+          response.send(error);
+          console.log(error);
+        });
     }
-    let competitionEntry = mapper.mapToCompetition(request.body);
-    competitionsDao
-      .insert(competitionEntry)
-      .then((result) => {
-        response.send(result);
-      })
-      .catch((error) => {
-        response.status(500);
-        response.send(error);
-        console.log(error);
-      });
   },
 );
 

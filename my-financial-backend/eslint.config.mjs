@@ -4,6 +4,9 @@ import sonarjs from "eslint-plugin-sonarjs";
 
 export default [
   {
+    ignores: ["migrations/**"],
+  },
+  {
     files: ["**/*.js"],
     plugins: {
       sonarjs,

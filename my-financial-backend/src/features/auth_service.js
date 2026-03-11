@@ -2,7 +2,6 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authDao = require("./auth_dao");
 const UserRoles = require("../constants/roles");
-const logger = require("pino")();
 
 const JWT_SECRET = process.env.JWT_SECRET || "super-secret-key-change-me";
 const SALT_ROUNDS = 10;
