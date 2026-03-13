@@ -2,31 +2,18 @@ import {
   Paper,
   Stack,
   TableContainer,
-  Typography,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   useTheme,
   useMediaQuery,
-  Box,
-  Tooltip,
-  IconButton,
-  Chip
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
 import MatchdayBuilder from "./MatchdayBuilder";
 import EditMatchDialog from "./EditMatchDialog";
 import { useAuth } from "../../context/AuthContext";
-import { UserRoles } from "../../constants/roles";
-import { useTranslation } from "react-i18next";
-import { apiGet, apiDelete } from "../../utils/api";
 import MobileMatchesView from "./matches/MobileMatchesView";
 import DesktopMatchesView from "./matches/DesktopMatchesView";
+import MatchesToolbar from "./matches/MatchesToolbar";
+import { useMatchesViewData } from "./hooks/useMatchesViewData";
 
 function MatchesView({
   selectedEdition,
@@ -35,166 +22,45 @@ function MatchesView({
   teams,
   onMatchAdded,
 }) {
-  const { t } = useTranslation();
   const { user } = useAuth();
-  const [matches, setMatches] = useState([]);
-  const [matchesCount, setMatchesCount] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  
   const [matchDialogOpen, setMatchDialogOpen] = useState(false);
   const [builderOpen, setBuilderOpen] = useState(false);
   const [matchToEdit, setMatchToEdit] = useState(null);
-  const [rounds, setRounds] = useState([]);
-  const [selectedRound, setSelectedRound] = useState("All");
-  const [selectedTeamId, setSelectedTeamId] = useState("All");
-  const [sortBy, setSortBy] = useState("match_date");
-  const [sortOrder, setSortOrder] = useState("desc");
-  const [lastUsedRound, setLastUsedRound] = useState("");
-
-  // Context tracking to reset states smoothly without double-renders
-  const contextKey = `${selectedEdition?.id}-${selectedPhaseId}-${selectedGroupId}`;
-  const [activeContextKey, setActiveContextKey] = useState(contextKey);
-
-  if (contextKey !== activeContextKey) {
-    setActiveContextKey(contextKey);
-    setMatches([]);
-    setMatchesCount(0);
-    setRounds([]);
-    setSelectedRound(null); // Use null as "not yet synchronized"
-    setError(null);
-    setLoading(false);
-  }
-
-  useEffect(() => {
-    if (selectedRound && selectedRound !== "All") {
-      setLastUsedRound(selectedRound);
-    }
-  }, [selectedRound]);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const fetchRounds = useCallback(() => {
-    if (!selectedEdition) {
-      setRounds([]);
-      return;
-    }
-
-    const urlSearchParams = new URLSearchParams({
-      editionId: selectedEdition.id,
-    });
-    if (selectedPhaseId) urlSearchParams.append("phaseId", selectedPhaseId);
-    if (selectedGroupId) urlSearchParams.append("groupId", selectedGroupId);
-
-    apiGet(`/api/matches/rounds?${urlSearchParams}`)
-      .then((data) => {
-        setRounds(data);
-        let nextRound = "All";
-        if (data && data.length > 0) {
-          nextRound = data[data.length - 1];
-        }
-
-        // Step 2: Update selected round
-        setSelectedRound(nextRound);
-
-        // Note: fetchMatches useEffect will capture this change
-      })
-      .catch((err) => console.error("Error fetching rounds:", err));
-  }, [selectedEdition, selectedPhaseId, selectedGroupId]);
-
-  const fetchMatches = useCallback(() => {
-    // Step 3: Fetch matches (only if round is synchronized)
-    if (!selectedEdition || selectedRound === null) {
-      if (!selectedEdition) setMatches([]);
-      return;
-    }
-
-    setError(null);
-    setLoading(true);
-
-    const params = {
-      editionId: selectedEdition.id,
-    };
-    if (selectedRound && selectedRound !== "All") {
-      params.round = selectedRound;
-    }
-    if (selectedTeamId && selectedTeamId !== "All") {
-      params.teamId = selectedTeamId;
-    }
-    if (selectedPhaseId) {
-      params.phaseId = selectedPhaseId;
-    }
-    if (selectedGroupId) {
-      params.groupId = selectedGroupId;
-    }
-    if (sortBy) {
-      params.sortBy = sortBy;
-      params.sortOrder = sortOrder;
-    }
-
-    const urlSearchParams = new URLSearchParams(params);
-
-    apiGet(`/api/matches?${urlSearchParams}`)
-      .then((response) => {
-        const data = response.data || response;
-        const count = response.metadata?.count ?? data.length;
-
-        setMatches(data);
-        setMatchesCount(count);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching matches:", error);
-        setError(error.message);
-        setLoading(false);
-      });
-  }, [selectedEdition, selectedPhaseId, selectedGroupId, selectedRound, selectedTeamId, sortBy, sortOrder]);
-
-  const handleResetFilters = () => {
-    setSelectedRound("All");
-    setSelectedTeamId("All");
-    setSortBy("match_date");
-    setSortOrder("desc");
-  };
-
-  const handleRequestSort = (property) => {
-    const isAsc = sortBy === property && sortOrder === "asc";
-    setSortOrder(isAsc ? "desc" : "asc");
-    setSortBy(property);
-  };
-
-  const handleDeleteMatch = async (matchId) => {
-    if (!window.confirm(t("football.confirm_delete_match", "Are you sure you want to delete this match?"))) {
-      return;
-    }
-
-    try {
-      await apiDelete(`/api/matches/${matchId}`);
-      fetchMatches();
-      fetchRounds();
-      if (onMatchAdded) {
-        onMatchAdded();
-      }
-    } catch (err) {
-      console.error("Error deleting match:", err);
-      alert(t("football.error_deleting_match", { defaultValue: "Error deleting match: {{message}}", message: err.message }));
-    }
-  };
+  const {
+    matches,
+    matchesCount,
+    loading,
+    error,
+    rounds,
+    selectedRound,
+    setSelectedRound,
+    selectedTeamId,
+    setSelectedTeamId,
+    sortBy,
+    sortOrder,
+    lastUsedRound,
+    setLastUsedRound,
+    handleResetFilters,
+    handleRequestSort,
+    handleDeleteMatch,
+    fetchMatches,
+    fetchRounds
+  } = useMatchesViewData({
+    selectedEdition,
+    selectedPhaseId,
+    selectedGroupId,
+    onMatchAdded,
+  });
 
   const handleEditMatch = (match) => {
     setMatchToEdit(match);
     setMatchDialogOpen(true);
   };
-
-  useEffect(() => {
-    fetchRounds();
-  }, [fetchRounds]);
-
-  useEffect(() => {
-    if (selectedRound !== null) {
-      fetchMatches();
-    }
-  }, [selectedRound, fetchMatches]);
 
   return (
     <Stack spacing={2}>
@@ -206,184 +72,26 @@ function MatchesView({
           overflow: "auto",
           borderColor: "divider",
           width: "100%",
-          "&::-webkit-scrollbar": {
-            height: "6px",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            background: "rgba(0,0,0,0.1)",
-            borderRadius: "10px",
-          },
+          "&::-webkit-scrollbar": { height: "6px" },
+          "&::-webkit-scrollbar-thumb": { background: "rgba(0,0,0,0.1)", borderRadius: "10px" },
         }}
       >
-        <Stack
-          sx={{
-            p: isMobile ? 1.5 : 2,
-            borderBottom: "1px solid",
-            borderColor: "divider",
-            bgcolor: "background.paper",
-            minWidth: isMobile ? "fit-content" : "auto"
-          }}
-          spacing={2}
-        >
-          {/* Top Row: Title, Count, Round Filter, Add Button */}
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            spacing={2}
-          >
-            <Stack direction="row" alignItems="center" spacing={1.5}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}>
-                {t("football.matches")}
-              </Typography>
-              {!loading && (
-                <Chip
-                  label={matchesCount}
-                  size="small"
-                  variant="outlined"
-                  sx={{
-                    height: 20,
-                    fontSize: "0.75rem",
-                    fontWeight: "bold",
-                    borderColor: "divider",
-                    color: "text.secondary"
-                  }}
-                />
-              )}
-              {!isMobile && (
-                <FormControl size="small" sx={{ minWidth: 140, ml: 1 }}>
-                  <InputLabel id="round-select-label">{t("football.round", "Round")}</InputLabel>
-                  <Select
-                    labelId="round-select-label"
-                    id="round-select"
-                    value={selectedRound}
-                    label={t("football.round", "Round")}
-                    onChange={(e) => setSelectedRound(e.target.value)}
-                    disabled={!selectedEdition}
-                    sx={{ borderRadius: 2 }}
-                  >
-                    <MenuItem value="All">{t("football.all_rounds", "All Rounds")}</MenuItem>
-                    {rounds.map((round) => (
-                      <MenuItem key={round} value={round}>
-                        {round}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-            </Stack>
-
-            <Stack direction="row" spacing={1} alignItems="center">
-              {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && !isMobile && (
-                <Tooltip title={t("football.add_match", "Add Match")}>
-                  <Box component="span">
-                    <IconButton
-                      size="small"
-                      onClick={() => {
-                        setBuilderOpen(true);
-                      }}
-                      disabled={!selectedEdition}
-                      sx={{
-                        bgcolor: "primary.main",
-                        color: "white",
-                        "&:hover": { bgcolor: "primary.dark" },
-                        width: 32,
-                        height: 32
-                      }}
-                    >
-                      <AddIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-                </Tooltip>
-              )}
-            </Stack>
-          </Stack>
-
-          {/* Bottom Row: Additional Filters (Team) and Reset */}
-          <Stack
-            direction={isMobile ? "column" : "row"}
-            spacing={1.5}
-            alignItems={isMobile ? "stretch" : "center"}
-            sx={{ width: "100%" }}
-          >
-            {isMobile && (
-              <FormControl size="small" sx={{ minWidth: "100%" }}>
-                <InputLabel id="round-select-label">{t("football.round", "Round")}</InputLabel>
-                <Select
-                  labelId="round-select-label"
-                  id="round-select"
-                  value={selectedRound}
-                  label={t("football.round", "Round")}
-                  onChange={(e) => setSelectedRound(e.target.value)}
-                  disabled={!selectedEdition}
-                  sx={{ borderRadius: 2 }}
-                >
-                  <MenuItem value="All">{t("football.all_rounds", "All Rounds")}</MenuItem>
-                  {rounds.map((round) => (
-                    <MenuItem key={round} value={round}>
-                      {round}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            )}
-
-            <FormControl size="small" sx={{ minWidth: isMobile ? "100%" : 200, flexGrow: isMobile ? 0 : 1 }}>
-              <InputLabel
-                id="team-select-label"
-                sx={{ color: selectedTeamId !== "All" ? "secondary.main" : "inherit" }}
-              >
-                {t("football.team", "Team")}
-              </InputLabel>
-              <Select
-                labelId="team-select-label"
-                id="team-select"
-                value={selectedTeamId}
-                label={t("football.team", "Team")}
-                onChange={(e) => setSelectedTeamId(e.target.value)}
-                disabled={!selectedEdition}
-                sx={{ borderRadius: 2 }}
-              >
-                <MenuItem value="All">{t("football.all_teams", "All Teams")}</MenuItem>
-                {teams.map((team) => (
-                  <MenuItem key={team.id} value={team.id}>
-                    {team.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <Stack direction="row" spacing={1} justifyContent={isMobile ? "stretch" : "flex-end"}>
-              <Tooltip title={t("common.reset", "Reset Filters")}>
-                <Box component="span">
-                  <IconButton
-                    size="small"
-                    onClick={handleResetFilters}
-                    disabled={selectedRound === "All" && selectedTeamId === "All" && sortBy === "match_date"}
-                    sx={{ borderRadius: 2, border: "1px solid", borderColor: "divider" }}
-                  >
-                    <RestartAltIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              </Tooltip>
-
-              {isMobile && (user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  onClick={() => {
-                    setBuilderOpen(true);
-                  }}
-                  disabled={!selectedEdition}
-                  fullWidth
-                  sx={{ borderRadius: 2 }}
-                >
-                  Crea Giornata
-                </Button>
-              )}
-            </Stack>
-          </Stack>
-        </Stack>
+        <MatchesToolbar 
+          isMobile={isMobile}
+          loading={loading}
+          matchesCount={matchesCount}
+          selectedRound={selectedRound}
+          setSelectedRound={setSelectedRound}
+          selectedEdition={selectedEdition}
+          rounds={rounds}
+          user={user}
+          setBuilderOpen={setBuilderOpen}
+          selectedTeamId={selectedTeamId}
+          setSelectedTeamId={setSelectedTeamId}
+          teams={teams}
+          sortBy={sortBy}
+          handleResetFilters={handleResetFilters}
+        />
 
         {isMobile ? (
           <MobileMatchesView
@@ -411,19 +119,12 @@ function MatchesView({
 
       <EditMatchDialog
         open={matchDialogOpen}
-        onClose={() => {
-          setMatchDialogOpen(false);
-          setMatchToEdit(null);
-        }}
+        onClose={() => { setMatchDialogOpen(false); setMatchToEdit(null); }}
         onMatchUpdated={(round) => {
-          if (round) {
-            setLastUsedRound(round);
-          }
+          if (round) setLastUsedRound(round);
           fetchMatches();
           fetchRounds();
-          if (onMatchAdded) {
-            onMatchAdded();
-          }
+          if (onMatchAdded) onMatchAdded();
         }}
         matchToEdit={matchToEdit}
         selectedEdition={selectedEdition}
@@ -433,14 +134,10 @@ function MatchesView({
         open={builderOpen}
         onClose={() => setBuilderOpen(false)}
         onMatchesCreated={(round) => {
-          if (round) {
-            setLastUsedRound(round);
-          }
+          if (round) setLastUsedRound(round);
           fetchMatches();
           fetchRounds();
-          if (onMatchAdded) {
-            onMatchAdded();
-          }
+          if (onMatchAdded) onMatchAdded();
         }}
         teams={teams}
         selectedEdition={selectedEdition}
@@ -454,6 +151,7 @@ function MatchesView({
 
 MatchesView.propTypes = {
   selectedEdition: PropTypes.shape({
+    id: PropTypes.number,
     name: PropTypes.string,
   }),
   selectedPhaseId: PropTypes.number,

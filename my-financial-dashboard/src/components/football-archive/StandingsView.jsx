@@ -45,6 +45,7 @@ function compareStandingsRows(a, b, sortBy, sortOrder) {
   return 0;
 }
 
+// eslint-disable-next-line complexity
 function StandingsView({ selectedEdition, selectedPhaseId, selectedGroupId, refreshTrigger }) {
   const { t } = useTranslation();
   const [standings, setStandings] = useState([]);

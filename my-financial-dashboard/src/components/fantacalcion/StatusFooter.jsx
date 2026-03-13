@@ -2,7 +2,7 @@ import { Box, Typography } from '@mui/material';
 import { useFantacalcion } from './context/FantacalcionContext';
 
 export default function StatusFooter() {
-  const { deployed, availableTeams, getUsedTeams } = useFantacalcion();
+  const { deployed, availableTeams } = useFantacalcion();
 
   const totalSlots = 18; // 11 starters + 7 bench
   const deployedCount = Object.keys(deployed).length;

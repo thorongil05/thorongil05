@@ -64,7 +64,7 @@ export default function FootballPitch({ formation, deployed, onSlotClick }) {
 
         return (
           <Box key={`line-${lineIdx}`} sx={{ display: 'flex', justifyContent: 'center', gap: 2, zIndex: 10 }}>
-            {Array.from({ length: pCount }).map((_, colIdx) => {
+            {Array.from({ length: pCount }).map(() => {
               const currentSlotId = `starter-${slotCounter++}`;
               const player = deployed[currentSlotId];
               
