@@ -34,13 +34,13 @@ export default function FootballPitch({ formation, deployed, onSlotClick }) {
   let slotCounter = 0;
 
   return (
-    <Box 
-      sx={{ 
-        width: '100%', 
-        maxWidth: { xs: 400, sm: 480 }, 
-        aspectRatio: { xs: '0.65', sm: '0.75' }, 
-        bgcolor: '#2e7d32', 
-        border: '3px solid white', 
+    <Box
+      sx={{
+        width: '100%',
+        maxWidth: { xs: 320, sm: 380 },
+        aspectRatio: { xs: '0.7', sm: '0.8' },
+        bgcolor: '#2e7d32',
+        border: '3px solid white',
         borderRadius: 2,
         position: 'relative',
         display: 'flex',
@@ -66,20 +66,20 @@ export default function FootballPitch({ formation, deployed, onSlotClick }) {
             {Array.from({ length: pCount }).map(() => {
               const currentSlotId = `starter-${slotCounter++}`;
               const player = deployed[currentSlotId];
-              
+
               return (
-                <Box 
+                <Box
                   key={currentSlotId}
                   onClick={() => onSlotClick(currentSlotId, requiredRole)}
-                  sx={{ 
-                    width: { xs: 55, sm: 65 }, height: { xs: 70, sm: 80 }, 
+                  sx={{
+                    width: { xs: 55, sm: 65 }, height: { xs: 70, sm: 80 },
                     display: 'flex', flexDirection: 'column', alignItems: 'center',
                     cursor: 'pointer', transition: 'transform 0.1s',
                     '&:hover': { transform: 'scale(1.1)' }
                   }}
                 >
-                  <Box sx={{ 
-                    width: { xs: 45, sm: 50 }, height: { xs: 45, sm: 50 }, borderRadius: '50%', 
+                  <Box sx={{
+                    width: { xs: 45, sm: 50 }, height: { xs: 45, sm: 50 }, borderRadius: '50%',
                     bgcolor: player ? '#1976d2' : 'rgba(255,255,255,0.2)',
                     border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     color: 'white', fontWeight: 'bold', fontSize: { xs: '0.85rem', sm: '1.1rem' },
