@@ -174,7 +174,7 @@ export function FantacalcionProvider({ children }) {
   );
 }
 
-export const ROLES = ['POR', 'DIF', 'CEN', 'ATT'];
+export const ROLES = ['DIF', 'CEN', 'ATT'];
 
 export function useFantacalcion() {
   return useContext(FantacalcionContext);
