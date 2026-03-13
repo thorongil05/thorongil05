@@ -39,7 +39,7 @@ export default function FootballPitch({ formation, deployed, onSlotClick }) {
         width: '100%', 
         maxWidth: 600, 
         mx: 'auto',
-        aspectRatio: '0.7', 
+        aspectRatio: { xs: '0.6', sm: '0.7' }, 
         bgcolor: '#2e7d32', 
         border: '4px solid white', 
         borderRadius: 2,
@@ -63,7 +63,7 @@ export default function FootballPitch({ formation, deployed, onSlotClick }) {
         const requiredRole = getRoleForLine(lineIdx, lines.length);
 
         return (
-          <Box key={`line-${lineIdx}`} sx={{ display: 'flex', justifyContent: 'center', gap: 2, zIndex: 10 }}>
+          <Box key={`line-${lineIdx}`} sx={{ display: 'flex', justifyContent: 'center', gap: { xs: 1, sm: 2 }, zIndex: 10 }}>
             {Array.from({ length: pCount }).map(() => {
               const currentSlotId = `starter-${slotCounter++}`;
               const player = deployed[currentSlotId];
@@ -73,21 +73,21 @@ export default function FootballPitch({ formation, deployed, onSlotClick }) {
                   key={currentSlotId}
                   onClick={() => onSlotClick(currentSlotId, requiredRole)}
                   sx={{ 
-                    width: 50, height: 60, 
+                    width: { xs: 45, sm: 50 }, height: { xs: 55, sm: 60 }, 
                     display: 'flex', flexDirection: 'column', alignItems: 'center',
                     cursor: 'pointer', transition: 'transform 0.1s',
                     '&:hover': { transform: 'scale(1.1)' }
                   }}
                 >
                   <Box sx={{ 
-                    width: 40, height: 40, borderRadius: '50%', 
+                    width: { xs: 35, sm: 40 }, height: { xs: 35, sm: 40 }, borderRadius: '50%', 
                     bgcolor: player ? '#1976d2' : 'rgba(255,255,255,0.5)',
                     border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'white', fontWeight: 'bold'
+                    color: 'white', fontWeight: 'bold', fontSize: { xs: '0.75rem', sm: '1rem' }
                   }}>
                     {player ? player.role.charAt(0) : '+'}
                   </Box>
-                  <Typography variant="caption" sx={{ color: 'white', bgcolor: 'rgba(0,0,0,0.5)', px: 0.5, borderRadius: 1, whiteSpace: 'nowrap', mt: 0.5, fontSize: 10 }}>
+                  <Typography variant="caption" sx={{ color: 'white', bgcolor: 'rgba(0,0,0,0.5)', px: 0.5, borderRadius: 1, whiteSpace: 'nowrap', mt: 0.5, fontSize: { xs: 9, sm: 10 } }}>
                     {player ? player.name.split(' ')[0] : requiredRole}
                   </Typography>
                 </Box>

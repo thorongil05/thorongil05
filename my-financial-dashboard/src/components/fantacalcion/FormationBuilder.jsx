@@ -16,10 +16,10 @@ export default function FormationBuilder() {
   };
 
   return (
-    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', height: '100%', overflowX: 'hidden' }}>
       
       {/* Controls */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
         <FormControl sx={{ minWidth: 200 }}>
           <InputLabel>Modulo</InputLabel>
           <Select
@@ -46,9 +46,9 @@ export default function FormationBuilder() {
         />
 
         {/* Bench */}
-        <Box sx={{ mt: 4, maxWidth: 600, mx: 'auto' }}>
-          <Typography variant="h6" align="center" mb={1}>Panchina (7 slot)</Typography>
-          <Paper sx={{ p: 2, display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', bgcolor: '#f5f5f5' }}>
+        <Box sx={{ mt: 2, maxWidth: 600, mx: 'auto' }}>
+          <Typography variant="subtitle2" align="center" mb={1}>Panchina (7 slot)</Typography>
+          <Paper sx={{ p: 1, display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', bgcolor: '#f5f5f5' }}>
             {Array.from({ length: 7 }).map((_, idx) => {
               const slotId = `bench-${idx}`;
               const player = deployed[slotId];
@@ -57,7 +57,7 @@ export default function FormationBuilder() {
                   key={slotId}
                   onClick={() => handleSlotClick(slotId, 'DIF')} // We pass DIF but we allow DIF/CEN/ATT
                   sx={{ 
-                    width: 65, height: 65, bgcolor: player ? '#1976d2' : 'white', 
+                    width: { xs: 55, sm: 65 }, height: { xs: 55, sm: 65 }, bgcolor: player ? '#1976d2' : 'white', 
                     borderRadius: 1, border: '1px dashed #ccc',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                     cursor: 'pointer', transition: 'all 0.1s',

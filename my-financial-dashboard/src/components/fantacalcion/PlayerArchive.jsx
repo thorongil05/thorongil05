@@ -52,23 +52,24 @@ export default function PlayerArchive() {
       
       {/* Add / Edit Form */}
       <Paper sx={{ p: 2, mb: 3 }} elevation={2}>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <TextField 
             label="Nome Giocatore" 
             value={formName} 
+            sx={{ flexGrow: 1, minWidth: '200px' }}
             onChange={(e) => setFormName(e.target.value)}
             disabled={editingId === null && formRole === 'POR'}
             helperText={formRole === 'POR' ? "Verrà salvato come blocco squadra" : ""}
             size="small"
             required={formRole !== 'POR'}
           />
-          <FormControl size="small" sx={{ minWidth: 120 }}>
+          <FormControl size="small" sx={{ minWidth: 120, flexGrow: 1 }}>
             <InputLabel>Ruolo</InputLabel>
             <Select value={formRole} label="Ruolo" onChange={(e) => setFormRole(e.target.value)}>
               {ROLES.map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)}
             </Select>
           </FormControl>
-          <FormControl size="small" sx={{ minWidth: 150 }}>
+          <FormControl size="small" sx={{ minWidth: 150, flexGrow: 1 }}>
             <InputLabel>Squadra</InputLabel>
             <Select value={formTeam} label="Squadra" onChange={(e) => setFormTeam(e.target.value)}>
               {SERIE_A_TEAMS.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
@@ -85,15 +86,16 @@ export default function PlayerArchive() {
       </Paper>
 
       {/* Filters */}
-      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+      <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
         <TextField 
           label="Cerca per nome" 
           variant="outlined" 
           size="small" 
+          sx={{ flexGrow: 1, minWidth: '150px' }}
           value={filterName}
           onChange={(e) => setFilterName(e.target.value)}
         />
-        <FormControl size="small" sx={{ minWidth: 120 }}>
+        <FormControl size="small" sx={{ minWidth: 120, flexGrow: 1 }}>
           <InputLabel>Filtra Ruolo</InputLabel>
           <Select value={filterRole} label="Filtra Ruolo" onChange={(e) => setFilterRole(e.target.value)}>
             <MenuItem value="">Tutti</MenuItem>
