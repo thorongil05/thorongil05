@@ -18,15 +18,6 @@ exports.up = (pgm) => {
       team_id INTEGER REFERENCES fantacalcion_teams(id) ON DELETE CASCADE,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
-
-    -- Optional: Initial seed for teams if empty
-    -- We can add this in a separate seed or here for convenience
-    INSERT INTO fantacalcion_teams (name) VALUES 
-    ('Atalanta'), ('Bologna'), ('Como'), ('Empoli'), ('Fiorentina'), 
-    ('Genoa'), ('Inter'), ('Juventus'), ('Lazio'), ('Lecce'), 
-    ('Milan'), ('Monza'), ('Napoli'), ('Parma'), ('Roma'), 
-    ('Torino'), ('Udinese'), ('Venezia'), ('Verona'), ('Cagliari')
-    ON CONFLICT (name) DO NOTHING;
   `);
 };
 
