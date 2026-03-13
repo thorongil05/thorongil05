@@ -1,73 +1,66 @@
-import { useState, useMemo } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { useState, useMemo, useEffect } from 'react';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Select, MenuItem, FormControl, InputLabel, Box, Typography, Divider } from '@mui/material';
 import { useFantacalcion } from './context/FantacalcionContext';
 
 export default function PlayerSelectionModal({ open, onClose, slotId, requiredRole }) {
-  const { getAvailablePlayersForRole, availableTeams, deployPlayer, deployed, removeDeployedSlot } = useFantacalcion();
-  const [selectedValue, setSelectedValue] = useState('');
+  const { players, teams, availableTeams, deployPlayer, deployed, removeDeployedSlot } = useFantacalcion();
+  
+  const [selectedTeam, setSelectedTeam] = useState('');
+  const [selectedPlayerId, setSelectedPlayerId] = useState('');
 
-  // Determine what list to show
   const isGoalkeeper = requiredRole === 'POR';
 
-  const options = useMemo(() => {
-    if (!open) return [];
-    
-    // If there's already a deployed player, we might want them in the list to "re-select" them 
-    // or just rely on clear to remove. For simplicity, we just list the currently available ones.
-    const currentDeployed = deployed[slotId];
-    
-      if (isGoalkeeper) {
-      // For GK, we list Teams that are available.
-      // If a team is currently deployed in THIS slot, we include it in available.
-      let availableTeamNames = [...availableTeams];
-      if (currentDeployed?.team_name) {
-        availableTeamNames.push(currentDeployed.team_name);
-      }
-      return Array.from(new Set(availableTeamNames)).sort().map(teamName => ({
-        value: teamName,
-        label: `${teamName} (Blocco Portieri)`,
-        playerObj: { id: `gk-${teamName}`, name: `${teamName} (Blocco)`, role: 'POR', team_name: teamName }
-      }));
-    } else {
-      // Find players for this role that are in available teams OR are the currently deployed player
-      const availablePlayers = getAvailablePlayersForRole(requiredRole);
-      let list = [...availablePlayers];
-      if (currentDeployed) {
-        // Prevent duplicates just in case
-        if (!list.find(p => p.id === currentDeployed.id)) {
-          list.push(currentDeployed);
-        }
-      }
-      return list.sort((a,b) => a.name.localeCompare(b.name)).map(p => ({
-        value: p.id,
-        label: `${p.name} (${p.team_name.substring(0,3).toUpperCase()})`,
-        playerObj: p
-      }));
-    }
-  }, [open, requiredRole, availableTeams, getAvailablePlayersForRole, deployed, slotId, isGoalkeeper]);
-
-  // Set initial value when opening
-  useMemo(() => {
+  // Initialize from current deployed player if any
+  useEffect(() => {
     if (open) {
       const current = deployed[slotId];
       if (current) {
-        setSelectedValue(isGoalkeeper ? current.team_name : current.id);
+        setSelectedTeam(current.team_name);
+        setSelectedPlayerId(isGoalkeeper ? '' : current.id);
       } else {
-        setSelectedValue('');
+        setSelectedTeam('');
+        setSelectedPlayerId('');
       }
     }
   }, [open, slotId, deployed, isGoalkeeper]);
 
-  const handleSave = () => {
-    if (!selectedValue) {
-      removeDeployedSlot(slotId);
-      onClose();
-      return;
+  // Teams that are available (not used) PLUS the team of the currently selected player in THIS slot
+  const teamOptions = useMemo(() => {
+    const current = deployed[slotId];
+    let list = [...availableTeams];
+    if (current && !list.includes(current.team_name)) {
+      list.push(current.team_name);
     }
-    
-    const option = options.find(o => o.value === selectedValue);
-    if (option) {
-      deployPlayer(slotId, option.playerObj);
+    return list.sort();
+  }, [availableTeams, deployed, slotId]);
+
+  // Players filtered by selected team and required role
+  const playerOptions = useMemo(() => {
+    if (!selectedTeam || isGoalkeeper) return [];
+    return players
+      .filter(p => p.team_name === selectedTeam && p.role === requiredRole)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [players, selectedTeam, requiredRole, isGoalkeeper]);
+
+  const handleSave = () => {
+    if (isGoalkeeper) {
+      if (!selectedTeam) {
+        removeDeployedSlot(slotId);
+      } else {
+        deployPlayer(slotId, { 
+          id: `gk-${selectedTeam}`, 
+          name: `${selectedTeam} (Blocco)`, 
+          role: 'POR', 
+          team_name: selectedTeam 
+        });
+      }
+    } else {
+      if (!selectedPlayerId) {
+        removeDeployedSlot(slotId);
+      } else {
+        const player = players.find(p => p.id === selectedPlayerId);
+        if (player) deployPlayer(slotId, player);
+      }
     }
     onClose();
   };
@@ -78,29 +71,77 @@ export default function PlayerSelectionModal({ open, onClose, slotId, requiredRo
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Seleziona {isGoalkeeper ? 'Portiere' : 'Giocatore'} ({requiredRole})</DialogTitle>
-      <DialogContent sx={{ pt: 2 }}>
-        <FormControl fullWidth sx={{ mt: 1 }}>
-          <InputLabel>{isGoalkeeper ? 'Squadra (Blocco)' : 'Giocatore Disponibile'}</InputLabel>
-          <Select
-            value={selectedValue}
-            label={isGoalkeeper ? 'Squadra (Blocco)' : 'Giocatore Disponibile'}
-            onChange={e => setSelectedValue(e.target.value)}
-          >
-            <MenuItem value=""><em>Nessuno</em></MenuItem>
-            {options.map(opt => (
-              <MenuItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+      <DialogTitle sx={{ textAlign: 'center', fontWeight: 'bold' }}>
+        Seleziona {isGoalkeeper ? 'Portiere' : 'Giocatore'}
+        <Typography variant="body2" color="primary">{requiredRole}</Typography>
+      </DialogTitle>
+      
+      <DialogContent sx={{ pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box sx={{ mt: 1 }}>
+          <Typography variant="overline" color="textSecondary" sx={{ fontWeight: 'bold' }}>1. SELEZIONA SQUADRA</Typography>
+          <FormControl fullWidth size="small">
+            <InputLabel>Squadra</InputLabel>
+            <Select
+              value={selectedTeam}
+              label="Squadra"
+              onChange={e => {
+                setSelectedTeam(e.target.value);
+                setSelectedPlayerId('');
+              }}
+            >
+              <MenuItem value=""><em>Nessuna</em></MenuItem>
+              {teamOptions.map(t => (
+                <MenuItem key={t} value={t}>{t}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Typography variant="caption" color="textSecondary">Mostra solo squadre non ancora utilizzate</Typography>
+        </Box>
+
+        {!isGoalkeeper && (
+          <Box>
+            <Typography variant="overline" color="textSecondary" sx={{ fontWeight: 'bold' }}>2. SELEZIONA GIOCATORE</Typography>
+            <FormControl fullWidth size="small" disabled={!selectedTeam}>
+              <InputLabel>Giocatore</InputLabel>
+              <Select
+                value={selectedPlayerId}
+                label="Giocatore"
+                onChange={e => setSelectedPlayerId(e.target.value)}
+              >
+                <MenuItem value=""><em>Nessuno</em></MenuItem>
+                {playerOptions.map(p => (
+                  <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {selectedTeam && playerOptions.length === 0 && (
+              <Typography variant="caption" color="error">Nessun {requiredRole} trovato per questa squadra</Typography>
+            )}
+          </Box>
+        )}
+
+        {isGoalkeeper && selectedTeam && (
+          <Box sx={{ p: 2, bgcolor: 'primary.light', borderRadius: 1, color: 'white', textAlign: 'center' }}>
+            <Typography variant="body2" fontWeight="bold">Blocco Portieri: {selectedTeam}</Typography>
+          </Box>
+        )}
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClear} color="error">Rimuovi</Button>
-        <Button onClick={onClose} color="inherit">Annulla</Button>
-        <Button onClick={handleSave} variant="contained">Salva</Button>
+
+      <Divider />
+      
+      <DialogActions sx={{ p: 2, justifyContent: 'space-between' }}>
+        <Button onClick={handleClear} color="error" variant="text">Rimuovi</Button>
+        <Box>
+          <Button onClick={onClose} color="inherit" sx={{ mr: 1 }}>Annulla</Button>
+          <Button 
+            onClick={handleSave} 
+            variant="contained" 
+            disabled={isGoalkeeper ? !selectedTeam : !selectedPlayerId}
+          >
+            Conferma
+          </Button>
+        </Box>
       </DialogActions>
     </Dialog>
   );

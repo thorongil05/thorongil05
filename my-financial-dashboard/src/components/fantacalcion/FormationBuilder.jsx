@@ -52,15 +52,21 @@ export default function FormationBuilder() {
 
         {/* Bench */}
         <Box sx={{ mt: 2, maxWidth: 600, mx: 'auto' }}>
-          <Typography variant="subtitle2" align="center" mb={1}>Panchina (7 slot)</Typography>
+          <Typography variant="subtitle2" align="center" mb={1}>Panchina (7 slot: 2D, 2C, 3A)</Typography>
           <Paper sx={{ p: 1, display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', bgcolor: '#f5f5f5' }}>
             {Array.from({ length: 7 }).map((_, idx) => {
               const slotId = `bench-${idx}`;
               const player = deployed[slotId];
+              
+              // Define roles for each bench slot
+              let forcedRole = 'DIF';
+              if (idx >= 2 && idx < 4) forcedRole = 'CEN';
+              if (idx >= 4) forcedRole = 'ATT';
+
               return (
                 <Box 
                   key={slotId}
-                  onClick={() => handleSlotClick(slotId, 'DIF')} // We pass DIF but we allow DIF/CEN/ATT
+                  onClick={() => handleSlotClick(slotId, forcedRole)}
                   sx={{ 
                     width: { xs: 55, sm: 65 }, height: { xs: 55, sm: 65 }, bgcolor: player ? '#1976d2' : 'white', 
                     borderRadius: 1, border: '1px dashed #ccc',
@@ -70,17 +76,17 @@ export default function FormationBuilder() {
                   }}
                 >
                   <Typography variant="caption" color={player ? 'white' : 'text.secondary'} sx={{ fontWeight: 'bold' }}>
-                    {player ? player.name.substring(0,6) : `Panc ${idx+1}`}
+                    {player ? player.name.substring(0,8) : forcedRole}
                   </Typography>
                   <Typography variant="caption" color={player ? 'white' : 'text.secondary'}>
-                    {player ? player.role : '+'}
+                    {player ? player.team_name.substring(0,3).toUpperCase() : `P${idx+1}`}
                   </Typography>
                 </Box>
               );
             })}
           </Paper>
           <Typography variant="caption" color="text.secondary" display="block" align="center" mt={1} mb={2}>
-            Clicca per aggiungere (NO Portieri)
+            Clicca per aggiungere (2 DIF, 2 CEN, 3 ATT)
           </Typography>
         </Box>
       </Box>
