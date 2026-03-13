@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useFantacalcion, ROLES, SERIE_A_TEAMS } from './context/FantacalcionContext';
+import { useFantacalcion, ROLES } from './context/FantacalcionContext';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Button, TextField, Select, MenuItem, FormControl, InputLabel, IconButton, Box, Typography
