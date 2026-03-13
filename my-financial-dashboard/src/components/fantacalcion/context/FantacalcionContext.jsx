@@ -1,85 +1,140 @@
-import { createContext, useContext, useState, useMemo, useEffect } from 'react';
-
-// Serie A Teams 2024/2025 (approximate for logic)
-export const SERIE_A_TEAMS = [
-  'Atalanta', 'Bologna', 'Cagliari', 'Como', 'Empoli', 
-  'Fiorentina', 'Genoa', 'Inter', 'Juventus', 'Lazio', 
-  'Lecce', 'Milan', 'Monza', 'Napoli', 'Parma', 
-  'Roma', 'Torino', 'Udinese', 'Venezia', 'Verona'
-];
-
-export const ROLES = ['POR', 'DIF', 'CEN', 'ATT'];
+import { createContext, useContext, useState, useMemo, useEffect, useCallback } from 'react';
+import { apiGet, apiPost, apiPut, apiDelete } from '../../../utils/api';
 
 const FantacalcionContext = createContext();
 
 export function FantacalcionProvider({ children }) {
-  // All available players in the archive (persisted)
-  const [players, setPlayers] = useState(() => {
-    const saved = localStorage.getItem('fantacalcion_players');
-    if (saved) return JSON.parse(saved);
-    // Mock initial data
-    return [
-      { id: '1', name: 'Inter (Blocco)', role: 'POR', team: 'Inter' },
-      { id: '2', name: 'Bastoni', role: 'DIF', team: 'Inter' },
-      { id: '3', name: 'Bremer', role: 'DIF', team: 'Juventus' },
-      { id: '4', name: 'Kvaratskhelia', role: 'ATT', team: 'Napoli' },
-      { id: '5', name: 'Dybala', role: 'ATT', team: 'Roma' },
-      { id: '6', name: 'Barella', role: 'CEN', team: 'Inter' },
-      { id: '7', name: 'Koopmeiners', role: 'CEN', team: 'Juventus' },
-      { id: '8', name: 'Buongiorno', role: 'DIF', team: 'Napoli' },
-      { id: '9', name: 'Leao', role: 'ATT', team: 'Milan' },
-    ];
-  });
-
+  const [players, setPlayers] = useState([]);
+  const [teams, setTeams] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
   // Selected Formation string (e.g. 4-4-2)
   const [formationStr, setFormationStr] = useState('4-4-2');
 
   // The deployed lineup (map from slot ID -> player object)
-  const [deployed, setDeployed] = useState({}); // { slot_id: player_obj }
+  const [deployed, setDeployed] = useState(() => {
+    const saved = localStorage.getItem('fantacalcion_lineup');
+    return saved ? JSON.parse(saved) : {};
+  });
 
-  // Persist players archive
+  const fetchTeams = useCallback(async () => {
+    try {
+      const data = await apiGet('/api/fantacalcion/teams');
+      setTeams(data);
+    } catch (err) {
+      console.error('Error fetching fantacalcion teams:', err);
+    }
+  }, []);
+
+  const fetchPlayers = useCallback(async () => {
+    try {
+      const data = await apiGet('/api/fantacalcion/players');
+      setPlayers(data);
+    } catch (err) {
+      console.error('Error fetching fantacalcion players:', err);
+    }
+  }, []);
+
   useEffect(() => {
-    localStorage.setItem('fantacalcion_players', JSON.stringify(players));
-  }, [players]);
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchTeams(), fetchPlayers()]);
+      setLoading(false);
+    };
+    loadData();
+  }, [fetchTeams, fetchPlayers]);
+
+  // Persist lineup (the selection itself, players/teams come from DB)
+  useEffect(() => {
+    localStorage.setItem('fantacalcion_lineup', JSON.stringify(deployed));
+  }, [deployed]);
 
   // Enforce Max 1 Player Per Team Rule
   const getUsedTeams = useMemo(() => {
     const used = new Set();
     Object.values(deployed).forEach(player => {
-      if (player && player.team) used.add(player.team);
+      if (player && player.team_name) used.add(player.team_name);
     });
     return Array.from(used);
   }, [deployed]);
 
-  const availableTeams = useMemo(() => 
-    SERIE_A_TEAMS.filter(t => !getUsedTeams.includes(t)),
-  [getUsedTeams]);
+  const availableTeams = useMemo(() => {
+    const teamNames = teams.map(t => t.name);
+    return teamNames.filter(name => !getUsedTeams.includes(name));
+  }, [teams, getUsedTeams]);
 
   // Derived: Filtered players that can be selected
   const getAvailablePlayersForRole = (role) => {
-    return players.filter(p => p.role === role && (!getUsedTeams.includes(p.team)));
+    return players.filter(p => p.role === role && (!getUsedTeams.includes(p.team_name)));
   };
 
-  const addPlayerToArchive = (player) => {
-    setPlayers(prev => [...prev, { ...player, id: Date.now().toString() }]);
+  const addPlayerToArchive = async (player) => {
+    try {
+      // Find team_id from team_name
+      const team = teams.find(t => t.name === player.team);
+      if (!team) throw new Error("Team not found");
+
+      const newPlayer = await apiPost('/api/fantacalcion/players', {
+        name: player.name,
+        role: player.role,
+        team_id: team.id
+      });
+      await fetchPlayers();
+      return newPlayer;
+    } catch (err) {
+      console.error('Error adding player:', err);
+      throw err;
+    }
   };
 
-  const updatePlayerInArchive = (updatedPlayer) => {
-    setPlayers(prev => prev.map(p => p.id === updatedPlayer.id ? updatedPlayer : p));
+  const updatePlayerInArchive = async (updatedPlayer) => {
+    try {
+      const team = teams.find(t => t.name === updatedPlayer.team);
+      if (!team) throw new Error("Team not found");
+
+      await apiPut(`/api/fantacalcion/players/${updatedPlayer.id}`, {
+        name: updatedPlayer.name,
+        role: updatedPlayer.role,
+        team_id: team.id
+      });
+      await fetchPlayers();
+    } catch (err) {
+      console.error('Error updating player:', err);
+      throw err;
+    }
   };
 
-  const removePlayerFromArchive = (id) => {
-    setPlayers(prev => prev.filter(p => p.id !== id));
-    // If deleted player was deployed, remove them from pitch
-    setDeployed(prev => {
-      const next = { ...prev };
-      for (const slotId in next) {
-        if (next[slotId]?.id === id) {
-          delete next[slotId];
+  const removePlayerFromArchive = async (id) => {
+    try {
+      await apiDelete(`/api/fantacalcion/players/${id}`);
+      await fetchPlayers();
+      // If deleted player was deployed, remove them from pitch
+      setDeployed(prev => {
+        const next = { ...prev };
+        let changed = false;
+        for (const slotId in next) {
+          if (next[slotId]?.id === id) {
+            delete next[slotId];
+            changed = true;
+          }
         }
-      }
-      return next;
-    });
+        return changed ? next : prev;
+      });
+    } catch (err) {
+      console.error('Error removing player:', err);
+      throw err;
+    }
+  };
+
+  // Team management (optional but requested "poter aggiungere le squadre")
+  const addTeamToArchive = async (name) => {
+    try {
+      await apiPost('/api/fantacalcion/teams', { name });
+      await fetchTeams();
+    } catch (err) {
+      console.error('Error adding team:', err);
+      throw err;
+    }
   };
 
   const deployPlayer = (slotId, player) => {
@@ -96,6 +151,8 @@ export function FantacalcionProvider({ children }) {
 
   const value = {
     players,
+    teams,
+    loading,
     formationStr,
     setFormationStr,
     deployed,
@@ -105,6 +162,7 @@ export function FantacalcionProvider({ children }) {
     addPlayerToArchive,
     updatePlayerInArchive,
     removePlayerFromArchive,
+    addTeamToArchive,
     deployPlayer,
     removeDeployedSlot
   };
@@ -115,6 +173,8 @@ export function FantacalcionProvider({ children }) {
     </FantacalcionContext.Provider>
   );
 }
+
+export const ROLES = ['POR', 'DIF', 'CEN', 'ATT'];
 
 export function useFantacalcion() {
   return useContext(FantacalcionContext);

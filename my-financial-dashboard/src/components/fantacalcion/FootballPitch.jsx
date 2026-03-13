@@ -37,26 +37,25 @@ export default function FootballPitch({ formation, deployed, onSlotClick }) {
     <Box 
       sx={{ 
         width: '100%', 
-        maxWidth: 600, 
-        mx: 'auto',
-        aspectRatio: { xs: '0.6', sm: '0.7' }, 
+        maxWidth: { xs: 400, sm: 480 }, 
+        aspectRatio: { xs: '0.65', sm: '0.75' }, 
         bgcolor: '#2e7d32', 
-        border: '4px solid white', 
+        border: '3px solid white', 
         borderRadius: 2,
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        p: 2,
+        p: { xs: 1, sm: 2 },
         backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px)',
         backgroundSize: '100% 10%'
       }}
     >
       {/* Pitch Lines decorations */}
-      <Box sx={{ position: 'absolute', top: 0, left: '20%', right: '20%', height: '15%', border: '2px solid white', borderTop: 'none' }} />
-      <Box sx={{ position: 'absolute', bottom: 0, left: '20%', right: '20%', height: '15%', border: '2px solid white', borderBottom: 'none' }} />
-      <Box sx={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '2px', bgcolor: 'white' }} />
-      <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 60, height: 60, borderRadius: '50%', border: '2px solid white' }} />
+      <Box sx={{ position: 'absolute', top: 0, left: '20%', right: '20%', height: '15%', border: '2px solid rgba(255,255,255,0.3)', borderTop: 'none' }} />
+      <Box sx={{ position: 'absolute', bottom: 0, left: '20%', right: '20%', height: '15%', border: '2px solid rgba(255,255,255,0.3)', borderBottom: 'none' }} />
+      <Box sx={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '1px', bgcolor: 'rgba(255,255,255,0.3)' }} />
+      <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 60, height: 60, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)' }} />
 
       {/* Players */}
       {lines.map((pCount, lineIdx) => {
@@ -73,21 +72,22 @@ export default function FootballPitch({ formation, deployed, onSlotClick }) {
                   key={currentSlotId}
                   onClick={() => onSlotClick(currentSlotId, requiredRole)}
                   sx={{ 
-                    width: { xs: 45, sm: 50 }, height: { xs: 55, sm: 60 }, 
+                    width: { xs: 55, sm: 65 }, height: { xs: 70, sm: 80 }, 
                     display: 'flex', flexDirection: 'column', alignItems: 'center',
                     cursor: 'pointer', transition: 'transform 0.1s',
                     '&:hover': { transform: 'scale(1.1)' }
                   }}
                 >
                   <Box sx={{ 
-                    width: { xs: 35, sm: 40 }, height: { xs: 35, sm: 40 }, borderRadius: '50%', 
-                    bgcolor: player ? '#1976d2' : 'rgba(255,255,255,0.5)',
+                    width: { xs: 45, sm: 50 }, height: { xs: 45, sm: 50 }, borderRadius: '50%', 
+                    bgcolor: player ? '#1976d2' : 'rgba(255,255,255,0.2)',
                     border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'white', fontWeight: 'bold', fontSize: { xs: '0.75rem', sm: '1rem' }
+                    color: 'white', fontWeight: 'bold', fontSize: { xs: '0.85rem', sm: '1.1rem' },
+                    boxShadow: player ? '0 4px 8px rgba(0,0,0,0.3)' : 'none'
                   }}>
                     {player ? player.role.charAt(0) : '+'}
                   </Box>
-                  <Typography variant="caption" sx={{ color: 'white', bgcolor: 'rgba(0,0,0,0.5)', px: 0.5, borderRadius: 1, whiteSpace: 'nowrap', mt: 0.5, fontSize: { xs: 9, sm: 10 } }}>
+                  <Typography variant="caption" sx={{ color: 'white', bgcolor: 'rgba(0,0,0,0.6)', px: 0.8, py: 0.2, borderRadius: 1, whiteSpace: 'nowrap', mt: 0.5, fontSize: { xs: 10, sm: 11 }, fontWeight: 'medium' }}>
                     {player ? player.name.split(' ')[0] : requiredRole}
                   </Typography>
                 </Box>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFantacalcion, ROLES, SERIE_A_TEAMS } from './context/FantacalcionContext';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
@@ -8,14 +8,23 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
 export default function PlayerArchive() {
-  const { players, addPlayerToArchive, removePlayerFromArchive, updatePlayerInArchive } = useFantacalcion();
+  const { players, teams, addPlayerToArchive, removePlayerFromArchive, updatePlayerInArchive, addTeamToArchive, loading } = useFantacalcion();
   const [filterName, setFilterName] = useState('');
   const [filterRole, setFilterRole] = useState('');
   
   const [formName, setFormName] = useState('');
   const [formRole, setFormRole] = useState('DIF');
-  const [formTeam, setFormTeam] = useState(SERIE_A_TEAMS[0]);
+  const [formTeam, setFormTeam] = useState('');
   const [editingId, setEditingId] = useState(null);
+
+  const [newTeamName, setNewTeamName] = useState('');
+
+  // Handle initialization of formTeam once teams are loaded
+  useEffect(() => {
+    if (teams.length > 0 && !formTeam) {
+      setFormTeam(teams[0].name);
+    }
+  }, [teams, formTeam]);
 
   const filteredPlayers = players.filter(p => {
     if (filterName && !p.name.toLowerCase().includes(filterName.toLowerCase())) return false;
@@ -43,8 +52,17 @@ export default function PlayerArchive() {
     setEditingId(p.id);
     setFormName(p.name);
     setFormRole(p.role);
-    setFormTeam(p.team);
+    setFormTeam(p.team_name);
   };
+
+  const handleAddTeam = async (e) => {
+    e.preventDefault();
+    if (!newTeamName.trim()) return;
+    await addTeamToArchive(newTeamName);
+    setNewTeamName('');
+  };
+
+  if (loading) return <Box sx={{ p: 3 }}><Typography>Caricamento...</Typography></Box>;
 
   return (
     <Box sx={{ p: 3 }}>
@@ -72,7 +90,7 @@ export default function PlayerArchive() {
           <FormControl size="small" sx={{ minWidth: 150, flexGrow: 1 }}>
             <InputLabel>Squadra</InputLabel>
             <Select value={formTeam} label="Squadra" onChange={(e) => setFormTeam(e.target.value)}>
-              {SERIE_A_TEAMS.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
+              {teams.map(t => <MenuItem key={t.id} value={t.name}>{t.name}</MenuItem>)}
             </Select>
           </FormControl>
           
@@ -120,7 +138,7 @@ export default function PlayerArchive() {
               <TableRow key={player.id}>
                 <TableCell>{player.name}</TableCell>
                 <TableCell>{player.role}</TableCell>
-                <TableCell>{player.team}</TableCell>
+                <TableCell>{player.team_name}</TableCell>
                 <TableCell align="right">
                   <IconButton onClick={() => startEdit(player)} size="small" color="primary">
                     <EditIcon />
@@ -139,6 +157,20 @@ export default function PlayerArchive() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Team Management */}
+      <Box sx={{ mt: 5 }}>
+        <Typography variant="h6" mb={2}>Gestione Squadre</Typography>
+        <Paper sx={{ p: 2, display: 'flex', gap: 2, alignItems: 'center' }}>
+          <TextField 
+            label="Nuova Squadra" 
+            size="small" 
+            value={newTeamName} 
+            onChange={(e) => setNewTeamName(e.target.value)} 
+          />
+          <Button variant="outlined" onClick={handleAddTeam}>Aggiungi Squadra</Button>
+        </Paper>
+      </Box>
     </Box>
   );
 }

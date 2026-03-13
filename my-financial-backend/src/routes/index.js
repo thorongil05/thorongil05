@@ -8,6 +8,8 @@ const competitionsRoutes = require("./competitions.routes");
 const authRoutes = require("./auth.routes");
 const userRoutes = require("./user.routes");
 const userActivityRoutes = require("./user_activity.routes");
+const fantacalcionTeamsRoutes = require("./fantacalcion_teams.routes");
+const fantacalcionPlayersRoutes = require("./fantacalcion_players.routes");
 
 const router = express.Router();
 
@@ -20,5 +22,7 @@ router.use("/competitions", competitionsRoutes);
 router.use("/auth", authRoutes);
 router.use("/users", userRoutes);
 router.use("/user-activity", userActivityRoutes);
+router.use("/fantacalcion/teams", fantacalcionTeamsRoutes);
+router.use("/fantacalcion/players", fantacalcionPlayersRoutes);
 
 module.exports = router;

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import { useFantacalcion, SERIE_A_TEAMS } from './context/FantacalcionContext';
+import { useFantacalcion } from './context/FantacalcionContext';
 
 export default function PlayerSelectionModal({ open, onClose, slotId, requiredRole }) {
   const { getAvailablePlayersForRole, availableTeams, deployPlayer, deployed, removeDeployedSlot } = useFantacalcion();
@@ -16,17 +16,17 @@ export default function PlayerSelectionModal({ open, onClose, slotId, requiredRo
     // or just rely on clear to remove. For simplicity, we just list the currently available ones.
     const currentDeployed = deployed[slotId];
     
-    if (isGoalkeeper) {
+      if (isGoalkeeper) {
       // For GK, we list Teams that are available.
       // If a team is currently deployed in THIS slot, we include it in available.
-      let teams = [...availableTeams];
-      if (currentDeployed?.team) {
-        teams.push(currentDeployed.team);
+      let availableTeamNames = [...availableTeams];
+      if (currentDeployed?.team_name) {
+        availableTeamNames.push(currentDeployed.team_name);
       }
-      return Array.from(new Set(teams)).sort().map(team => ({
-        value: team,
-        label: `${team} (Blocco Portieri)`,
-        playerObj: { id: `gk-${team}`, name: `${team} (Blocco)`, role: 'POR', team }
+      return Array.from(new Set(availableTeamNames)).sort().map(teamName => ({
+        value: teamName,
+        label: `${teamName} (Blocco Portieri)`,
+        playerObj: { id: `gk-${teamName}`, name: `${teamName} (Blocco)`, role: 'POR', team_name: teamName }
       }));
     } else {
       // Find players for this role that are in available teams OR are the currently deployed player
@@ -40,7 +40,7 @@ export default function PlayerSelectionModal({ open, onClose, slotId, requiredRo
       }
       return list.sort((a,b) => a.name.localeCompare(b.name)).map(p => ({
         value: p.id,
-        label: `${p.name} (${p.team.substring(0,3).toUpperCase()})`,
+        label: `${p.name} (${p.team_name.substring(0,3).toUpperCase()})`,
         playerObj: p
       }));
     }
@@ -51,7 +51,7 @@ export default function PlayerSelectionModal({ open, onClose, slotId, requiredRo
     if (open) {
       const current = deployed[slotId];
       if (current) {
-        setSelectedValue(isGoalkeeper ? current.team : current.id);
+        setSelectedValue(isGoalkeeper ? current.team_name : current.id);
       } else {
         setSelectedValue('');
       }
