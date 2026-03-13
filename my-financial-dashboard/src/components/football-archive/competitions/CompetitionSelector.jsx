@@ -2,12 +2,10 @@ import { Box, useTheme, useMediaQuery } from "@mui/material";
 import DesktopCompetitionSelector from "./DesktopCompetitionSelector";
 import MobileCompetitionSelector from "./MobileCompetitionSelector";
 import { useEffect, useState, useCallback } from "react";
-import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { apiGet } from "../../../utils/api";
 
 function CompetitionSelector({ onCompetitionSelect, selectedCompetitionId }) {
-  const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();

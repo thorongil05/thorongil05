@@ -1,10 +1,10 @@
 {
   "name": "my-financial-dashboard",
   "private": true,
-  "version": "0.0.47",
+  "version": "0.0.58",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "npm run lint && vite",
     "start": "npm run build && npm run preview-containerized",
     "build": "vite build",
     "lint": "eslint .",
@@ -36,14 +36,15 @@
     "tailwindcss": "^4.1.11"
   },
   "devDependencies": {
-    "@eslint/js": "^9.32.0",
+    "@eslint/js": "^9.39.2",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^4.7.0",
-    "eslint": "^9.32.0",
+    "eslint": "^9.39.2",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
-    "globals": "^16.3.0",
+    "eslint-plugin-sonarjs": "^4.0.1",
+    "globals": "^17.3.0",
     "vite": "^7.1.0"
   }
 }

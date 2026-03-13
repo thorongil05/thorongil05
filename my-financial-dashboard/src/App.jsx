@@ -11,6 +11,7 @@ import RegisterView from "./components/auth/RegisterView";
 import { useAuth } from "./context/AuthContext";
 
 import AdminDashboardView from "./components/admin/AdminDashboardView";
+import FantacalcionLayout from "./components/fantacalcion/FantacalcionLayout";
 import CompetitionManagementPage from "./components/football-archive/competitions/CompetitionManagementPage";
 import { UserRoles } from "./constants/roles";
 
@@ -74,6 +75,14 @@ function App() {
             <AdminRoute>
               <AdminDashboardView />
             </AdminRoute>
+          }
+        ></Route>
+        <Route
+          path="/fantacalcion"
+          element={
+            <ProtectedRoute>
+              <FantacalcionLayout />
+            </ProtectedRoute>
           }
         ></Route>
       </Route>

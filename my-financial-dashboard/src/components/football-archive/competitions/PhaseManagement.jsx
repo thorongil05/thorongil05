@@ -2,7 +2,7 @@ import {
     Box, Typography, Button, Stack, Paper, IconButton,
     TextField, MenuItem, Collapse, Divider, List, ListItem, ListItemText, ListItemSecondaryAction
 } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -19,7 +19,7 @@ function PhaseManagement({ editionId }) {
     const [newPhase, setNewPhase] = useState({ name: "", type: "GROUP", orderIndex: 0 });
     const [editingPhase, setEditingPhase] = useState(null); // { id, name, type, orderIndex }
 
-    const fetchPhases = () => {
+    const fetchPhases = useCallback(() => {
         if (!editionId) return;
         setLoading(true);
         apiGet(`/api/competitions/editions/${editionId}/phases`)
@@ -31,11 +31,11 @@ function PhaseManagement({ editionId }) {
                 console.error("Error fetching phases:", err);
                 setLoading(false);
             });
-    };
+    }, [editionId]);
 
     useEffect(() => {
         fetchPhases();
-    }, [editionId]);
+    }, [fetchPhases]);
 
     const handleAddPhase = async () => {
         if (!newPhase.name) return;
@@ -223,17 +223,17 @@ function PhaseItem({ phase, onDelete, onEdit, isExpanded, onToggle }) {
     const [groupName, setGroupName] = useState("");
     const [editingGroup, setEditingGroup] = useState(null); // { id, name }
 
-    const fetchGroups = () => {
+    const fetchGroups = useCallback(() => {
         apiGet(`/api/competitions/phases/${phase.id}/groups`)
             .then(data => setGroups(data))
             .catch(err => console.error("Error fetching groups:", err));
-    };
+    }, [phase.id]);
 
     useEffect(() => {
         if (isExpanded && phase.type === 'GROUP') {
             fetchGroups();
         }
-    }, [isExpanded, phase.id, phase.type]);
+    }, [isExpanded, phase.id, phase.type, fetchGroups]);
 
     const handleAddGroup = async () => {
         if (!groupName) return;

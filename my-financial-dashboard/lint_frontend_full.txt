@@ -1,0 +1,173 @@
+
+> my-financial-dashboard@0.0.48 lint
+> eslint .
+
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\App.jsx
+  31:1  warning  Function 'App' has too many lines (52). Maximum allowed is 50  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\admin\AdminDashboardView.jsx
+   27:1   warning  Function 'AdminDashboardView' has too many lines (242). Maximum allowed is 50  max-lines-per-function
+   27:1   error    Function 'AdminDashboardView' has a complexity of 12. Maximum allowed is 10    complexity
+  156:24  warning  Arrow function has too many lines (56). Maximum allowed is 50                  max-lines-per-function
+  253:30  error    Arrow function has a complexity of 12. Maximum allowed is 10                   complexity
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\admin\UserEditDialog.jsx
+  17:1  warning  Function 'UserEditDialog' has too many lines (63). Maximum allowed is 50  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\auth\LoginView.jsx
+  16:1  warning  Function 'LoginView' has too many lines (70). Maximum allowed is 50  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\auth\RegisterView.jsx
+  15:1  warning  Function 'RegisterView' has too many lines (88). Maximum allowed is 50  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\core\Navbar.jsx
+  43:10  error    'updateNavigationItems' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  54:16  warning  Function 'Navbar' has too many lines (120). Maximum allowed is 50                             max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\AddMatchDialog.jsx
+   80:1   warning  Function 'AddMatchDialog' has too many lines (449). Maximum allowed is 50                                                                                                                                                                                                                                max-lines-per-function
+   80:1   error    Function 'AddMatchDialog' has a complexity of 30. Maximum allowed is 10                                                                                                                                                                                                                                  complexity
+   93:11  error    'token' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                    no-unused-vars
+  139:6   warning  React Hook useEffect has missing dependencies: 'selectedGroupId' and 'selectedPhaseId'. Either include them or remove the dependency array                                                                                                                                                               react-hooks/exhaustive-deps
+  168:6   warning  React Hook useEffect has missing dependencies: 'selectedGroupId' and 'selectedPhaseId'. Either include them or remove the dependency array. If 'setMatch' needs the current value of 'selectedPhaseId', you can also switch to useReducer instead of useState and read 'selectedPhaseId' in the reducer  react-hooks/exhaustive-deps
+  200:24  warning  Async arrow function has too many lines (59). Maximum allowed is 50                                                                                                                                                                                                                                      max-lines-per-function
+  200:24  error    Async arrow function has a complexity of 15. Maximum allowed is 10                                                                                                                                                                                                                                       complexity
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\AddTeamDialog.jsx
+  7:1  warning  Function 'AddTeamDialog' has too many lines (100). Maximum allowed is 50  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\EditMatchDialog.jsx
+  78:1  warning  Function 'EditMatchDialog' has too many lines (148). Maximum allowed is 50  max-lines-per-function
+  78:1  error    Function 'EditMatchDialog' has a complexity of 13. Maximum allowed is 10    complexity
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\EditTeamDialog.jsx
+  16:1   warning  Function 'EditTeamDialog' has too many lines (80). Maximum allowed is 50               max-lines-per-function
+  18:11  error    'token' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\FootballArchiveView.jsx
+   31:1   warning  Function 'EditionDataContainer' has too many lines (53). Maximum allowed is 50  max-lines-per-function
+  157:16  warning  Function 'FootballArchiveView' has too many lines (162). Maximum allowed is 50  max-lines-per-function
+  212:29  warning  Arrow function has too many lines (63). Maximum allowed is 50                   max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\MatchdayBuilder.jsx
+  177:1   warning  Function 'MatchdayBuilder' has too many lines (237). Maximum allowed is 50           max-lines-per-function
+  229:27  warning  Arrow function has too many lines (52). Maximum allowed is 50                        max-lines-per-function
+  248:24  error    Arrow function has a complexity of 13. Maximum allowed is 10                         complexity
+  248:29  error    Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed  sonarjs/cognitive-complexity
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\MatchesView.jsx
+   31:1   warning  Function 'MatchesView' has too many lines (391). Maximum allowed is 50                                                    max-lines-per-function
+   31:1   error    Function 'MatchesView' has a complexity of 28. Maximum allowed is 10                                                      complexity
+   36:3   error    'teamsLoading' is defined but never used                                                                                  no-unused-vars
+   39:3   error    'phases' is assigned a value but never used                                                                               no-unused-vars
+   42:17  error    'token' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                     no-unused-vars
+  106:6   warning  React Hook useCallback has an unnecessary dependency: 'refreshTrigger'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  108:36  error    Arrow function has a complexity of 11. Maximum allowed is 10                                                              complexity
+  154:6   warning  React Hook useCallback has an unnecessary dependency: 'refreshTrigger'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\StandingsView.jsx
+  28:1   warning  Function 'StandingsView' has too many lines (361). Maximum allowed is 50                  max-lines-per-function
+  28:1   error    Function 'StandingsView' has a complexity of 30. Maximum allowed is 10                    complexity
+  28:10  error    Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed       sonarjs/cognitive-complexity
+  60:9   error    'isMobile' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  97:17  error    Arrow function has a complexity of 14. Maximum allowed is 10                              complexity
+  97:24  error    Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed       sonarjs/cognitive-complexity
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\TeamsView.jsx
+  23:1  warning  Function 'TeamsView' has too many lines (162). Maximum allowed is 50  max-lines-per-function
+  23:1  error    Function 'TeamsView' has a complexity of 17. Maximum allowed is 10    complexity
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\CompetitionDialog.jsx
+  37:1   warning  Function 'CompetitionDialog' has too many lines (147). Maximum allowed is 50                                         max-lines-per-function
+  38:11  error    'token' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                no-unused-vars
+  52:13  error    Arrow function has a complexity of 13. Maximum allowed is 10                                                         complexity
+  68:6   warning  React Hook useEffect has a missing dependency: 'initialFormState'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\CompetitionForm.jsx
+  21:1   warning  Function 'CompetitionForm' has too many lines (110). Maximum allowed is 50                                           max-lines-per-function
+  43:8   warning  React Hook useEffect has a missing dependency: 'initialFormState'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  50:11  error    'handleMetadataChange' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                 no-unused-vars
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\CompetitionManagementPage.jsx
+  19:1   warning  Function 'CompetitionManagementPage' has too many lines (210). Maximum allowed is 50                              max-lines-per-function
+  20:13  error    't' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                 no-unused-vars
+  58:8   warning  React Hook useEffect has a missing dependency: 'fetchEditions'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\CompetitionProgress.jsx
+   7:1   warning  Function 'CompetitionProgress' has too many lines (78). Maximum allowed is 50            max-lines-per-function
+  10:12  error    'loading' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\CompetitionSelector.jsx
+  10:11  error  't' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\DesktopCompetitionSelector.jsx
+  20:1  warning  Function 'DesktopCompetitionSelector' has too many lines (77). Maximum allowed is 50  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\EditionEditor.jsx
+  12:18  error    'apiPost' is defined but never used. Allowed unused vars must match /^[A-Z_]/u    no-unused-vars
+  12:27  error    'apiDelete' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  15:1   warning  Function 'EditionEditor' has too many lines (114). Maximum allowed is 50          max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\EditionFormDialog.jsx
+  24:1   warning  Function 'EditionFormDialog' has too many lines (135). Maximum allowed is 50                                         max-lines-per-function
+  38:15  error    Arrow function has a complexity of 11. Maximum allowed is 10                                                         complexity
+  52:8   warning  React Hook useEffect has a missing dependency: 'initialFormState'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\MobileCompetitionSelector.jsx
+  23:1  warning  Function 'MobileCompetitionSelector' has too many lines (87). Maximum allowed is 50  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\PhaseGroupSelector.jsx
+   8:1  warning  Function 'PhaseGroupSelector' has too many lines (97). Maximum allowed is 50                                        max-lines-per-function
+   8:1  error    Function 'PhaseGroupSelector' has a complexity of 14. Maximum allowed is 10                                         complexity
+  41:8  warning  React Hook useEffect has a missing dependency: 'selectedGroupId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\PhaseManagement.jsx
+   14:1  warning  Function 'PhaseManagement' has too many lines (189). Maximum allowed is 50                                      max-lines-per-function
+   38:8  warning  React Hook useEffect has a missing dependency: 'fetchPhases'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  220:1  warning  Function 'PhaseItem' has too many lines (142). Maximum allowed is 50                                            max-lines-per-function
+  236:8  warning  React Hook useEffect has a missing dependency: 'fetchGroups'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\phase-management\DesktopPhaseManagement.jsx
+  13:1  warning  Function 'DesktopPhaseManagement' has too many lines (130). Maximum allowed is 50  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\phase-management\MobilePhaseManagement.jsx
+  14:1  warning  Function 'MobilePhaseManagement' has too many lines (123). Maximum allowed is 50  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\phase-management\PhaseDetailView.jsx
+  14:1  warning  Function 'PhaseDetailView' has too many lines (283). Maximum allowed is 50                                      max-lines-per-function
+  14:1  error    Function 'PhaseDetailView' has a complexity of 16. Maximum allowed is 10                                        complexity
+  31:8  warning  React Hook useEffect has a missing dependency: 'fetchGroups'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\competitions\phase-management\PhaseManagement.jsx
+   8:1  warning  Function 'PhaseManagement' has too many lines (57). Maximum allowed is 50                                       max-lines-per-function
+  35:8  warning  React Hook useEffect has a missing dependency: 'fetchPhases'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\matches\DesktopMatchesView.jsx
+   21:1   warning  Function 'DesktopMatchesView' has too many lines (170). Maximum allowed is 50  max-lines-per-function
+   21:1   error    Function 'DesktopMatchesView' has a complexity of 19. Maximum allowed is 10    complexity
+  108:37  warning  Arrow function has too many lines (79). Maximum allowed is 50                  max-lines-per-function
+  108:37  error    Arrow function has a complexity of 18. Maximum allowed is 10                   complexity
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\football-archive\matches\MobileMatchesView.jsx
+  20:1   warning  Function 'MobileMatchesView' has too many lines (162). Maximum allowed is 50          max-lines-per-function
+  20:1   error    Function 'MobileMatchesView' has a complexity of 11. Maximum allowed is 10            complexity
+  29:13  error    'user' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  76:29  warning  Arrow function has too many lines (91). Maximum allowed is 50                         max-lines-per-function
+  76:29  error    Arrow function has a complexity of 14. Maximum allowed is 10                          complexity
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\realestates\RealEstateInsertForm.jsx
+  34:1  warning  Function 'RealEstateInsertForm' has too many lines (74). Maximum allowed is 50  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\realestates\RealEstatesInfoTable.jsx
+  14:1  warning  Function 'RealEstatesInfoTable' has too many lines (76). Maximum allowed is 50  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\components\realestates\RealEstatesView.jsx
+  12:1  warning  Function 'RealEstatesView' has too many lines (68). Maximum allowed is 50  max-lines-per-function
+
+C:\Users\anton\dev\thorongil05\my-financial-dashboard\src\context\AuthContext.jsx
+  6:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  8:29  warning  Arrow function has too many lines (55). Maximum allowed is 50                                                                   max-lines-per-function
+
+✖ 94 problems (37 errors, 57 warnings)
+

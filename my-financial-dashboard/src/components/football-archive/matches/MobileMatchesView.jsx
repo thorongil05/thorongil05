@@ -14,8 +14,6 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { UserRoles } from "../../../constants/roles";
-import { useAuth } from "../../../context/AuthContext";
 
 function MobileMatchesView({
     matches,
@@ -26,7 +24,6 @@ function MobileMatchesView({
     selectedTeamId,
 }) {
     const { t } = useTranslation();
-    const { user } = useAuth();
 
     const [menuAnchor, setMenuAnchor] = useState(null);
     const [selectedMatch, setSelectedMatch] = useState(null);

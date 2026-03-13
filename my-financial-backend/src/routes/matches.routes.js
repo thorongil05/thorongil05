@@ -16,8 +16,7 @@ router.get("/", authenticateToken, (request, response) => {
   const sortBy = request.query.sortBy;
   const sortOrder = request.query.sortOrder;
   matchesDao
-    .findMatches(
-      null,
+    .findMatches({
       round,
       teamId,
       sortBy,
@@ -25,7 +24,7 @@ router.get("/", authenticateToken, (request, response) => {
       editionId,
       phaseId,
       groupId,
-    )
+    })
     .then((result) => {
       response.send({
         data: result,

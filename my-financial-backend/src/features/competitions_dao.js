@@ -103,16 +103,13 @@ async function updateEdition(id, editionEntry) {
 
 async function getStandings(editionId, args = {}) {
   logger.info({ editionId, args }, "Retrieving standings");
-  const matches = await matchesDao.findMatches(
-    null,
-    null,
-    null,
-    "match_date",
-    "DESC",
+  const matches = await matchesDao.findMatches({
     editionId,
-    args.phaseId,
-    args.groupId,
-  );
+    phaseId: args.phaseId,
+    groupId: args.groupId,
+    sortBy: "match_date",
+    sortOrder: "DESC",
+  });
   const totalRounds = matches
     .map((match) => match.round)
     .reduce(
@@ -143,8 +140,39 @@ async function getStandings(editionId, args = {}) {
   };
 }
 
+async function bulkInsert(competitionEntries) {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const results = [];
+    for (const competitionEntry of competitionEntries) {
+      const query = `
+        INSERT INTO competitions (name, country, type)
+        VALUES($1, $2, $3)
+        RETURNING *;
+      `;
+      const values = [
+        competitionEntry.name,
+        competitionEntry.country,
+        competitionEntry.type,
+      ];
+      const { rows } = await client.query(query, values);
+      results.push(rows[0]);
+    }
+    await client.query("COMMIT");
+    logger.info({ count: results.length }, "Bulk competitions inserted");
+    return results;
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   insert: insert,
+  bulkInsert: bulkInsert,
   insertEdition: insertEdition,
   retrieveAll: retrieveAll,
   retrieveEditions: retrieveEditions,

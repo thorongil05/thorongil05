@@ -64,8 +64,45 @@ async function deleteTeam(id) {
   return rows[0];
 }
 
+async function bulkInsert(teamEntries) {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const results = [];
+    for (const teamEntry of teamEntries) {
+      const insertTeamQuery = `
+                INSERT INTO teams (name, city)
+                VALUES($1, $2)
+                RETURNING *;
+            `;
+      const insertResult = await client.query(insertTeamQuery, [
+        teamEntry.name,
+        teamEntry.city,
+      ]);
+      const teamRow = insertResult.rows[0];
+      const teamId = teamRow.id;
+
+      if (teamEntry.editionId) {
+        const linkQuery =
+          "INSERT INTO edition_teams (edition_id, team_id) VALUES ($1, $2)";
+        await client.query(linkQuery, [teamEntry.editionId, teamId]);
+      }
+      results.push(teamRow);
+    }
+    await client.query("COMMIT");
+    logger.info({ count: results.length }, "Bulk teams inserted");
+    return results;
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   insert: insert,
+  bulkInsert: bulkInsert,
   retrieveAll: retrieveAll,
   update: update,
   deleteTeam: deleteTeam,

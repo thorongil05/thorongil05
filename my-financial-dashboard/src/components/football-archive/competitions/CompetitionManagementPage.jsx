@@ -4,9 +4,8 @@ import {
     Card, CardActionArea, TextField, Chip, CircularProgress, Alert
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router";
-import { useTranslation } from "react-i18next";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CompetitionForm from "./CompetitionForm";
 import EditionEditor from "./EditionEditor";
@@ -17,7 +16,6 @@ import InfoIcon from "@mui/icons-material/Info";
 import LayersIcon from "@mui/icons-material/Layers";
 
 function CompetitionManagementPage() {
-    const { t } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
     const [tab, setTab] = useState(0);
@@ -28,7 +26,7 @@ function CompetitionManagementPage() {
     const [isAddingEdition, setIsAddingEdition] = useState(false);
     const [newEditionName, setNewEditionName] = useState("");
 
-    const fetchEditions = () => {
+    const fetchEditions = useCallback(() => {
         if (id) {
             apiGet(`/api/competitions/${id}/editions`)
                 .then(data => {
@@ -39,7 +37,7 @@ function CompetitionManagementPage() {
                 })
                 .catch(err => console.error("Error fetching editions:", err));
         }
-    };
+    }, [id, selectedEditionId]);
 
     useEffect(() => {
         if (id) {
@@ -55,7 +53,7 @@ function CompetitionManagementPage() {
         } else {
             setLoading(false);
         }
-    }, [id]);
+    }, [id, fetchEditions]);
 
     const handleAddEdition = async () => {
         if (!newEditionName) return;

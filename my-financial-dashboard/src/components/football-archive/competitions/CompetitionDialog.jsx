@@ -16,7 +16,6 @@ import {
   Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { useAuth } from "../../../context/AuthContext";
 import { apiPost, apiPut } from "../../../utils/api";
 
 async function submit(e, formData, competitionToEdit, onSubmitAction) {
@@ -34,19 +33,19 @@ async function submit(e, formData, competitionToEdit, onSubmitAction) {
   }
 }
 
+const initialFormState = {
+  name: "",
+  country: "",
+  type: "LEAGUE",
+  metadata: {
+    totalMatches: "",
+    phasesCount: "",
+    maxParticipants: "",
+    competitionFormat: "",
+  },
+};
+
 function CompetitionDialog({ onClose, open, onInsert, competitionToEdit }) {
-  const { token } = useAuth();
-  const initialFormState = {
-    name: "",
-    country: "",
-    type: "LEAGUE",
-    metadata: {
-      totalMatches: "",
-      phasesCount: "",
-      maxParticipants: "",
-      competitionFormat: "",
-    },
-  };
   let [formData, setFormData] = useState(initialFormState);
 
   useEffect(() => {
@@ -82,13 +81,15 @@ function CompetitionDialog({ onClose, open, onInsert, competitionToEdit }) {
 
   const dialogTitle = competitionToEdit ? "Modifica competizione" : "Aggiungi competizione";
 
+  const handleSubmit = (e) => submit(e, formData, competitionToEdit, () => {
+    onInsert();
+    setFormData(initialFormState);
+  });
+
   return (
     <Dialog onClose={onClose} open={open}>
       <DialogTitle>{dialogTitle}</DialogTitle>
-      <form onSubmit={(e) => submit(e, formData, competitionToEdit, () => {
-        onInsert();
-        setFormData(initialFormState);
-      })}>
+      <form onSubmit={handleSubmit}>
         <Stack spacing={2} sx={{ p: 2, minWidth: "350px" }}>
           <TextField
             size="small"

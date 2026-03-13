@@ -25,6 +25,27 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { useTranslation } from "react-i18next";
 import { apiGet } from "../../utils/api";
 
+function compareStandingsRows(a, b, sortBy, sortOrder) {
+  let aVal = a[sortBy];
+  let bVal = b[sortBy];
+  if (sortBy === "teamName") {
+    aVal = (aVal || "").toLowerCase();
+    bVal = (bVal || "").toLowerCase();
+  }
+  if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
+  if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
+  if (sortBy !== "points") {
+    if (a.points < b.points) return 1;
+    if (a.points > b.points) return -1;
+  }
+  if (sortBy !== "goalDifference") {
+    if (a.goalDifference < b.goalDifference) return 1;
+    if (a.goalDifference > b.goalDifference) return -1;
+  }
+  return 0;
+}
+
+// eslint-disable-next-line complexity
 function StandingsView({ selectedEdition, selectedPhaseId, selectedGroupId, refreshTrigger }) {
   const { t } = useTranslation();
   const [standings, setStandings] = useState([]);
@@ -57,7 +78,6 @@ function StandingsView({ selectedEdition, selectedPhaseId, selectedGroupId, refr
   }
 
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
 
   // Default collapsed for mobile/tablet, expanded for desktop
@@ -92,35 +112,8 @@ function StandingsView({ selectedEdition, selectedPhaseId, selectedGroupId, refr
 
   const sortedStandings = useMemo(() => {
     if (!standings || standings.length === 0) return [];
-
     const result = [...standings];
-    result.sort((a, b) => {
-      let aVal = a[sortBy];
-      let bVal = b[sortBy];
-
-      // Handle team name specially for alphabetical sort
-      if (sortBy === "teamName") {
-        aVal = (aVal || "").toLowerCase();
-        bVal = (bVal || "").toLowerCase();
-      }
-
-      if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
-      if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
-
-      // Secondary sort by points if not already sorting by points
-      if (sortBy !== "points") {
-        if (a.points < b.points) return 1;
-        if (a.points > b.points) return -1;
-      }
-
-      // Tertiary sort by goal difference
-      if (sortBy !== "goalDifference") {
-        if (a.goalDifference < b.goalDifference) return 1;
-        if (a.goalDifference > b.goalDifference) return -1;
-      }
-
-      return 0;
-    });
+    result.sort((a, b) => compareStandingsRows(a, b, sortBy, sortOrder));
     return result;
   }, [standings, sortBy, sortOrder]);
 

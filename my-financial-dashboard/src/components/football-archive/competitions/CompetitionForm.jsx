@@ -18,14 +18,14 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { apiPost, apiPut } from "../../../utils/api";
 
-function CompetitionForm({ competitionToEdit, onSubmitSuccess, onCancel }) {
-    const initialFormState = {
-        name: "",
-        country: "",
-        type: "LEAGUE",
-        metadata: {},
-    };
+const initialFormState = {
+    name: "",
+    country: "",
+    type: "LEAGUE",
+    metadata: {},
+};
 
+function CompetitionForm({ competitionToEdit, onSubmitSuccess, onCancel }) {
     let [formData, setFormData] = useState(initialFormState);
     let [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -45,14 +45,6 @@ function CompetitionForm({ competitionToEdit, onSubmitSuccess, onCancel }) {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const handleMetadataChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            metadata: { ...prev.metadata, [name]: value },
-        }));
     };
 
     const handleSubmit = async (e) => {

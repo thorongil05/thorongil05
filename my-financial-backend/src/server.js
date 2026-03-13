@@ -3,15 +3,16 @@ const app = require("./app");
 const { swaggerUi, specs } = require("./swagger/swagger");
 const logger = require("pino")();
 const runMigrations = require("./features/migrate");
+const pool = require("./features/database");
 
 async function startServer() {
   try {
     await runMigrations();
-    
+
     app.use("/swagger", swaggerUi.serve, swaggerUi.setup(specs));
-    
+
     const PORT = process.env.PORT || 3000;
-    
+
     const server = app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`);
     });
@@ -25,7 +26,7 @@ async function startServer() {
 }
 
 let server;
-startServer().then(s => server = s);
+startServer().then((s) => (server = s));
 
 async function shutdown(signal) {
   logger.info(`Received ${signal}. Closing resources...`);

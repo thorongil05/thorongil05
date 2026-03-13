@@ -37,19 +37,15 @@ const navigation = [
     i18nKey: "nav.admin",
     href: "/admin",
     role: UserRoles.ADMIN
+  },
+  {
+    id: "item-3",
+    name: "Fantacalcion",
+    i18nKey: "Fantacalcion", // Fallback to raw string if i18n key is missing
+    href: "/fantacalcion",
   }
 ];
 
-function updateNavigationItems(selectedElement, elements) {
-  elements.map((element) => {
-    if (element.id == selectedElement.id) {
-      element.current = true;
-    } else {
-      element.current = false;
-    }
-  });
-  return elements;
-}
 
 export default function Navbar() {
   const { t } = useTranslation();

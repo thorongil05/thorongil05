@@ -172,6 +172,37 @@ function MatchSlot({ index, match, onRemove }) {
     );
 }
 
+function applyDragToMatchSlot(prev, matchIdx, slotType, team, teamId, sourceMatch, setAvailableTeams) {
+    const newMatches = [...prev];
+    const targetMatch = newMatches[matchIdx];
+    const existingTeamInSlot = slotType === 'home' ? targetMatch.homeTeam : targetMatch.awayTeam;
+
+    if (sourceMatch) {
+        const m = newMatches.find(match => match.id === sourceMatch.id);
+        if (m.homeTeam?.id === teamId) m.homeTeam = null;
+        else m.awayTeam = null;
+    } else {
+        setAvailableTeams(avail => avail.filter(t => t.id !== teamId));
+    }
+
+    if (existingTeamInSlot) {
+        if (sourceMatch) {
+            const m = newMatches.find(match => match.id === sourceMatch.id);
+            const useHome = sourceMatch.homeTeam?.id === teamId ||
+                (sourceMatch.homeTeam === null && sourceMatch.awayTeam?.id !== teamId);
+            if (useHome) m.homeTeam = existingTeamInSlot;
+            else m.awayTeam = existingTeamInSlot;
+        } else {
+            setAvailableTeams(avail => [...avail, existingTeamInSlot]);
+        }
+    }
+
+    if (slotType === 'home') targetMatch.homeTeam = team;
+    else targetMatch.awayTeam = team;
+
+    return newMatches;
+}
+
 // --- Main component ---
 
 function MatchdayBuilder({
@@ -229,70 +260,27 @@ function MatchdayBuilder({
     const handleDragEnd = (event) => {
         const { active, over } = event;
         setActiveTeam(null);
-
         if (!over) return;
 
         const teamIdStr = active.id.toString().replace('team-', '');
         const teamId = parseInt(teamIdStr);
         const team = teams.find(t => t.id === teamId);
+        const sourceMatch = matches.find(m => m.homeTeam?.id === teamId || m.awayTeam?.id === teamId);
 
-        // Find where the team came from
-        let sourceMatch = matches.find(m => m.homeTeam?.id === teamId || m.awayTeam?.id === teamId);
-
-        // Target handling
         if (over.id.toString().startsWith('match-')) {
             const parts = over.id.toString().split('-');
             const matchIdx = parseInt(parts[1]);
-            const slotType = parts[2]; // 'home' or 'away'
-
+            const slotType = parts[2];
+            setMatches(prev => applyDragToMatchSlot(prev, matchIdx, slotType, team, teamId, sourceMatch, setAvailableTeams));
+        } else if (over.id === 'available-area' && sourceMatch) {
             setMatches(prev => {
                 const newMatches = [...prev];
-                const targetMatch = newMatches[matchIdx];
-                const existingTeamInSlot = slotType === 'home' ? targetMatch.homeTeam : targetMatch.awayTeam;
-
-                // 1. Clear the source if it was a match slot
-                if (sourceMatch) {
-                    const m = newMatches.find(match => match.id === sourceMatch.id);
-                    if (m.homeTeam?.id === teamId) m.homeTeam = null;
-                    else m.awayTeam = null;
-                } else {
-                    // Remove from available if it was there
-                    setAvailableTeams(avail => avail.filter(t => t.id !== teamId));
-                }
-
-                // 2. If there was a team in the target slot, put it back
-                if (existingTeamInSlot) {
-                    if (sourceMatch) {
-                        // Swap logic: put existing team into the source slot
-                        const m = newMatches.find(match => match.id === sourceMatch.id);
-                        if (sourceMatch.homeTeam?.id === teamId || (sourceMatch.homeTeam === null && sourceMatch.awayTeam?.id !== teamId)) {
-                            m.homeTeam = existingTeamInSlot;
-                        } else {
-                            m.awayTeam = existingTeamInSlot;
-                        }
-                    } else {
-                        // Put back to available
-                        setAvailableTeams(avail => [...avail, existingTeamInSlot]);
-                    }
-                }
-
-                // 3. Place the new team in the target slot
-                if (slotType === 'home') targetMatch.homeTeam = team;
-                else targetMatch.awayTeam = team;
-
+                const m = newMatches.find(match => match.id === sourceMatch.id);
+                if (m.homeTeam?.id === teamId) m.homeTeam = null;
+                else m.awayTeam = null;
                 return newMatches;
             });
-        } else if (over.id === 'available-area') {
-            if (sourceMatch) {
-                setMatches(prev => {
-                    const newMatches = [...prev];
-                    const m = newMatches.find(match => match.id === sourceMatch.id);
-                    if (m.homeTeam?.id === teamId) m.homeTeam = null;
-                    else m.awayTeam = null;
-                    return newMatches;
-                });
-                setAvailableTeams(avail => [...avail, team]);
-            }
+            setAvailableTeams(avail => [...avail, team]);
         }
     };
 
