@@ -37,6 +37,12 @@ const navigation = [
     i18nKey: "nav.admin",
     href: "/admin",
     role: UserRoles.ADMIN
+  },
+  {
+    id: "item-3",
+    name: "Fantacalcion",
+    i18nKey: "Fantacalcion", // Fallback to raw string if i18n key is missing
+    href: "/fantacalcion",
   }
 ];
 
