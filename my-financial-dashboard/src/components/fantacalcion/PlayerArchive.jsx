@@ -3,12 +3,13 @@ import { useFantacalcion, ROLES } from './context/FantacalcionContext';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Button, TextField, Select, MenuItem, FormControl, InputLabel, IconButton, Box, Typography,
-  TablePagination, Snackbar, useTheme, useMediaQuery, Fab, Dialog, AppBar, Toolbar, Slide, List, ListItem, ListItemButton, ListItemText, Divider, ToggleButton, ToggleButtonGroup
+  TablePagination, Snackbar, useTheme, useMediaQuery, Fab, Dialog, AppBar, Toolbar, Slide, List, ListItem, ListItemButton, ListItemText, ToggleButton, ToggleButtonGroup
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
+import SearchIcon from '@mui/icons-material/Search';
 
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -36,6 +37,7 @@ export default function PlayerArchive() {
 
   // Mobile Dialog state
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [teamSearch, setTeamSearch] = useState('');
 
   // Snackbar state
   const [snackbar, setSnackbar] = useState({ open: false, message: '' });
@@ -58,6 +60,11 @@ export default function PlayerArchive() {
       return true;
     });
   }, [players, filterName, filterRole, filterTeam]);
+
+  // Derived: Filtered teams for mobile dialog
+  const filteredTeamsForDialog = useMemo(() => {
+    return teams.filter(t => t.name.toLowerCase().includes(teamSearch.toLowerCase()));
+  }, [teams, teamSearch]);
 
   // Handle pagination
   const handleChangePage = (event, newPage) => {
@@ -89,7 +96,6 @@ export default function PlayerArchive() {
         showMessage(`${finalName} aggiunto!`);
       }
       setFormName('');
-      // If mobile, focus back to name input after add
       return true; 
     } catch (err) {
       showMessage(`Errore: ${err.message}`);
@@ -129,6 +135,13 @@ export default function PlayerArchive() {
     } catch (err) {
       showMessage(`Errore: ${err.message}`);
     }
+  };
+
+  const handleCloseMobile = () => {
+    setMobileOpen(false);
+    setTeamSearch('');
+    setEditingId(null);
+    setFormName('');
   };
 
   if (loading) return <Box sx={{ p: 3, textAlign: 'center' }}><Typography>Caricamento...</Typography></Box>;
@@ -186,32 +199,30 @@ export default function PlayerArchive() {
         </Paper>
       )}
 
-      {/* Filters */}
+      {/* Filters (Now always visible but refined for mobile) */}
       <Box sx={{ display: 'flex', gap: isMobile ? 1 : 2, mb: 2, flexWrap: 'wrap', alignItems: 'center' }}>
         <TextField 
           label="Cerca nome" 
           variant="outlined" 
           size="small" 
-          sx={{ flexGrow: 1, minWidth: '150px' }}
+          sx={{ flexGrow: 1, minWidth: isMobile ? '120px' : '150px' }}
           value={filterName}
           onChange={(e) => { setFilterName(e.target.value); setPage(0); }}
         />
-        <FormControl size="small" sx={{ minWidth: isMobile ? 100 : 140 }}>
+        <FormControl size="small" sx={{ minWidth: isMobile ? 90 : 140 }}>
           <InputLabel>Ruolo</InputLabel>
           <Select value={filterRole} label="Ruolo" onChange={(e) => { setFilterRole(e.target.value); setPage(0); }}>
             <MenuItem value="">Tutti</MenuItem>
             {ROLES.map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)}
           </Select>
         </FormControl>
-        {!isMobile && (
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>Tutte le Squadre</InputLabel>
-            <Select value={filterTeam} label="Tutte le Squadre" onChange={(e) => { setFilterTeam(e.target.value); setPage(0); }}>
-              <MenuItem value="">Tutte le Squadre</MenuItem>
-              {teams.map(t => <MenuItem key={t.id} value={t.name}>{t.name}</MenuItem>)}
-            </Select>
-          </FormControl>
-        )}
+        <FormControl size="small" sx={{ minWidth: isMobile ? 120 : 180 }}>
+          <InputLabel>{isMobile ? "Squadra" : "Tutte le Squadre"}</InputLabel>
+          <Select value={filterTeam} label={isMobile ? "Squadra" : "Tutte le Squadre"} onChange={(e) => { setFilterTeam(e.target.value); setPage(0); }}>
+            <MenuItem value="">{isMobile ? "Tutte" : "Tutte le Squadre"}</MenuItem>
+            {teams.map(t => <MenuItem key={t.id} value={t.name}>{t.name}</MenuItem>)}
+          </Select>
+        </FormControl>
       </Box>
 
       {/* Table Section */}
@@ -246,6 +257,13 @@ export default function PlayerArchive() {
                 </TableCell>
               </TableRow>
             ))}
+            {paginatedPlayers.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+                   <Typography variant="body2" color="textSecondary">Nessun giocatore trovato</Typography>
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
         <TablePagination
@@ -287,12 +305,12 @@ export default function PlayerArchive() {
       <Dialog
         fullScreen
         open={mobileOpen}
-        onClose={() => setMobileOpen(false)}
+        onClose={handleCloseMobile}
         TransitionComponent={Transition}
       >
         <AppBar sx={{ position: 'relative' }}>
           <Toolbar>
-            <IconButton edge="start" color="inherit" onClick={() => setMobileOpen(false)} aria-label="close">
+            <IconButton edge="start" color="inherit" onClick={handleCloseMobile} aria-label="close">
               <CloseIcon />
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
@@ -300,11 +318,7 @@ export default function PlayerArchive() {
             </Typography>
             <Button autoFocus color="inherit" onClick={async () => {
               const success = await handleSubmit();
-              if (success && !editingId) {
-                // Keep open for next player
-              } else if (success) {
-                setMobileOpen(false);
-              }
+              if (success) handleCloseMobile();
             }}>
               Salva
             </Button>
@@ -313,45 +327,59 @@ export default function PlayerArchive() {
         
         <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 3 }}>
           <Box>
-            <Typography variant="overline" color="textSecondary">RUOLO</Typography>
+            <Typography variant="overline" color="textSecondary" sx={{ fontWeight: 'bold' }}>1. RUOLO</Typography>
             <ToggleButtonGroup
               value={formRole}
               exclusive
               onChange={(e, val) => { if (val) { setFormRole(val); if (val === 'POR') setFormName(''); } }}
               fullWidth
               color="primary"
-              size="large"
+              variant="outlined"
             >
-              {ROLES.map(r => <ToggleButton key={r} value={r}>{r}</ToggleButton>)}
+              {ROLES.map(r => <ToggleButton key={r} value={r} sx={{ py: 1.5 }}>{r}</ToggleButton>)}
             </ToggleButtonGroup>
           </Box>
 
           <Box>
-            <Typography variant="overline" color="textSecondary">NOME GIOCATORE</Typography>
+            <Typography variant="overline" color="textSecondary" sx={{ fontWeight: 'bold' }}>2. NOME GIOCATORE</Typography>
             <TextField 
               fullWidth 
               value={formName} 
               onChange={(e) => setFormName(e.target.value)}
               disabled={formRole === 'POR'}
               placeholder={formRole === 'POR' ? "Generato automaticamente" : "Inserisci Nome"}
-              autoFocus
+              variant="outlined"
             />
           </Box>
 
           <Box sx={{ flexGrow: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <Typography variant="overline" color="textSecondary">SQUADRA</Typography>
-            <Paper elevation={0} variant="outlined" sx={{ flexGrow: 1, overflowY: 'auto', maxHeight: '40vh', borderRadius: 2 }}>
+            <Typography variant="overline" color="textSecondary" sx={{ fontWeight: 'bold' }}>3. SQUADRA</Typography>
+            <TextField 
+              placeholder="Cerca squadra..." 
+              size="small" 
+              value={teamSearch}
+              onChange={(e) => setTeamSearch(e.target.value)}
+              sx={{ mb: 1, bgcolor: 'action.hover', borderRadius: 1 }}
+              InputProps={{
+                startAdornment: <SearchIcon sx={{ color: 'action.active', mr: 1, fontSize: 20 }} />
+              }}
+            />
+            <Paper elevation={0} variant="outlined" sx={{ flexGrow: 1, overflowY: 'auto', maxHeight: '35vh', borderRadius: 2, bgcolor: 'background.paper' }}>
               <List sx={{ p: 0 }}>
-                {teams.map((t) => (
-                  <ListItem key={t.id} disablePadding>
+                {filteredTeamsForDialog.map((t) => (
+                  <ListItem key={t.id} disablePadding divider>
                     <ListItemButton 
                       selected={formTeam === t.name}
                       onClick={() => setFormTeam(t.name)}
+                      sx={{ py: 1 }}
                     >
                       <ListItemText primary={t.name} />
                     </ListItemButton>
                   </ListItem>
                 ))}
+                {filteredTeamsForDialog.length === 0 && (
+                  <ListItem sx={{ py: 2 }}><ListItemText secondary="Nessuna squadra trovata" /></ListItem>
+                )}
               </List>
             </Paper>
           </Box>
@@ -360,17 +388,17 @@ export default function PlayerArchive() {
             variant="contained" 
             size="large" 
             fullWidth 
-            sx={{ py: 2, borderRadius: 2 }}
+            sx={{ py: 2, borderRadius: 2, fontWeight: 'bold' }}
             onClick={async () => {
               const success = await handleSubmit();
               if (success && !editingId) {
-                 // Reset name but keep team for quick entry
+                 // Keep team selected for rapid entry
               } else if (success) {
-                setMobileOpen(false);
+                handleCloseMobile();
               }
             }}
           >
-            {editingId ? 'AGGIORENA' : 'AGGIUNGI E CONTINUA'}
+            {editingId ? 'AGGIORNA' : 'AGGIUNGI E CONTINUA'}
           </Button>
         </Box>
       </Dialog>
