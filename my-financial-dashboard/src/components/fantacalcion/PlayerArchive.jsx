@@ -82,9 +82,9 @@ export default function PlayerArchive() {
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
-    if (formRole !== 'POR' && !formName.trim()) return;
+    if (!formName.trim()) return;
     
-    const finalName = formRole === 'POR' ? `${formTeam} (Blocco)` : formName;
+    const finalName = formName;
 
     try {
       if (editingId) {
@@ -166,16 +166,12 @@ export default function PlayerArchive() {
               value={formName} 
               sx={{ flexGrow: 2, minWidth: '250px' }}
               onChange={(e) => setFormName(e.target.value)}
-              disabled={formRole === 'POR'}
-              placeholder={formRole === 'POR' ? "Verrà generato automaticamente" : "Es. Lautaro Martinez"}
+              placeholder="Es. Lautaro Martinez"
               size="small"
             />
             <FormControl size="small" sx={{ minWidth: 120, flexGrow: 1 }}>
               <InputLabel>Ruolo</InputLabel>
-              <Select value={formRole} label="Ruolo" onChange={(e) => {
-                setFormRole(e.target.value);
-                if (e.target.value === 'POR') setFormName('');
-              }}>
+              <Select value={formRole} label="Ruolo" onChange={(e) => setFormRole(e.target.value)}>
                 {ROLES.map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)}
               </Select>
             </FormControl>
@@ -331,7 +327,7 @@ export default function PlayerArchive() {
             <ToggleButtonGroup
               value={formRole}
               exclusive
-              onChange={(e, val) => { if (val) { setFormRole(val); if (val === 'POR') setFormName(''); } }}
+              onChange={(e, val) => { if (val) setFormRole(val); }}
               fullWidth
               color="primary"
               variant="outlined"
@@ -346,8 +342,7 @@ export default function PlayerArchive() {
               fullWidth 
               value={formName} 
               onChange={(e) => setFormName(e.target.value)}
-              disabled={formRole === 'POR'}
-              placeholder={formRole === 'POR' ? "Generato automaticamente" : "Inserisci Nome"}
+              placeholder="Inserisci Nome"
               variant="outlined"
             />
           </Box>
