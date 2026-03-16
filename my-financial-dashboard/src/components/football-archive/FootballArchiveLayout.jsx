@@ -17,7 +17,7 @@ export default function FootballArchiveLayout() {
     <div className="flex flex-col md:flex-row h-screen bg-slate-950 overflow-hidden">
       <MobileTopBar data={data} onOpenSheet={() => setSheetOpen(true)} />
       <ArchiveSidebar data={data} activeTab={activeTab} onTabChange={setActiveTab} />
-      <main className="flex-1 overflow-auto bg-white text-slate-900 pb-20 md:pb-0">
+      <main className="flex-1 overflow-auto bg-slate-950 pb-20 md:pb-0">
         <ArchiveContent data={data} activeTab={activeTab} />
       </main>
       <MobileBottomNav activeTab={activeTab} onTabChange={setActiveTab} isReady={data.isReady} />
