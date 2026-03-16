@@ -15,6 +15,73 @@ const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
+const filterPlayers = (players, name, role, team) =>
+  players.filter(p => {
+    if (name && !p.name.toLowerCase().includes(name.toLowerCase())) return false;
+    if (role && p.role !== role) return false;
+    if (team && p.team_name !== team) return false;
+    return true;
+  });
+
+const filterTeams = (teams, search) =>
+  teams.filter(t => t.name.toLowerCase().includes(search.toLowerCase()));
+
+function DesktopPlayerForm({ editingId, onCancel, form, teams, onSubmit }) {
+  const { name, setName, role, setRole, team, setTeam } = form;
+  return (
+    <Paper sx={{ p: 3, mb: 4, borderRadius: 2 }} elevation={3}>
+      <Typography variant="subtitle2" mb={2} color="textSecondary">
+        {editingId ? 'MODIFICA GIOCATORE' : 'AGGIUNGI NUOVO GIOCATORE'}
+      </Typography>
+      <form onSubmit={onSubmit} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+        <TextField
+          label="Nome Giocatore"
+          value={name}
+          sx={{ flexGrow: 2, minWidth: '250px' }}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Es. Lautaro Martinez"
+          size="small"
+        />
+        <FormControl size="small" sx={{ minWidth: 120, flexGrow: 1 }}>
+          <InputLabel>Ruolo</InputLabel>
+          <Select value={role} label="Ruolo" onChange={(e) => setRole(e.target.value)}>
+            {ROLES.map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)}
+          </Select>
+        </FormControl>
+        <FormControl size="small" sx={{ minWidth: 180, flexGrow: 1 }}>
+          <InputLabel>Squadra</InputLabel>
+          <Select value={team} label="Squadra" onChange={(e) => setTeam(e.target.value)}>
+            {teams.map(t => <MenuItem key={t.id} value={t.name}>{t.name}</MenuItem>)}
+          </Select>
+        </FormControl>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button type="submit" variant="contained" sx={{ height: 40, px: 3 }}>
+            {editingId ? 'Aggiorna' : 'Aggiungi'}
+          </Button>
+          {editingId && (
+            <Button variant="outlined" sx={{ height: 40 }} onClick={onCancel}>
+              Annulla
+            </Button>
+          )}
+        </Box>
+      </form>
+    </Paper>
+  );
+}
+
+function PlayerTableHead({ isMobile }) {
+  return (
+    <TableHead sx={{ bgcolor: 'action.hover' }}>
+      <TableRow>
+        <TableCell sx={{ fontWeight: 'bold' }}>Nome</TableCell>
+        <TableCell sx={{ fontWeight: 'bold' }} align={isMobile ? 'right' : 'left'}>{isMobile ? 'Info' : 'Ruolo'}</TableCell>
+        {!isMobile && <TableCell sx={{ fontWeight: 'bold' }}>Squadra</TableCell>}
+        <TableCell align="right" sx={{ fontWeight: 'bold' }}>Azioni</TableCell>
+      </TableRow>
+    </TableHead>
+  );
+}
+
 export default function PlayerArchive() {
   const { players, teams, addPlayerToArchive, removePlayerFromArchive, updatePlayerInArchive, addTeamToArchive, loading } = useFantacalcion();
   const theme = useTheme();
@@ -52,19 +119,16 @@ export default function PlayerArchive() {
   }, [teams, formTeam]);
 
   // Derived: Filtered players
-  const filteredPlayers = useMemo(() => {
-    return players.filter(p => {
-      if (filterName && !p.name.toLowerCase().includes(filterName.toLowerCase())) return false;
-      if (filterRole && p.role !== filterRole) return false;
-      if (filterTeam && p.team_name !== filterTeam) return false;
-      return true;
-    });
-  }, [players, filterName, filterRole, filterTeam]);
+  const filteredPlayers = useMemo(
+    () => filterPlayers(players, filterName, filterRole, filterTeam),
+    [players, filterName, filterRole, filterTeam]
+  );
 
   // Derived: Filtered teams for mobile dialog
-  const filteredTeamsForDialog = useMemo(() => {
-    return teams.filter(t => t.name.toLowerCase().includes(teamSearch.toLowerCase()));
-  }, [teams, teamSearch]);
+  const filteredTeamsForDialog = useMemo(
+    () => filterTeams(teams, teamSearch),
+    [teams, teamSearch]
+  );
 
   // Handle pagination
   const handleChangePage = (event, newPage) => {
@@ -156,43 +220,13 @@ export default function PlayerArchive() {
       
       {/* Desktop Form (Hidden on Mobile) */}
       {!isMobile && (
-        <Paper sx={{ p: 3, mb: 4, borderRadius: 2 }} elevation={3}>
-          <Typography variant="subtitle2" mb={2} color="textSecondary">
-            {editingId ? 'MODIFICA GIOCATORE' : 'AGGIUNGI NUOVO GIOCATORE'}
-          </Typography>
-          <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-            <TextField 
-              label="Nome Giocatore" 
-              value={formName} 
-              sx={{ flexGrow: 2, minWidth: '250px' }}
-              onChange={(e) => setFormName(e.target.value)}
-              placeholder="Es. Lautaro Martinez"
-              size="small"
-            />
-            <FormControl size="small" sx={{ minWidth: 120, flexGrow: 1 }}>
-              <InputLabel>Ruolo</InputLabel>
-              <Select value={formRole} label="Ruolo" onChange={(e) => setFormRole(e.target.value)}>
-                {ROLES.map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)}
-              </Select>
-            </FormControl>
-            <FormControl size="small" sx={{ minWidth: 180, flexGrow: 1 }}>
-              <InputLabel>Squadra</InputLabel>
-              <Select value={formTeam} label="Squadra" onChange={(e) => setFormTeam(e.target.value)}>
-                {teams.map(t => <MenuItem key={t.id} value={t.name}>{t.name}</MenuItem>)}
-              </Select>
-            </FormControl>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button type="submit" variant="contained" sx={{ height: 40, px: 3 }}>
-                {editingId ? 'Aggiorna' : 'Aggiungi'}
-              </Button>
-              {editingId && (
-                <Button variant="outlined" sx={{ height: 40 }} onClick={() => { setEditingId(null); setFormName(''); }}>
-                  Annulla
-                </Button>
-              )}
-            </Box>
-          </form>
-        </Paper>
+        <DesktopPlayerForm
+          editingId={editingId}
+          onCancel={() => { setEditingId(null); setFormName(''); }}
+          form={{ name: formName, setName: setFormName, role: formRole, setRole: setFormRole, team: formTeam, setTeam: setFormTeam }}
+          teams={teams}
+          onSubmit={handleSubmit}
+        />
       )}
 
       {/* Filters (Now always visible but refined for mobile) */}
@@ -224,14 +258,7 @@ export default function PlayerArchive() {
       {/* Table Section */}
       <TableContainer component={Paper} elevation={1} sx={{ borderRadius: 2 }}>
         <Table size="small">
-          <TableHead sx={{ bgcolor: 'action.hover' }}>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 'bold' }}>Nome</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }} align={isMobile ? 'right' : 'left'}>{isMobile ? 'Info' : 'Ruolo'}</TableCell>
-              {!isMobile && <TableCell sx={{ fontWeight: 'bold' }}>Squadra</TableCell>}
-              <TableCell align="right" sx={{ fontWeight: 'bold' }}>Azioni</TableCell>
-            </TableRow>
-          </TableHead>
+          <PlayerTableHead isMobile={isMobile} />
           <TableBody>
             {paginatedPlayers.map((player) => (
               <TableRow key={player.id} hover>
@@ -386,11 +413,7 @@ export default function PlayerArchive() {
             sx={{ py: 2, borderRadius: 2, fontWeight: 'bold' }}
             onClick={async () => {
               const success = await handleSubmit();
-              if (success && !editingId) {
-                 // Keep team selected for rapid entry
-              } else if (success) {
-                handleCloseMobile();
-              }
+              if (success && editingId) handleCloseMobile();
             }}
           >
             {editingId ? 'AGGIORNA' : 'AGGIUNGI E CONTINUA'}

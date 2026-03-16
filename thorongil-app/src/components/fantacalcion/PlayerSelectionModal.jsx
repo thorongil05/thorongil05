@@ -3,7 +3,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Select, Menu
 import { useFantacalcion } from './context/FantacalcionContext';
 
 export default function PlayerSelectionModal({ open, onClose, slotId, requiredRole }) {
-  const { players, teams, availableTeams, deployPlayer, deployed, removeDeployedSlot } = useFantacalcion();
+  const { players, availableTeams, deployPlayer, deployed, removeDeployedSlot } = useFantacalcion();
   
   const [selectedTeam, setSelectedTeam] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState('');
