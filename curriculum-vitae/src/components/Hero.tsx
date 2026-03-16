@@ -4,8 +4,9 @@ interface PersonalInfo {
   summary: string;
   contacts: {
     email: string;
-    phone: string;
     address: string;
+    linkedin: string;
+    github: string;
   };
 }
 
@@ -40,13 +41,17 @@ export function Hero({ info, education, skills }: HeroProps) {
             </a>
             <div className="flex items-center gap-4 px-4 border-l border-slate-800 ml-2">
               <a
-                href="#"
+                href={info.contacts.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-slate-500 hover:text-white cursor-pointer transition-colors uppercase text-xs font-bold tracking-widest"
               >
                 LinkedIn
               </a>
               <a
-                href="#"
+                href={info.contacts.github}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-slate-500 hover:text-white cursor-pointer transition-colors uppercase text-xs font-bold tracking-widest"
               >
                 GitHub

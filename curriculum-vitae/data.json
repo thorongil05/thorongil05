@@ -1,11 +1,12 @@
 {
     "personal_info": {
-        "name": "Antonio ACQUAVIA",
+        "name": "Antonio Acquavia",
         "role": "Software Engineer",
         "contacts": {
-            "phone": "+(39) 393 121 9941",
-            "email": "antonioacquavia@outlook.com",
-            "address": "Via Sante Tani 7, 56123 Pisa (PI), Italy"
+            "email": "[EMAIL_ADDRESS]",
+            "address": "Via Alessandro Cruto 4, 56123 Pisa (PI), Italy",
+            "linkedin": "https://www.linkedin.com/in/antonioacquavia/",
+            "github": "https://github.com/thorongil05"
         },
         "summary": "Professionista IT dedicato con background in AI e Data Engineering. Esperienza nello sviluppo di prodotti Core Banking e gestione di Data Platform."
     },
@@ -22,6 +23,12 @@
             "institution": "Università degli studi della Basilicata",
             "period": "September 2015 - February 2019",
             "mark": "$105/110$"
+        },
+        {
+            "degree": "Abilitazione all'esercizio della professione di Ingegnere",
+            "institution": "Università di Pisa",
+            "period": "2023",
+            "highlights": "Sezione A — Ingegnere dell'Informazione"
         }
     ],
     "experience": [
@@ -29,10 +36,12 @@
             "role": "Software Engineer",
             "company": "ION GROUP",
             "period": "March 2023 - Present",
-            "description": "Sviluppo di prodotti Core Banking in team internazionali.",
+            "description": "Sviluppo di prodotti Core Banking",
             "tasks": [
                 "Analisi tecnica e sviluppo user stories",
-                "Decisioni architetturali e collaborazione internazionale"
+                "Design soluzioni architetturali",
+                "Analisi dell'implementazione di nuove funzionalità",
+                "Supporto alla produzione"
             ],
             "tech_stack": [
                 "Java",
@@ -47,6 +56,10 @@
             "company": "REPLY S.P.A.",
             "period": "June 2022 - March 2023",
             "description": "Sviluppo e gestione di Data Platform su Microsoft Azure.",
+            "tasks": [
+                "Analisi tecnica e sviluppo user stories",
+                "Decisioni architetturali e collaborazione internazionale"
+            ],
             "tech_stack": [
                 "Microsoft Azure",
                 "PySpark",
@@ -79,6 +92,7 @@
             "JavaScript"
         ],
         "frameworks": [
+            "React",
             "Hadoop",
             "Spark",
             "Angular",
@@ -99,6 +113,14 @@
             "Critical Thinking"
         ]
     },
+    "projects": [
+        {
+            "name": "Football Archive",
+            "description": "Applicazione web full-stack per la gestione di campionati di calcio amatoriali. Consente di creare e gestire campionati, edizioni, fasi e gironi, con visualizzazione di classifiche e risultati delle partite.",
+            "tech_stack": ["React 19", "Node.js", "Express", "PostgreSQL", "Tailwind CSS"],
+            "link": "https://thorongil.up.railway.app/football-archive"
+        }
+    ],
     "interests": [
         "Videogames (Strategic, RPG)",
         "Sport (Football, F1)",
