@@ -1,205 +1,76 @@
-import {
-    Table,
-    TableBody,
-    TableRow,
-    TableCell,
-    TableHead,
-    IconButton,
-    TableSortLabel,
-    Tooltip,
-    Box,
-    Typography,
-    TableContainer,
-} from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import { UserRoles } from "../../../constants/roles";
 import { useAuth } from "../../../context/AuthContext";
+import PropTypes from "prop-types";
 
-function DesktopMatchesView({
-    matches,
-    loading,
-    error,
-    sortBy,
-    sortOrder,
-    handleRequestSort,
-    handleEditMatch,
-    handleDeleteMatch,
-    selectedTeamId,
-}) {
-    const { t } = useTranslation();
-    const { user } = useAuth();
+const thCls = "px-4 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest";
+const tdCls = "px-4 py-3 text-sm";
 
-    return (
-        <TableContainer sx={{
-            maxHeight: 600,
-            overflow: "auto",
-            "&::-webkit-scrollbar": {
-                width: "6px",
-                height: "6px",
-            },
-            "&::-webkit-scrollbar-track": {
-                background: "transparent",
-            },
-            "&::-webkit-scrollbar-thumb": {
-                background: "rgba(0,0,0,0.1)",
-                borderRadius: "10px",
-            },
-            "&::-webkit-scrollbar-thumb:hover": {
-                background: "rgba(0,0,0,0.2)",
-            },
-        }}>
-            <Table stickyHeader size="small" aria-label="simple table">
-                <TableHead>
-                    <TableRow>
-                        <TableCell
-                            sortDirection={sortBy === "round" ? sortOrder : false}
-                            sx={{ width: "100px", fontWeight: "bold", bgcolor: "background.paper" }}
-                        >
-                            <TableSortLabel
-                                active={sortBy === "round"}
-                                direction={sortBy === "round" ? sortOrder : "asc"}
-                                onClick={() => handleRequestSort("round")}
-                            >
-                                {t("football.round", "Round")}
-                            </TableSortLabel>
-                        </TableCell>
-                        <TableCell sx={{ fontWeight: "bold", bgcolor: "background.paper" }}>{t("football.home_team", "Home Team")}</TableCell>
-                        <TableCell sx={{ fontWeight: "bold", bgcolor: "background.paper" }}>{t("football.away_team", "Away Team")}</TableCell>
-                        <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "background.paper", width: "120px" }}>
-                            {t("football.score", "Score")}
-                        </TableCell>
-                        {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (
-                            <TableCell align="right" sx={{ fontWeight: "bold", bgcolor: "background.paper" }}>{t("common.actions", "Actions")}</TableCell>
-                        )}
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {loading && (
-                        <TableRow>
-                            <TableCell colSpan={user ? 6 : 5} align="center" sx={{ py: 4 }}>
-                                <Typography variant="body2" color="text.secondary">Loading matches...</Typography>
-                            </TableCell>
-                        </TableRow>
-                    )}
-                    {error && !loading && (
-                        <TableRow>
-                            <TableCell
-                                colSpan={user ? 6 : 5}
-                                align="center"
-                                sx={{ py: 4 }}
-                            >
-                                <Typography variant="body2" color="error">Error: {error}</Typography>
-                            </TableCell>
-                        </TableRow>
-                    )}
-                    {!loading && !error && matches.length === 0 && (
-                        <TableRow>
-                            <TableCell colSpan={user ? 6 : 5} align="center" sx={{ py: 4 }}>
-                                <Typography variant="body2" color="text.secondary">No matches found</Typography>
-                            </TableCell>
-                        </TableRow>
-                    )}
-                    {!loading &&
-                        !error &&
-                        matches.length > 0 &&
-                        matches.map((match) => (
-                            <TableRow
-                                key={match.id}
-                                hover
-                                sx={{
-                                    "&:last-child td, &:last-child th": { border: 0 },
-                                    transition: "background-color 0.2s"
-                                }}
-                            >
-                                <TableCell sx={{ color: "text.secondary" }}>{match.round || "-"}</TableCell>
-                                <TableCell
-                                    sx={{
-                                        fontWeight:
-                                            match.homeTeam?.id === Number(selectedTeamId)
-                                                ? "bold"
-                                                : "normal",
-                                        color:
-                                            match.homeTeam?.id === Number(selectedTeamId)
-                                                ? "primary.main"
-                                                : "text.primary",
-                                    }}
-                                >
-                                    {match.homeTeam?.name || "Unknown"}
-                                </TableCell>
-                                <TableCell
-                                    sx={{
-                                        fontWeight:
-                                            match.awayTeam?.id === Number(selectedTeamId)
-                                                ? "bold"
-                                                : "normal",
-                                        color:
-                                            match.awayTeam?.id === Number(selectedTeamId)
-                                                ? "primary.main"
-                                                : "text.primary",
-                                    }}
-                                >
-                                    {match.awayTeam?.name || "Unknown"}
-                                </TableCell>
-                                <TableCell align="center">
-                                    <Box sx={{
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        bgcolor: "action.selected",
-                                        px: 2,
-                                        py: 0.5,
-                                        borderRadius: 5,
-                                        minWidth: "60px",
-                                        fontWeight: "bold",
-                                        border: "1px solid",
-                                        borderColor: "divider"
-                                    }}>
-                                        {match.homeScore} - {match.awayScore}
-                                    </Box>
-                                </TableCell>
-                                {(user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR) && (
-                                    <TableCell align="right">
-                                        <Tooltip title={t("common.edit")}>
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => handleEditMatch(match)}
-                                                sx={{ mr: 0.5 }}
-                                            >
-                                                <EditIcon fontSize="small" />
-                                            </IconButton>
-                                        </Tooltip>
-                                        <Tooltip title={t("common.delete")}>
-                                            <IconButton
-                                                size="small"
-                                                color="error"
-                                                onClick={() => handleDeleteMatch(match.id)}
-                                            >
-                                                <DeleteIcon fontSize="small" />
-                                            </IconButton>
-                                        </Tooltip>
-                                    </TableCell>
-                                )}
-                            </TableRow>
-                        ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
-    );
+function SortTh({ label, col, sortBy, sortOrder, onSort }) {
+  const icon = sortBy !== col ? "↕" : sortOrder === "asc" ? "↑" : "↓";
+  const iconCls = sortBy !== col ? "text-slate-700 ml-1" : "text-blue-400 ml-1";
+  return (
+    <th className={`${thCls} cursor-pointer select-none`} onClick={() => onSort(col)}>
+      {label}<span className={iconCls}>{icon}</span>
+    </th>
+  );
+}
+
+SortTh.propTypes = { label: PropTypes.string, col: PropTypes.string, sortBy: PropTypes.string, sortOrder: PropTypes.string, onSort: PropTypes.func };
+
+export default function DesktopMatchesView({ matches, loading, error, sortBy, sortOrder, handleRequestSort, handleEditMatch, handleDeleteMatch, selectedTeamId }) {
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  const canManage = user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR;
+  const hi = (id) => id === Number(selectedTeamId);
+  const teamCls = (id) => `${tdCls} ${hi(id) ? "font-bold text-blue-400" : "text-slate-200"}`;
+  const cols = canManage ? 5 : 4;
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-left whitespace-nowrap">
+        <thead>
+          <tr className="bg-slate-800/50">
+            <SortTh label={t("football.round", "G.")} col="round" sortBy={sortBy} sortOrder={sortOrder} onSort={handleRequestSort} />
+            <th className={thCls}>{t("football.home_team", "Casa")}</th>
+            <th className={`${thCls} text-center`}>{t("football.score", "Ris.")}</th>
+            <th className={thCls}>{t("football.away_team", "Ospite")}</th>
+            {canManage && <th className={thCls} />}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-800">
+          {loading && <tr><td colSpan={cols} className="px-4 py-8 text-center text-slate-500 text-sm">Caricamento...</td></tr>}
+          {error && !loading && <tr><td colSpan={cols} className="px-4 py-8 text-center text-red-400 text-sm">Errore: {error}</td></tr>}
+          {!loading && !error && matches.length === 0 && <tr><td colSpan={cols} className="px-4 py-8 text-center text-slate-500 text-sm">Nessuna partita trovata</td></tr>}
+          {!loading && !error && matches.map((match) => (
+            <tr key={match.id} className="hover:bg-blue-500/5 transition-colors group">
+              <td className={`${tdCls} text-slate-500 font-mono`}>{match.round || "-"}</td>
+              <td className={teamCls(match.homeTeam?.id)}>{match.homeTeam?.name || "?"}</td>
+              <td className={tdCls}>
+                <span className="flex items-center justify-center font-bold font-mono bg-slate-800 rounded-lg px-3 py-0.5 text-white w-fit mx-auto text-sm">
+                  {match.homeScore} - {match.awayScore}
+                </span>
+              </td>
+              <td className={teamCls(match.awayTeam?.id)}>{match.awayTeam?.name || "?"}</td>
+              {canManage && (
+                <td className="px-4 py-3 text-right">
+                  <div className="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => handleEditMatch(match)} className="text-slate-500 hover:text-blue-400 transition-colors text-xs p-1">✎</button>
+                    <button onClick={() => handleDeleteMatch(match.id)} className="text-slate-500 hover:text-red-400 transition-colors text-xs p-1">✕</button>
+                  </div>
+                </td>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 DesktopMatchesView.propTypes = {
-    matches: PropTypes.array.isRequired,
-    loading: PropTypes.bool.isRequired,
-    error: PropTypes.string,
-    sortBy: PropTypes.string.isRequired,
-    sortOrder: PropTypes.string.isRequired,
-    handleRequestSort: PropTypes.func.isRequired,
-    handleEditMatch: PropTypes.func.isRequired,
-    handleDeleteMatch: PropTypes.func.isRequired,
-    selectedTeamId: PropTypes.string,
+  matches: PropTypes.array.isRequired, loading: PropTypes.bool.isRequired, error: PropTypes.string,
+  sortBy: PropTypes.string.isRequired, sortOrder: PropTypes.string.isRequired,
+  handleRequestSort: PropTypes.func.isRequired, handleEditMatch: PropTypes.func.isRequired,
+  handleDeleteMatch: PropTypes.func.isRequired, selectedTeamId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
-
-export default DesktopMatchesView;
