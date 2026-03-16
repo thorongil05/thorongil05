@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Background -->
+  <rect width="64" height="64" rx="12" fill="#0b1120"/>
+
+  <!-- Terminal top bar -->
+  <rect x="0" y="0" width="64" height="16" rx="12" fill="#1e293b"/>
+  <rect x="0" y="8" width="64" height="8" fill="#1e293b"/>
+
+  <!-- Window dots -->
+  <circle cx="12" cy="8" r="3" fill="#ef4444" opacity="0.7"/>
+  <circle cx="22" cy="8" r="3" fill="#eab308" opacity="0.7"/>
+  <circle cx="32" cy="8" r="3" fill="#22c55e" opacity="0.7"/>
+
+  <!-- >_ prompt -->
+  <text
+    x="10" y="46"
+    font-family="monospace, Courier New"
+    font-size="24"
+    font-weight="bold"
+    fill="#38bdf8"
+  >&gt;_</text>
+
+  <!-- Cursor blink block -->
+  <rect x="44" y="28" width="12" height="18" rx="2" fill="#38bdf8" opacity="0.9">
+    <animate attributeName="opacity" values="0.9;0;0.9" dur="1.2s" repeatCount="indefinite"/>
+  </rect>
+</svg>

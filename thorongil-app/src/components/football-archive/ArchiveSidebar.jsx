@@ -21,16 +21,16 @@ export default function ArchiveSidebar({ data, activeTab, onTabChange }) {
   const compCls = (a) => `w-full flex items-center justify-center lg:justify-start gap-2 px-2 lg:px-3 py-2 rounded-lg mb-0.5 transition-all ${a ? activeCls : idleCls}`;
 
   return (
-    <aside className="hidden md:flex md:w-20 lg:w-64 shrink-0 h-screen bg-slate-900 border-r border-slate-800 flex-col p-3 lg:p-4 overflow-y-auto">
-      <div className="flex items-center justify-center lg:justify-start gap-3 mb-8">
+    <aside className="hidden md:flex md:w-20 lg:w-64 shrink-0 h-screen bg-slate-900 border-r border-slate-800 flex-col p-3 lg:p-4">
+      <div className="flex items-center justify-center lg:justify-start gap-3 mb-8 shrink-0">
         <span className="bg-blue-500 p-2 rounded-lg text-white text-lg leading-none shrink-0">⚽</span>
         <span className="hidden lg:block text-xl font-bold text-white tracking-tight">
           Football <span className="text-blue-400">Archive</span>
         </span>
       </div>
 
-      <p className="hidden lg:block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Campionato</p>
-      <div className="space-y-0.5">
+      <p className="hidden lg:block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 shrink-0">Campionato</p>
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden space-y-0.5">
         {data.competitions.map((comp) => {
           const isSelected = data.selectedCompetition?.id === comp.id;
           return (

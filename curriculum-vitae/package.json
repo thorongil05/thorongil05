@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "latex:build": "node latex/build.cjs",
+    "latex:export": "node latex/export.cjs",
+    "latex:export:flat": "node latex/export.cjs --flat"
   },
   "dependencies": {
     "react": "^18.3.1",

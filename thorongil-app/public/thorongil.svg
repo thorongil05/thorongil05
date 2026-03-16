@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="eagle" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#60a5fa"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.2" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100" height="100" rx="22" fill="url(#bg)"/>
+
+  <!-- Subtle inner glow border -->
+  <rect width="100" height="100" rx="22" fill="none" stroke="#3b82f6" stroke-width="0.8" opacity="0.25"/>
+
+  <!-- === LEFT WING === -->
+  <!-- Main wing surface -->
+  <path d="M 44,44 C 38,39 26,30 10,30 C 6,39 9,52 21,59 C 31,64 41,60 44,56 Z"
+        fill="url(#eagle)"/>
+  <!-- Wing tip primary feathers (3 long feathers) -->
+  <path d="M 10,30 C 5,23 1,14 7,20 C 6,26 7,30 10,30 Z" fill="#93c5fd" opacity="0.9"/>
+  <path d="M 10,30 C 2,27 -1,16 6,23 C 5,28 7,31 10,30 Z" fill="#93c5fd" opacity="0.65"/>
+  <path d="M 10,30 C 3,32 0,22 7,27 C 7,31 8,33 10,30 Z" fill="#93c5fd" opacity="0.4"/>
+  <!-- Wing secondary highlight -->
+  <path d="M 44,44 C 38,39 26,30 10,30 C 14,33 24,35 34,40 Z"
+        fill="#93c5fd" opacity="0.2"/>
+
+  <!-- === RIGHT WING (mirror) === -->
+  <path d="M 56,44 C 62,39 74,30 90,30 C 94,39 91,52 79,59 C 69,64 59,60 56,56 Z"
+        fill="url(#eagle)"/>
+  <path d="M 90,30 C 95,23 99,14 93,20 C 94,26 93,30 90,30 Z" fill="#93c5fd" opacity="0.9"/>
+  <path d="M 90,30 C 98,27 101,16 94,23 C 95,28 93,31 90,30 Z" fill="#93c5fd" opacity="0.65"/>
+  <path d="M 90,30 C 97,32 100,22 93,27 C 93,31 92,33 90,30 Z" fill="#93c5fd" opacity="0.4"/>
+  <path d="M 56,44 C 62,39 74,30 90,30 C 86,33 76,35 66,40 Z"
+        fill="#93c5fd" opacity="0.2"/>
+
+  <!-- === BODY === -->
+  <!-- Neck bridge -->
+  <ellipse cx="50" cy="37" rx="6.5" ry="6" fill="#2563eb"/>
+  <!-- Main body -->
+  <ellipse cx="50" cy="56" rx="9" ry="18" fill="#2563eb"/>
+
+  <!-- === HEAD === -->
+  <circle cx="50" cy="26" r="10" fill="#2563eb"/>
+  <!-- Head highlight (feather texture) -->
+  <path d="M 44,21 C 46,18 50,17 54,19" stroke="#60a5fa" stroke-width="1.2" fill="none" opacity="0.5"/>
+
+  <!-- === BEAK (facing right, slightly hooked) === -->
+  <path d="M 56,25 L 66,28 L 63,31 L 56,30 Z" fill="#93c5fd"/>
+  <path d="M 63,31 L 58,32 L 57,30" fill="#60a5fa" opacity="0.5"/>
+
+  <!-- === EYE === -->
+  <circle cx="55" cy="24" r="3" fill="white"/>
+  <circle cx="55.8" cy="24.3" r="1.6" fill="#0f172a"/>
+  <circle cx="56.3" cy="23.7" r="0.5" fill="white" opacity="0.8"/>
+
+  <!-- === TAIL FEATHERS === -->
+  <path d="M 45,72 L 41,85 L 46,80 L 50,87 L 54,80 L 59,85 L 55,72 Z" fill="#1d4ed8"/>
+  <!-- Tail highlight -->
+  <path d="M 46,72 L 43,82 L 46.5,79" fill="#3b82f6" opacity="0.4"/>
+
+  <!-- === STAR OF THE DÚNEDAIN (chest) === -->
+  <!-- Outer glow -->
+  <path d="M50,44 L52.65,51.76 L60.46,52.0 L54.28,56.64 L56.88,64.5 L50,60.5 L43.12,64.5 L45.72,56.64 L39.54,52.0 L47.35,51.76 Z"
+        fill="white" opacity="0.15" filter="url(#glow)"/>
+  <!-- Star fill -->
+  <path d="M50,44 L52.65,51.76 L60.46,52.0 L54.28,56.64 L56.88,64.5 L50,60.5 L43.12,64.5 L45.72,56.64 L39.54,52.0 L47.35,51.76 Z"
+        fill="white"/>
+  <!-- Star inner shine -->
+  <path d="M50,47 L51.8,52.5 L56.5,52.6 L52.8,55.3 L54.2,60.5 L50,57.8 L45.8,60.5 L47.2,55.3 L43.5,52.6 L48.2,52.5 Z"
+        fill="#dbeafe" opacity="0.5"/>
+</svg>

@@ -4,8 +4,9 @@ interface PersonalInfo {
   summary: string;
   contacts: {
     email: string;
-    phone: string;
     address: string;
+    linkedin: string;
+    github: string;
   };
 }
 
@@ -29,24 +30,28 @@ export function Hero({ info, education, skills }: HeroProps) {
             </span>
           </h1>
           <p className="text-xl text-slate-400 mb-10 leading-relaxed max-w-lg">
-            {info.role} esperto in <span className="text-white">AI & Data Engineering</span>. {info.summary}
+            {info.summary}
           </p>
           <div className="flex gap-4">
             <a
-              href={`mailto:${info.contacts.email}`}
+              href={`mailto:${import.meta.env.VITE_CV_EMAIL || info.contacts.email}`}
               className="bg-sky-600 hover:bg-sky-500 text-white px-8 py-3 rounded-full font-semibold transition-all shadow-lg shadow-sky-900/40"
             >
-              Contattami
+              Contact me
             </a>
             <div className="flex items-center gap-4 px-4 border-l border-slate-800 ml-2">
               <a
-                href="#"
+                href={info.contacts.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-slate-500 hover:text-white cursor-pointer transition-colors uppercase text-xs font-bold tracking-widest"
               >
                 LinkedIn
               </a>
               <a
-                href="#"
+                href={info.contacts.github}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-slate-500 hover:text-white cursor-pointer transition-colors uppercase text-xs font-bold tracking-widest"
               >
                 GitHub
@@ -70,7 +75,7 @@ export function Hero({ info, education, skills }: HeroProps) {
               name: <span className="text-emerald-400">'{info.name}'</span>,
             </p>
             <p className="pl-6">
-              location: <span className="text-emerald-400">'{info.contacts.address.split(',')[0]}'</span>,
+              location: <span className="text-emerald-400">'{info.contacts.address}'</span>,
             </p>
             <p className="pl-6">
               education: <span className="text-emerald-400">'{education[0].degree}'</span>,

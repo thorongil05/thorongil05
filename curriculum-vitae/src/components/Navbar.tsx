@@ -13,13 +13,13 @@ export function Navbar({ name }: NavbarProps) {
         </span>
         <div className="hidden md:flex gap-8 text-sm font-medium uppercase tracking-widest text-slate-400">
           <a href="#experience" className="hover:text-sky-400 transition-colors">
-            Esperienza
+            Experience
           </a>
           <a href="#projects" className="hover:text-sky-400 transition-colors">
-            Progetti
+            Projects
           </a>
           <a href="#skills" className="hover:text-sky-400 transition-colors">
-            Skill
+            Skills
           </a>
         </div>
       </div>

@@ -5,6 +5,7 @@ interface ExperienceItem {
   description?: string;
   highlights?: string;
   tech_stack?: string[];
+  publication?: { title: string; venue: string; url: string };
 }
 
 interface ExperienceProps {
@@ -15,7 +16,7 @@ export function Experience({ experience }: ExperienceProps) {
   return (
     <section id="experience" className="py-24 px-6 max-w-5xl mx-auto">
       <h2 className="text-3xl font-bold text-white mb-16 text-center">
-        Esperienza Lavorativa
+        Work Experience
       </h2>
 
       <div className="space-y-12">
@@ -38,6 +39,18 @@ export function Experience({ experience }: ExperienceProps) {
               {exp.description || exp.highlights}
             </p>
             
+            {exp.publication && (
+              <a
+                href={exp.publication.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 mb-6 text-sm text-sky-400 hover:text-sky-300 transition-colors"
+              >
+                <span>📄</span>
+                <span className="italic">{exp.publication.title}</span>
+                <span className="text-slate-500">— {exp.publication.venue} ↗</span>
+              </a>
+            )}
             {exp.tech_stack && (
               <div className="flex flex-wrap gap-2">
                 {exp.tech_stack.map((tech) => (

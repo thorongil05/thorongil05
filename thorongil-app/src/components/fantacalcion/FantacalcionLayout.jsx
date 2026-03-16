@@ -1,31 +1,31 @@
 import { useState } from 'react';
-import { Box, Tabs, Tab } from '@mui/material';
 import { FantacalcionProvider } from './context/FantacalcionContext';
-import PlayerArchive from './PlayerArchive';
+import FantaSidebar from './FantaSidebar';
+import MobileFantaTopBar from './MobileFantaTopBar';
+import MobileFantaBottomNav from './MobileFantaBottomNav';
 import FormationBuilder from './FormationBuilder';
+import PlayerArchive from './PlayerArchive';
+import StatusFooter from './StatusFooter';
 
 export default function FantacalcionLayout() {
-  const [tabIndex, setTabIndex] = useState(0);
-
-  const handleTabChange = (event, newValue) => {
-    setTabIndex(newValue);
-  };
+  const [activeTab, setActiveTab] = useState('formation');
 
   return (
     <FantacalcionProvider>
-      <Box sx={{ width: '100%', height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 2 }}>
-          <Tabs value={tabIndex} onChange={handleTabChange}>
-            <Tab label="Formazione" />
-            <Tab label="Archivio Giocatori" />
-          </Tabs>
-        </Box>
-        
-        <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-          {tabIndex === 0 && <FormationBuilder />}
-          {tabIndex === 1 && <PlayerArchive />}
-        </Box>
-      </Box>
+      <div className="flex flex-col md:flex-row h-screen bg-slate-950 overflow-hidden">
+        <MobileFantaTopBar activeTab={activeTab} />
+        <FantaSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        <main className="flex-1 overflow-hidden flex flex-col bg-slate-950 pb-14 md:pb-0">
+          {activeTab === 'formation' && <FormationBuilder />}
+          {activeTab === 'archive' && <PlayerArchive />}
+          {activeTab === 'status' && (
+            <div className="p-4 overflow-y-auto flex-1">
+              <StatusFooter />
+            </div>
+          )}
+        </main>
+        <MobileFantaBottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+      </div>
     </FantacalcionProvider>
   );
 }

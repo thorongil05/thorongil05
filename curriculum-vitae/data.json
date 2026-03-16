@@ -1,13 +1,15 @@
 {
     "personal_info": {
-        "name": "Antonio ACQUAVIA",
+        "name": "Antonio Acquavia",
         "role": "Software Engineer",
         "contacts": {
-            "phone": "+(39) 393 121 9941",
-            "email": "antonioacquavia@outlook.com",
-            "address": "Via Sante Tani 7, 56123 Pisa (PI), Italy"
+            "email": "[EMAIL_ADDRESS]",
+            "address": "Pisa (PI), Italy",
+            "linkedin": "https://www.linkedin.com/in/antonioacquavia/",
+            "github": "https://github.com/thorongil05",
+            "portfolio": "https://thorongil05.github.io/thorongil05/"
         },
-        "summary": "Professionista IT dedicato con background in AI e Data Engineering. Esperienza nello sviluppo di prodotti Core Banking e gestione di Data Platform."
+        "summary": "Software Engineer with a background in Artificial Intelligence and Data Engineering. Experienced across the full spectrum of software development: from owning critical backend components and leading end-to-end feature delivery, to building data platforms and conducting research in Information Retrieval. Passionate about understanding customer needs beyond the stated requirement, and about writing software that solves real problems."
     },
     "education": [
         {
@@ -15,13 +17,19 @@
             "institution": "Università di Pisa",
             "period": "September 2019 - February 2022",
             "mark": "$108/110$",
-            "highlights": "Tesi svolta all'estero presso University of Glasgow."
+            "highlights": "Thesis carried out abroad in collaboration with University of Glasgow."
         },
         {
             "degree": "Bachelor's degree in Scienze e Tecnologie Informatiche",
             "institution": "Università degli studi della Basilicata",
             "period": "September 2015 - February 2019",
             "mark": "$105/110$"
+        },
+        {
+            "degree": "Professional Engineer License",
+            "institution": "Università di Pisa",
+            "period": "2023",
+            "highlights": "Section A — Information Engineer"
         }
     ],
     "experience": [
@@ -29,10 +37,13 @@
             "role": "Software Engineer",
             "company": "ION GROUP",
             "period": "March 2023 - Present",
-            "description": "Sviluppo di prodotti Core Banking in team internazionali.",
+            "description": "Part of an international team developing Core Banking software products. Started by owning a critical backend component built with Quarkus, responsible for core business logic. Progressively took ownership of end-to-end feature development, growing from lower-impact deliverables to leading the early-stage development of a new product. Gained hands-on experience in software product thinking, going beyond requirements to understand customer needs.",
             "tasks": [
-                "Analisi tecnica e sviluppo user stories",
-                "Decisioni architetturali e collaborazione internazionale"
+                "Owned and maintained a critical Quarkus backend component containing core business logic.",
+                "Led end-to-end feature development with increasing scope and business impact.",
+                "Contributed to the early-stage development of a new product, from design to implementation.",
+                "Collaborated with Product Management to translate customer needs into technical requirements.",
+                "Contributed to architectural decisions and cross-team alignment."
             ],
             "tech_stack": [
                 "Java",
@@ -46,12 +57,19 @@
             "role": "Data Engineer",
             "company": "REPLY S.P.A.",
             "period": "June 2022 - March 2023",
-            "description": "Sviluppo e gestione di Data Platform su Microsoft Azure.",
+            "description": "Set up a Data Platform from scratch for a customer approaching the data world for the first time. Built end-to-end ETL pipelines retrieving data from external APIs, landing it on Azure Data Lake, processing and refining it with Databricks, and exposing the output through Power BI dashboards.",
+            "tasks": [
+                "Designed and implemented ETL pipelines ingesting data from external APIs into Azure Data Lake.",
+                "Processed and refined raw data using Databricks and PySpark across multiple lake layers.",
+                "Built Power BI dashboards consuming refined data from the lake for business reporting.",
+                "Contributed to architectural decisions for a customer building their first Data Platform."
+            ],
             "tech_stack": [
                 "Microsoft Azure",
                 "PySpark",
                 "Python",
                 "Databricks",
+                "Power BI",
                 "git"
             ]
         },
@@ -59,12 +77,40 @@
             "role": "Thesis Researcher (Information Retrieval)",
             "company": "UNIVERSITY OF GLASGOW",
             "period": "October 2021 - December 2021",
-            "highlights": "Paper pubblicato a DocEng'23: 'Static Pruning for Multi-Representation Dense Retrieval'",
+            "description": "Explored static pruning techniques from the inverted index literature and investigated their applicability to dense retrieval indexes. The work required an in-depth study of how search engines work, both in the classical term-based era and after the introduction of neural networks into the retrieval pipeline.",
+            "tasks": [
+                "Conducted a deep literature review on static pruning techniques applied to inverted indexes.",
+                "Studied classical and neural information retrieval models, including BERT-based dense retrievers (ColBERT).",
+                "Designed and experimented with static pruning strategies adapted to dense retrieval indexes.",
+                "Published results at DocEng'23: 'Static Pruning for Multi-Representation Dense Retrieval'."
+            ],
+            "publication": {
+                "title": "Static Pruning for Multi-Representation Dense Retrieval",
+                "venue": "DocEng'23",
+                "url": "https://dl.acm.org/doi/10.1145/3573128.3604896"
+            },
             "tech_stack": [
                 "PyTerrier",
                 "Jupyter Notebook",
                 "BERT",
                 "ColBERT"
+            ]
+        },
+        {
+            "role": "Freelance Front-end Developer",
+            "company": "Graldev S.a.s.",
+            "period": "July 2018 - June 2019",
+            "description": "First professional experience, carried out alongside my Bachelor's degree. Joined the development of an iOS mobile application, learning to navigate a real codebase, interact with stakeholders, and support a live product in production.",
+            "tasks": [
+                "Developed and maintained UI screens for an iOS application using Swift and xCode.",
+                "Integrated REST APIs to fetch and display server-side data within the app.",
+                "Handled first interactions with stakeholders to gather requirements and report progress.",
+                "Provided support to the production application, diagnosing and fixing reported issues."
+            ],
+            "tech_stack": [
+                "Swift",
+                "xCode",
+                "git"
             ]
         }
     ],
@@ -78,7 +124,17 @@
             "C",
             "JavaScript"
         ],
+        "programming_levels": {
+            "Python": 5,
+            "Java": 4,
+            "TypeScript": 3,
+            "C#": 2,
+            "C++": 2,
+            "C": 2,
+            "JavaScript": 2
+        },
         "frameworks": [
+            "React",
             "Hadoop",
             "Spark",
             "Angular",
@@ -93,15 +149,88 @@
             "MongoDB"
         ],
         "soft_skills": [
+            "Passion",
             "Problem Solving",
             "Adaptability",
             "Collaboration",
             "Critical Thinking"
         ]
     },
+    "projects": [
+        {
+            "name": "Football Archive",
+            "description": "Full-stack web application for managing amateur football leagues. Allows creating and managing competitions, editions, phases and groups, with standings and match results.",
+            "tech_stack": [
+                "React 19",
+                "Node.js",
+                "Express",
+                "PostgreSQL",
+                "Tailwind CSS"
+            ],
+            "link": "https://thorongil.up.railway.app/football-archive"
+        },
+        {
+            "name": "NeetCode Solutions",
+            "description": "Personal collection of solutions to NeetCode algorithmic exercises, covering data structures and algorithms problems across multiple difficulty levels.",
+            "tech_stack": [
+                "Python",
+                "Algorithms",
+                "Data Structures"
+            ],
+            "github": "https://github.com/thorongil05/neetcode"
+        },
+        {
+            "name": "Secure Messaging",
+            "period": "May 2021 - June 2021",
+            "description": "Messaging application with a console interface which uses OpenSSL to ensure confidentiality, integrity and authentication to the messages.",
+            "tech_stack": [
+                "C++",
+                "C",
+                "OpenSSL",
+                "Cybersecurity"
+            ],
+            "github": "https://github.com/thorongil05/secure-messaging",
+            "wiki": "https://github.com/seraogianluca/secure-messaging/wiki"
+        },
+        {
+            "name": "Convolutional Neural Network for Medical Imaging Analysis",
+            "period": "February 2021",
+            "description": "Group project for the exam of Computational Intelligence and Deep Learning. The goal is to classify the images of CBIS DDSM dataset to make a breast cancer abnormalities diagnosis.",
+            "tech_stack": [
+                "Colab",
+                "TensorFlow",
+                "Keras"
+            ],
+            "github": "https://github.com/thorongil05/Convolutional-Neural-Network-for-Medical-Imaging-Analysis"
+        },
+        {
+            "name": "K-Means with MapReduce",
+            "period": "July 2020",
+            "description": "Group project for the Cloud Computing exam. The goal is to implement the K-Means clustering algorithm in a distributed manner, exploiting the map-reduce paradigm.",
+            "tech_stack": [
+                "Hadoop",
+                "Spark",
+                "MapReduce"
+            ],
+            "github": "https://github.com/thorongil05/k-means-mapreduce"
+        }
+    ],
     "interests": [
-        "Videogames (Strategic, RPG)",
-        "Sport (Football, F1)",
-        "Culture (History, Physics, Math)"
+        {
+            "category": "Videogames",
+            "detail": "Strategic, RPG"
+        },
+        {
+            "category": "Sport",
+            "detail": "Football, F1"
+        },
+        {
+            "category": "Culture",
+            "detail": "History, Physics, Math"
+        },
+        {
+            "category": "Books",
+            "detail": "Historical novels, thriller, fantasy, historical essays, manga"
+        }
     ]
 }
