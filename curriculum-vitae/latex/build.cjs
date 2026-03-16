@@ -10,6 +10,15 @@ const path = require('path');
 
 const data = JSON.parse(fs.readFileSync(path.join(__dirname, '../data.json'), 'utf8'));
 const outDir = path.join(__dirname, 'src/sections');
+const srcDir = path.join(__dirname, 'src');
+
+// Read email from local .env (VITE_CV_EMAIL=...) — never committed to git
+const envPath = path.join(__dirname, '../.env');
+let email = data.personal_info.contacts.email;
+if (fs.existsSync(envPath)) {
+  const match = fs.readFileSync(envPath, 'utf8').match(/^VITE_CV_EMAIL=(.+)$/m);
+  if (match) email = match[1].trim();
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -197,5 +206,43 @@ ${projectEntries}
 `);
 
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// main.tex  (personal info from data.json)
+// ---------------------------------------------------------------------------
+
+const { name, role, contacts } = data.personal_info;
+const [firstName, ...rest] = name.split(' ');
+const lastName = rest.join(' ');
+
+fs.writeFileSync(path.join(srcDir, 'main.tex'),
+`\\documentclass[localFont,alternative]{documentMETADATA}
+\\photo{100px}{res/my_photo.png}
+\\name{${esc(firstName)}}{${esc(lastName)}}
+\\tagline{${esc(role)}}
+\\socialinfo{
+\t\\email{${email}}\\\\
+\t\\address{${esc(contacts.address)}}
+}
+
+\\begin{document}
+
+\t\\makecvheader
+
+\t\\makecvfooter
+\t\t{\\textsc{}}
+\t\t{\\textsc{${esc(name)} - CV}}
+\t\t{\\thepage}
+
+\t\\input{sections/section_headline}        % Research Statement
+\t\\input{sections/section_honors_awards}   % Section Honors and Awards
+\t\\input{sections/section_experience}      % Section Professional Experience
+\t\\input{sections/section_skills}          % Section Skills
+\t\\input{sections/section_languages}       % Section languages
+\t\\input{sections/section_interests}       % Section interests
+\t\\input{sections/section_projects}        % Section Projects
+\\end{document}
+`);
+console.log('  ✓ main.tex');
 
 console.log('\nDone! All sections generated in latex/src/sections/');

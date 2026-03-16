@@ -34,7 +34,7 @@ export function Hero({ info, education, skills }: HeroProps) {
           </p>
           <div className="flex gap-4">
             <a
-              href={`mailto:${info.contacts.email}`}
+              href={`mailto:${import.meta.env.VITE_CV_EMAIL || info.contacts.email}`}
               className="bg-sky-600 hover:bg-sky-500 text-white px-8 py-3 rounded-full font-semibold transition-all shadow-lg shadow-sky-900/40"
             >
               Contact me
