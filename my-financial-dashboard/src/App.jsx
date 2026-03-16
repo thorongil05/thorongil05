@@ -4,7 +4,6 @@ import { Route, Routes, Navigate } from "react-router";
 import RealEstatesView from "./components/realestates/RealEstatesView";
 import MortgagesView from "./components/mortgages/MortgagesView";
 import Main from "./components/Main";
-import FootballArchiveView from "./components/football-archive/FootballArchiveView";
 import BondsView from "./components/bonds/BondsView";
 import LoginView from "./components/auth/LoginView";
 import RegisterView from "./components/auth/RegisterView";
@@ -13,6 +12,7 @@ import { useAuth } from "./context/AuthContext";
 import AdminDashboardView from "./components/admin/AdminDashboardView";
 import FantacalcionLayout from "./components/fantacalcion/FantacalcionLayout";
 import CompetitionManagementPage from "./components/football-archive/competitions/CompetitionManagementPage";
+import FootballArchiveLayout from "./components/football-archive/FootballArchiveLayout";
 import { UserRoles } from "./constants/roles";
 
 const ProtectedRoute = ({ children }) => {
@@ -34,6 +34,22 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginView></LoginView>}></Route>
       <Route path="/register" element={<RegisterView></RegisterView>}></Route>
+      <Route
+        path="/football-archive"
+        element={
+          <ProtectedRoute>
+            <FootballArchiveLayout />
+          </ProtectedRoute>
+        }
+      ></Route>
+      <Route
+        path="/football-archive/competition/add"
+        element={<ProtectedRoute><CompetitionManagementPage /></ProtectedRoute>}
+      ></Route>
+      <Route
+        path="/football-archive/competition/edit/:id"
+        element={<ProtectedRoute><CompetitionManagementPage /></ProtectedRoute>}
+      ></Route>
       <Route path="/" element={<Main></Main>}>
         <Route path="/instruments" element={<Home></Home>}></Route>
         <Route path="/bonds" element={<BondsView></BondsView>}></Route>
@@ -44,30 +60,6 @@ function App() {
         <Route
           path="/real-estates"
           element={<RealEstatesView></RealEstatesView>}
-        ></Route>
-        <Route
-          path="/football-archive"
-          element={
-            <ProtectedRoute>
-              <FootballArchiveView></FootballArchiveView>
-            </ProtectedRoute>
-          }
-        ></Route>
-        <Route
-          path="/football-archive/competition/add"
-          element={
-            <ProtectedRoute>
-              <CompetitionManagementPage />
-            </ProtectedRoute>
-          }
-        ></Route>
-        <Route
-          path="/football-archive/competition/edit/:id"
-          element={
-            <ProtectedRoute>
-              <CompetitionManagementPage />
-            </ProtectedRoute>
-          }
         ></Route>
         <Route
           path="/admin"

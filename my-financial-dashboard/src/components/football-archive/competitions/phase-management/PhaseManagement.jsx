@@ -1,77 +1,27 @@
 import { useState, useEffect, useCallback } from "react";
-import { Box, useMediaQuery, useTheme, CircularProgress } from "@mui/material";
 import PropTypes from "prop-types";
 import { apiGet } from "../../../../utils/api";
-import DesktopPhaseManagement from "./DesktopPhaseManagement";
-import MobilePhaseManagement from "./MobilePhaseManagement";
+import PhaseList from "./PhaseList";
 
-function PhaseManagement({ editionId }) {
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const [phases, setPhases] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [selectedPhaseId, setSelectedPhaseId] = useState(null);
+export default function PhaseManagement({ editionId }) {
+  const [phases, setPhases] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-    const fetchPhases = useCallback(() => {
-        if (!editionId) return;
-        setLoading(true);
-        apiGet(`/api/competitions/editions/${editionId}/phases`)
-            .then(data => {
-                setPhases(data);
-                // Select first phase by default on desktop if none selected
-                if (!isMobile && data.length > 0 && !selectedPhaseId) {
-                    setSelectedPhaseId(data[0].id);
-                }
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error("Error fetching phases:", err);
-                setLoading(false);
-            });
-    }, [editionId, isMobile, selectedPhaseId]);
+  const fetchPhases = useCallback(() => {
+    if (!editionId) return;
+    setLoading(true);
+    apiGet(`/api/competitions/editions/${editionId}/phases`)
+      .then((data) => { setPhases(data); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [editionId]);
 
-    useEffect(() => {
-        fetchPhases();
-    }, [fetchPhases]);
+  useEffect(() => { fetchPhases(); }, [fetchPhases]);
 
-    const handlePhaseAdded = (newPhaseId) => {
-        apiGet(`/api/competitions/editions/${editionId}/phases`)
-            .then(data => {
-                setPhases(data);
-                setSelectedPhaseId(newPhaseId);
-            });
-    };
+  if (loading && phases.length === 0) {
+    return <p className="text-sm text-slate-500 py-4 text-center">Caricamento...</p>;
+  }
 
-    if (loading && phases.length === 0) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-                <CircularProgress size={24} />
-            </Box>
-        );
-    }
-
-    const props = {
-        phases,
-        editionId,
-        selectedPhaseId,
-        setSelectedPhaseId,
-        onPhasesUpdate: fetchPhases,
-        onPhaseAdded: handlePhaseAdded
-    };
-
-    return (
-        <Box sx={{ width: '100%' }}>
-            {isMobile ? (
-                <MobilePhaseManagement {...props} />
-            ) : (
-                <DesktopPhaseManagement {...props} />
-            )}
-        </Box>
-    );
+  return <PhaseList editionId={editionId} phases={phases} onUpdate={fetchPhases} />;
 }
 
-PhaseManagement.propTypes = {
-    editionId: PropTypes.number
-};
-
-export default PhaseManagement;
+PhaseManagement.propTypes = { editionId: PropTypes.number };

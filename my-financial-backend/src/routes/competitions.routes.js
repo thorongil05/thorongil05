@@ -145,6 +145,7 @@ router.post(
       competitionId,
       name: request.body.name,
       metadata: request.body.metadata || {},
+      status: request.body.status || "UNKNOWN",
     };
     competitionsDao
       .insertEdition(editionEntry)
