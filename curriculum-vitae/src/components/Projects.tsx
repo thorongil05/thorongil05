@@ -3,6 +3,7 @@ interface ProjectItem {
   description: string;
   tech_stack?: string[];
   link?: string;
+  github?: string;
 }
 
 interface ProjectsProps {
@@ -24,16 +25,20 @@ export function Projects({ projects }: ProjectsProps) {
           >
             <div className="flex flex-col md:flex-row justify-between mb-4">
               <h3 className="text-2xl font-bold text-white">{project.name}</h3>
-              {project.link && (
-                <a
-                  href={project.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mono text-sky-400 text-sm hover:text-sky-300 transition-colors mt-1 md:mt-0"
-                >
-                  {project.link} ↗
-                </a>
-              )}
+              <div className="flex gap-4 mt-1 md:mt-0">
+                {project.link && (
+                  <a href={project.link} target="_blank" rel="noopener noreferrer"
+                    className="mono text-sky-400 text-sm hover:text-sky-300 transition-colors">
+                    Demo ↗
+                  </a>
+                )}
+                {project.github && (
+                  <a href={project.github} target="_blank" rel="noopener noreferrer"
+                    className="mono text-slate-400 text-sm hover:text-white transition-colors">
+                    GitHub ↗
+                  </a>
+                )}
+              </div>
             </div>
 
             <p className="text-slate-400 mb-6">{project.description}</p>
