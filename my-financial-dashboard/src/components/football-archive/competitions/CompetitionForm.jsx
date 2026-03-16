@@ -53,10 +53,11 @@ function CompetitionForm({ competitionToEdit, onSubmitSuccess, onCancel }) {
         try {
             if (competitionToEdit) {
                 await apiPut(`/api/competitions/${competitionToEdit.id}`, formData);
+                onSubmitSuccess();
             } else {
-                await apiPost(`/api/competitions/`, formData);
+                const result = await apiPost(`/api/competitions/`, formData);
+                onSubmitSuccess(result?.id);
             }
-            onSubmitSuccess();
         } catch (error) {
             console.error("Error submitting competition:", error);
         } finally {

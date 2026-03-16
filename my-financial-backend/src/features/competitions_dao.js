@@ -24,14 +24,15 @@ async function insert(competitionEntry) {
 
 async function insertEdition(editionEntry) {
   const query = `
-    INSERT INTO competition_editions (competition_id, name, metadata)
-    VALUES ($1, $2, $3)
+    INSERT INTO competition_editions (competition_id, name, metadata, status)
+    VALUES ($1, $2, $3, $4)
     RETURNING *;
   `;
   const values = [
     editionEntry.competitionId,
     editionEntry.name,
     editionEntry.metadata || {},
+    editionEntry.status || "UNKNOWN",
   ];
   const { rows } = await pool.query(query, values);
   return rows[0];
@@ -92,11 +93,11 @@ async function update(id, competitionEntry) {
 async function updateEdition(id, editionEntry) {
   const query = `
     UPDATE competition_editions
-    SET name = $1, metadata = $2
-    WHERE id = $3
+    SET name = $1, metadata = $2, status = $3
+    WHERE id = $4
     RETURNING *;
   `;
-  const values = [editionEntry.name, editionEntry.metadata || {}, id];
+  const values = [editionEntry.name, editionEntry.metadata || {}, editionEntry.status || "UNKNOWN", id];
   const { rows } = await pool.query(query, values);
   return rows[0];
 }

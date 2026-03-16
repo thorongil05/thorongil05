@@ -24,6 +24,7 @@ import { apiPost, apiPut } from "../../../utils/api";
 function mapEditionToFormData(edition) {
     return {
         name: edition.name || "",
+        status: edition.status || "UNKNOWN",
         metadata: {
             totalMatches: edition.metadata?.totalMatches || "",
             phasesCount: edition.metadata?.phasesCount || "1",
@@ -35,6 +36,7 @@ function mapEditionToFormData(edition) {
 
 const initialFormState = {
     name: "",
+    status: "UNKNOWN",
     metadata: {
         totalMatches: "",
         phasesCount: "1",
@@ -90,15 +92,31 @@ function EditionFormDialog({ open, onClose, editionToEdit, competitionId, onSucc
             <Box component="form" onSubmit={handleSubmit}>
                 <DialogContent dividers>
                     <Stack spacing={3}>
-                        <TextField
-                            label="Nome Edizione (es. 2023/24)"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            fullWidth
-                            required
-                            variant="outlined"
-                        />
+                        <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                            <TextField
+                                label="Nome Edizione (es. 2023/24)"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                fullWidth
+                                required
+                                variant="outlined"
+                            />
+                            <TextField
+                                select
+                                label="Stato"
+                                name="status"
+                                value={formData.status}
+                                onChange={handleChange}
+                                sx={{ minWidth: 160 }}
+                            >
+                                <MenuItem value="UNKNOWN">Sconosciuto</MenuItem>
+                                <MenuItem value="INCOMING">In arrivo</MenuItem>
+                                <MenuItem value="CURRENT">In corso</MenuItem>
+                                <MenuItem value="COMPLETED">Completata</MenuItem>
+                                <MenuItem value="ARCHIVED">Archiviata</MenuItem>
+                            </TextField>
+                        </Stack>
 
                         <Accordion defaultExpanded variant="outlined" sx={{ borderRadius: 2 }}>
                             <AccordionSummary expandIcon={<ExpandMoreIcon />}>

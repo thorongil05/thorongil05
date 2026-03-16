@@ -42,6 +42,14 @@ function App() {
           </ProtectedRoute>
         }
       ></Route>
+      <Route
+        path="/football-archive/competition/add"
+        element={<ProtectedRoute><CompetitionManagementPage /></ProtectedRoute>}
+      ></Route>
+      <Route
+        path="/football-archive/competition/edit/:id"
+        element={<ProtectedRoute><CompetitionManagementPage /></ProtectedRoute>}
+      ></Route>
       <Route path="/" element={<Main></Main>}>
         <Route path="/instruments" element={<Home></Home>}></Route>
         <Route path="/bonds" element={<BondsView></BondsView>}></Route>
@@ -52,22 +60,6 @@ function App() {
         <Route
           path="/real-estates"
           element={<RealEstatesView></RealEstatesView>}
-        ></Route>
-        <Route
-          path="/football-archive/competition/add"
-          element={
-            <ProtectedRoute>
-              <CompetitionManagementPage />
-            </ProtectedRoute>
-          }
-        ></Route>
-        <Route
-          path="/football-archive/competition/edit/:id"
-          element={
-            <ProtectedRoute>
-              <CompetitionManagementPage />
-            </ProtectedRoute>
-          }
         ></Route>
         <Route
           path="/admin"

@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router";
 import PropTypes from "prop-types";
 
 const selectCls = "w-full bg-slate-800 text-slate-200 text-sm rounded-lg px-3 py-2 border border-slate-700 focus:outline-none focus:border-blue-500 cursor-pointer";
@@ -24,7 +25,8 @@ function SelectRow({ label, options, value, onChange }) {
 SelectRow.propTypes = { label: PropTypes.string.isRequired, options: PropTypes.array, value: PropTypes.number, onChange: PropTypes.func.isRequired };
 
 export default function SidebarSelectors({ data, canManage, onAddCompetition, showCompetitions = true }) {
-  const btnCls = (active) => `w-full text-left px-3 py-2 rounded-lg text-sm mb-1 transition-all ${active ? btnActiveCls : btnIdleCls}`;
+  const navigate = useNavigate();
+  const btnCls = (active) => `flex-1 text-left px-3 py-2 rounded-lg text-sm mb-1 transition-all ${active ? btnActiveCls : btnIdleCls}`;
 
   return (
     <div className="flex-1">
@@ -32,11 +34,17 @@ export default function SidebarSelectors({ data, canManage, onAddCompetition, sh
         <>
           <p className={labelCls}>Campionato</p>
           <div className="space-y-0.5 mb-1">
-            {data.competitions.map((comp) => (
-              <button key={comp.id} onClick={() => data.setSelectedCompetition(comp)} className={btnCls(data.selectedCompetition?.id === comp.id)}>
-                {comp.name}
-              </button>
-            ))}
+            {data.competitions.map((comp) => {
+              const isSelected = data.selectedCompetition?.id === comp.id;
+              return (
+                <div key={comp.id} className="flex items-center gap-1">
+                  <button onClick={() => data.setSelectedCompetition(comp)} className={btnCls(isSelected)}>{comp.name}</button>
+                  {canManage && isSelected && (
+                    <button onClick={() => navigate(`/football-archive/competition/edit/${comp.id}`)} className="shrink-0 text-slate-600 hover:text-slate-300 p-1 rounded transition-colors mb-1" title="Gestisci">⚙️</button>
+                  )}
+                </div>
+              );
+            })}
             {canManage && onAddCompetition && (
               <button onClick={onAddCompetition} className="w-full text-left px-3 py-1.5 text-xs text-slate-600 hover:text-slate-400 transition-colors">
                 + Aggiungi campionato

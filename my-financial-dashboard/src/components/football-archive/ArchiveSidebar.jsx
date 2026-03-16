@@ -31,14 +31,22 @@ export default function ArchiveSidebar({ data, activeTab, onTabChange }) {
 
       <p className="hidden lg:block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Campionato</p>
       <div className="space-y-0.5">
-        {data.competitions.map((comp) => (
-          <button key={comp.id} onClick={() => data.setSelectedCompetition(comp)} className={compCls(data.selectedCompetition?.id === comp.id)}>
-            <span className="w-8 h-8 shrink-0 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold">
-              {getInitials(comp.name)}
-            </span>
-            <span className="hidden lg:block text-sm truncate">{comp.name}</span>
-          </button>
-        ))}
+        {data.competitions.map((comp) => {
+          const isSelected = data.selectedCompetition?.id === comp.id;
+          return (
+            <div key={comp.id} className="flex items-center gap-1">
+              <button onClick={() => data.setSelectedCompetition(comp)} className={`flex-1 ${compCls(isSelected)}`}>
+                <span className="w-8 h-8 shrink-0 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold">
+                  {getInitials(comp.name)}
+                </span>
+                <span className="hidden lg:block text-sm truncate">{comp.name}</span>
+              </button>
+              {canManage && isSelected && (
+                <button onClick={() => navigate(`/football-archive/competition/edit/${comp.id}`)} className="hidden lg:flex shrink-0 text-slate-600 hover:text-slate-300 p-1 rounded transition-colors" title="Gestisci campionato">⚙️</button>
+              )}
+            </div>
+          );
+        })}
         {canManage && (
           <button onClick={() => navigate("/football-archive/competition/add")} className="hidden lg:block w-full text-left px-3 py-1.5 text-xs text-slate-600 hover:text-slate-400 transition-colors">
             + Aggiungi campionato
