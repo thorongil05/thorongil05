@@ -87,17 +87,53 @@ if (result.status !== 0) {
 }
 
 // ---------------------------------------------------------------------------
-// 7. Persist bumped version and log the build
+// 7. Optionally flatten PDF with Ghostscript (--flat flag)
 // ---------------------------------------------------------------------------
-const pdfPath = path.join(OUT_DIR, `${PDF_NAME}.pdf`);
+const flat = process.argv.includes('--flat');
+const pdfPath     = path.join(OUT_DIR, `${PDF_NAME}.pdf`);
+const flatPdfName = `${PDF_NAME}_flat`;
+const flatPdfPath = path.join(OUT_DIR, `${flatPdfName}.pdf`);
+
+if (flat) {
+  console.log('\n→ Flattening PDF (removing active content)...');
+  const gsCmd = [
+    'gs',
+    '-dBATCH', '-dNOPAUSE', '-dNOSAFER',
+    '-dCompatibilityLevel=1.4',
+    '-dNOJAVASCRIPT',
+    '-dFastWebView=false',
+    '-sDEVICE=pdfwrite',
+    `-sOutputFile=/output/${flatPdfName}.pdf`,
+    `/output/${PDF_NAME}.pdf`,
+  ].join(' ');
+
+  const flatArgs = [
+    'run', '--rm',
+    '-v', `${outMount}:/output`,
+    image,
+    'bash', '-c', gsCmd,
+  ];
+
+  const flatResult = spawnSync('docker', flatArgs, { stdio: 'inherit' });
+  if (flatResult.status !== 0) {
+    console.error('\n✗ Flattening failed.');
+    process.exit(1);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 8. Persist bumped version and log the build
+// ---------------------------------------------------------------------------
 if (fs.existsSync(pdfPath)) {
   fs.writeFileSync(VERSION_FILE, JSON.stringify(version, null, 2) + '\n');
 
   const datetime = new Date().toISOString().replace('T', ' ').slice(0, 19);
   const logPath = path.join(OUT_DIR, 'builds.log');
-  fs.appendFileSync(logPath, `${datetime}  ${versionStr}  →  ${PDF_NAME}.pdf\n`);
+  const flatNote = flat ? `  +flat` : '';
+  fs.appendFileSync(logPath, `${datetime}  ${versionStr}${flatNote}  →  ${PDF_NAME}.pdf\n`);
 
   console.log(`\n✓ PDF generated: ${pdfPath}`);
+  if (flat) console.log(`✓ Flat PDF:      ${flatPdfPath}`);
   console.log(`  Version: ${versionStr}  |  ${datetime}`);
 } else {
   console.error('\n✗ PDF not found after compilation.');
