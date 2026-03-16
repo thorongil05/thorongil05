@@ -1,19 +1,16 @@
-import { Box, Typography } from '@mui/material';
 import { useFantacalcion } from './context/FantacalcionContext';
+
+const TOTAL_SLOTS = 18;
 
 export default function StatusFooter() {
   const { deployed, availableTeams } = useFantacalcion();
 
-  const totalSlots = 18; // 11 starters + 7 bench
   const deployedCount = Object.keys(deployed).length;
-  const isComplete = deployedCount === totalSlots;
+  const isComplete = deployedCount === TOTAL_SLOTS;
 
   const exportFormation = () => {
-    // Generate text based on required format
-    // Format: SASSUOLO\nBastoni (INT)\n...
-    // Bench: Panchinaro 1 (SQD)\n...
-    let starters = [];
-    let bench = [];
+    const starters = [];
+    const bench = [];
     let goalkeeper = null;
 
     Object.entries(deployed).forEach(([slotId, player]) => {
@@ -27,17 +24,12 @@ export default function StatusFooter() {
       }
     });
 
-    const outTeams = availableTeams.join(', ');
-
     const draft = [
-      'Formazione Fantacalcion',
-      '',
+      'Formazione Fantacalcion', '',
       goalkeeper ? goalkeeper.team_name : 'Nessun Portiere',
-      ...starters,
-      '',
-      ...bench.map((b, i) => `Panchinaro ${i + 1} - ${b}`),
-      '',
-      `Out: ${outTeams}`
+      ...starters, '',
+      ...bench.map((b, i) => `Panchinaro ${i + 1} - ${b}`), '',
+      `Out: ${availableTeams.join(', ')}`,
     ].join('\n');
 
     navigator.clipboard.writeText(draft);
@@ -45,47 +37,34 @@ export default function StatusFooter() {
   };
 
   return (
-    <Box sx={{ 
-      p: 3, 
-      border: '1px solid #e0e0e0', 
-      borderRadius: 4, 
-      bgcolor: 'white', 
-      display: 'flex', 
-      flexDirection: 'column', 
-      gap: 4, 
-      height: 'fit-content',
-      boxShadow: '0 2px 12px rgba(0,0,0,0.05)'
-    }}>
-      
-      <Box>
-        <Typography variant="h6" fontWeight="bold" color="primary" gutterBottom>
-          Stato Formazione
-        </Typography>
-        <Typography variant="body2" color="text.secondary" mb={3}>
-          Hai inserito <strong>{deployedCount}</strong> giocatori su un totale di {totalSlots}.
-        </Typography>
-        
-        <button 
+    <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-4">
+      <div>
+        <h3 className="text-white font-bold mb-1">Stato Formazione</h3>
+        <p className="text-slate-400 text-sm mb-3">
+          Hai inserito <strong className="text-white">{deployedCount}</strong> giocatori su {TOTAL_SLOTS}.
+        </p>
+        <button
           onClick={exportFormation}
           disabled={!isComplete}
-          className={`w-full px-4 py-3 rounded font-bold text-white transition-colors
-            ${isComplete ? 'bg-green-600 hover:bg-green-700 shadow-md' : 'bg-gray-300 cursor-not-allowed'}
-          `}
+          className={`w-full px-4 py-3 rounded-lg font-bold text-white transition-colors ${
+            isComplete ? 'bg-green-600 hover:bg-green-500' : 'bg-slate-700 cursor-not-allowed text-slate-500'
+          }`}
         >
           {isComplete ? 'Esporta Formazione' : 'Completa per esportare'}
         </button>
-      </Box>
-
-      <Box>
-        <Typography variant="subtitle2" mb={1}>Squadre Disponibili ({availableTeams.length}):</Typography>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+      </div>
+      <div>
+        <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">
+          Squadre Disponibili ({availableTeams.length})
+        </p>
+        <div className="flex flex-wrap gap-1">
           {availableTeams.map(t => (
-            <span key={t} className="bg-blue-50 text-blue-800 border border-blue-200 px-2 py-1 rounded text-xs font-medium">
+            <span key={t} className="bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded text-xs font-medium">
               {t}
             </span>
           ))}
-        </Box>
-      </Box>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 }

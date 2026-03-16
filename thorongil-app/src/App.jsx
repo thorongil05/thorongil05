@@ -69,15 +69,15 @@ function App() {
             </AdminRoute>
           }
         ></Route>
-        <Route
-          path="/fantacalcion"
-          element={
-            <ProtectedRoute>
-              <FantacalcionLayout />
-            </ProtectedRoute>
-          }
-        ></Route>
       </Route>
+      <Route
+        path="/fantacalcion"
+        element={
+          <ProtectedRoute>
+            <FantacalcionLayout />
+          </ProtectedRoute>
+        }
+      ></Route>
     </Routes>
   );
 }
