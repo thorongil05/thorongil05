@@ -18,7 +18,7 @@ export default function StandingsView({ selectedEdition, selectedPhaseId, select
   const st = { sortBy, sortOrder, onSort: handleSort };
 
   return (
-    <div className="bg-slate-900 rounded-2xl overflow-hidden border border-slate-800">
+    <div className="bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 flex flex-col h-full">
       <div className="flex items-center justify-between p-4 border-b border-slate-800">
         <h2 className="text-lg font-bold text-white">{t("football.standings", "Classifica")}</h2>
         <div className="flex items-center gap-2">
@@ -36,7 +36,7 @@ export default function StandingsView({ selectedEdition, selectedPhaseId, select
         </div>
       )}
 
-      <div className="overflow-x-auto">
+      <div className="flex-1 min-h-0 overflow-auto">
         <table className="w-full text-left whitespace-nowrap">
           <thead>
             <tr className="bg-slate-800/50">

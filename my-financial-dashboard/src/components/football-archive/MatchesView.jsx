@@ -31,13 +31,15 @@ function MatchesView({ selectedEdition, selectedPhaseId, selectedGroupId, teams,
   };
 
   return (
-    <div className="bg-slate-900 rounded-2xl overflow-hidden border border-slate-800">
+    <div className="bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 flex flex-col h-full">
       <MatchesToolbar {...toolbarProps} />
-      <div className="hidden sm:block">
-        <DesktopMatchesView {...viewProps} sortBy={data.sortBy} sortOrder={data.sortOrder} handleRequestSort={data.handleRequestSort} />
-      </div>
-      <div className="sm:hidden">
-        <MobileMatchesView {...viewProps} />
+      <div className="flex-1 min-h-0 overflow-auto">
+        <div className="hidden sm:block">
+          <DesktopMatchesView {...viewProps} sortBy={data.sortBy} sortOrder={data.sortOrder} handleRequestSort={data.handleRequestSort} />
+        </div>
+        <div className="sm:hidden">
+          <MobileMatchesView {...viewProps} />
+        </div>
       </div>
       <EditMatchDialog
         open={matchDialogOpen}

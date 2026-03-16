@@ -20,15 +20,18 @@ export default function ArchiveContent({ data, activeTab }) {
 
   if (!selectedEdition) {
     return (
-      <div className="flex items-center justify-center h-full text-slate-500">
+      <div className="flex items-center justify-center flex-1 text-slate-500">
         <p className="text-lg">Seleziona un campionato per iniziare</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <CompetitionProgress edition={selectedEdition} refreshTrigger={refreshTrigger} />
+    <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+      <div className="shrink-0 px-6 pt-6 pb-2">
+        <CompetitionProgress edition={selectedEdition} refreshTrigger={refreshTrigger} />
+      </div>
+      <div className={`flex-1 min-h-0 px-6 pb-6 ${activeTab === "participants" ? "overflow-y-auto" : "overflow-hidden"}`}>
 
       {!isReady && activeTab !== "participants" && <Spinner />}
 
@@ -63,6 +66,7 @@ export default function ArchiveContent({ data, activeTab }) {
           refreshTrigger={refreshTrigger}
         />
       )}
+      </div>
     </div>
   );
 }
