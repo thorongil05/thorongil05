@@ -8,7 +8,7 @@
             "linkedin": "https://www.linkedin.com/in/antonioacquavia/",
             "github": "https://github.com/thorongil05"
         },
-        "summary": "Dedicated IT professional with a background in Artificial Intelligence and Data Engineering, complemented by hands-on experience as a Data Engineer and Software Engineer. Over the past two years, I have been deeply involved in developing a Core Banking product, where I have honed my skills in product management and product development."
+        "summary": "Software Engineer with a background in Artificial Intelligence and Data Engineering. Experienced across the full spectrum of software development: from owning critical backend components and leading end-to-end feature delivery, to building data platforms and conducting research in Information Retrieval. Passionate about understanding customer needs beyond the stated requirement, and about writing software that solves real problems."
     },
     "education": [
         {
@@ -99,10 +99,12 @@
             "role": "Freelance Front-end Developer",
             "company": "Graldev S.a.s.",
             "period": "July 2018 - June 2019",
-            "description": "Development of mobile applications for iOS devices.",
+            "description": "First professional experience, carried out alongside my Bachelor's degree. Joined the development of an iOS mobile application, learning to navigate a real codebase, interact with stakeholders, and support a live product in production.",
             "tasks": [
-                "Creation of graphical user interfaces using xCode and Swift.",
-                "Usage of REST API to get data from a server and show them in the application."
+                "Developed and maintained UI screens for an iOS application using Swift and xCode.",
+                "Integrated REST APIs to fetch and display server-side data within the app.",
+                "Handled first interactions with stakeholders to gather requirements and report progress.",
+                "Provided support to the production application, diagnosing and fixing reported issues."
             ],
             "tech_stack": [
                 "Swift",
@@ -166,6 +168,12 @@
                 "Tailwind CSS"
             ],
             "link": "https://thorongil.up.railway.app/football-archive"
+        },
+        {
+            "name": "NeetCode Solutions",
+            "description": "Personal collection of solutions to NeetCode algorithmic exercises, covering data structures and algorithms problems across multiple difficulty levels.",
+            "tech_stack": ["Python", "Algorithms", "Data Structures"],
+            "github": "https://github.com/thorongil05/neetcode"
         },
         {
             "name": "Secure Messaging",
