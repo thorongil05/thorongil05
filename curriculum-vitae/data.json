@@ -159,7 +159,6 @@
     "projects": [
         {
             "name": "Football Archive",
-            "period": "2024 - Present",
             "description": "Full-stack web application for managing amateur football leagues. Allows creating and managing competitions, editions, phases and groups, with standings and match results.",
             "tech_stack": [
                 "React 19",
