@@ -25,7 +25,7 @@ jobs:
 
       - name: Frontend bump patch version
         run: |
-          cd ./my-financial-dashboard
+          cd ./thorongil-app
           npm install
           NEW_VERSION=`npm version patch -m "build: bump patch to %s"`
           echo "Version updated to ${NEW_VERSION}"
@@ -34,7 +34,7 @@ jobs:
 
       - name: Backend bump patch version
         run: |
-          cd ./my-financial-backend
+          cd ./thorongil-api
           npm install
           NEW_VERSION=`npm version patch -m "build: bump patch to %s"`
           echo "Version updated to ${NEW_VERSION}"
@@ -46,8 +46,8 @@ jobs:
         run: |
           git config --global user.email "a.acquavia@studenti.unipi.com"
           git config --global user.name "thorongil05"
-          git add ./my-financial-dashboard/*.json
-          git add ./my-financial-backend/*.json
+          git add ./thorongil-app/*.json
+          git add ./thorongil-api/*.json
           git commit -m "build: update to versions => frontend: $new_frontend_version - backend: $new_backend_version"
       - name: Push changes
         uses: ad-m/github-push-action@master

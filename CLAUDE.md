@@ -6,8 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a monorepo with three independent applications:
 
-- **`my-financial-dashboard/`** — React 19 frontend (Vite, Tailwind, MUI, i18next)
-- **`my-financial-backend/`** — Node.js/Express 5 REST API (CommonJS, PostgreSQL, JWT)
+- **`thorongil-app/`** — React 19 frontend (Vite, Tailwind, MUI, i18next)
+- **`thorongil-api/`** — Node.js/Express 5 REST API (CommonJS, PostgreSQL, JWT)
 - **`curriculum-vitae/`** — Personal portfolio site (React 18, TypeScript, Vite)
 - **`database/`** — PostgreSQL Docker Compose setup
 
@@ -15,7 +15,7 @@ Each application has its own `package.json` and must be run independently from i
 
 ## Commands
 
-### Frontend (`my-financial-dashboard/`)
+### Frontend (`thorongil-app/`)
 ```bash
 npm run dev       # Lint + start Vite dev server (port 5173)
 npm run build     # Production build to dist/
@@ -23,7 +23,7 @@ npm run lint      # ESLint
 npm run preview   # Preview production build locally
 ```
 
-### Backend (`my-financial-backend/`)
+### Backend (`thorongil-api/`)
 ```bash
 npm run dev           # Lint + start with nodemon + .env (port 5000)
 npm start             # Lint + start server
@@ -77,7 +77,7 @@ Lint runs automatically before `dev` and `start` in both packages — fix lint e
 
 ## Database Migrations
 
-Migrations live in `my-financial-backend/migrations/` and use `node-pg-migrate`. The server auto-applies pending migrations on startup. Always create new migrations rather than editing existing ones.
+Migrations live in `thorongil-api/migrations/` and use `node-pg-migrate`. The server auto-applies pending migrations on startup. Always create new migrations rather than editing existing ones.
 
 ## Versioning
 

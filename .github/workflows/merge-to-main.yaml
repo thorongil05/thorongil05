@@ -20,7 +20,7 @@ jobs:
       - name: Get current version
         id: version
         run: |
-          VERSION=$(node -p "require('./my-financial-dashboard/package.json').version")
+          VERSION=$(node -p "require('./thorongil-app/package.json').version")
           echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Merge develop into main
