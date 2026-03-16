@@ -44,7 +44,7 @@ function MatchesView({ selectedEdition, selectedPhaseId, selectedGroupId, teams,
       <EditMatchDialog
         open={matchDialogOpen}
         onClose={() => { setMatchDialogOpen(false); setMatchToEdit(null); }}
-        onMatchUpdated={(round) => { if (round) data.setLastUsedRound(round); data.fetchMatches(); data.fetchRounds(); onMatchAdded?.(); }}
+        onMatchUpdated={(round) => { if (round) data.setLastUsedRound(round); data.fetchMatches(); onMatchAdded?.(); }}
         matchToEdit={matchToEdit} selectedEdition={selectedEdition}
       />
       <MatchdayBuilder

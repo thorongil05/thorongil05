@@ -1,7 +1,9 @@
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import { UserRoles } from "../../constants/roles";
 import SidebarSelectors from "./SidebarSelectors";
+import CompetitionContextMenu from "./CompetitionContextMenu";
 import PropTypes from "prop-types";
 
 const getInitials = (name) => name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 3);
@@ -17,6 +19,14 @@ export default function ArchiveSidebar({ data, activeTab, onTabChange }) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const canManage = user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR;
+  const [ctxMenu, setCtxMenu] = useState(null);
+
+  const handleContextMenu = useCallback((e, comp) => {
+    if (!canManage) return;
+    e.preventDefault();
+    setCtxMenu({ x: e.clientX, y: e.clientY, comp });
+  }, [canManage]);
+
   const navCls = (a) => `w-full flex items-center justify-center lg:justify-start gap-3 px-2 lg:px-3 py-2.5 rounded-lg text-sm mb-1 transition-all ${a ? activeCls : idleCls}`;
   const compCls = (a) => `w-full flex items-center justify-center lg:justify-start gap-2 px-2 lg:px-3 py-2 rounded-lg mb-0.5 transition-all ${a ? activeCls : idleCls}`;
 
@@ -34,17 +44,18 @@ export default function ArchiveSidebar({ data, activeTab, onTabChange }) {
         {data.competitions.map((comp) => {
           const isSelected = data.selectedCompetition?.id === comp.id;
           return (
-            <div key={comp.id} className="flex items-center gap-1">
-              <button onClick={() => data.setSelectedCompetition(comp)} className={`flex-1 ${compCls(isSelected)}`}>
-                <span className="w-8 h-8 shrink-0 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold">
-                  {getInitials(comp.name)}
-                </span>
-                <span className="hidden lg:block text-sm truncate">{comp.name}</span>
-              </button>
-              {canManage && isSelected && (
-                <button onClick={() => navigate(`/football-archive/competition/edit/${comp.id}`)} className="hidden lg:flex shrink-0 text-slate-600 hover:text-slate-300 p-1 rounded transition-colors" title="Gestisci campionato">⚙️</button>
-              )}
-            </div>
+            <button
+              key={comp.id}
+              onClick={() => data.setSelectedCompetition(comp)}
+              onContextMenu={(e) => handleContextMenu(e, comp)}
+              className={compCls(isSelected)}
+              title={canManage ? "Tasto destro per opzioni" : undefined}
+            >
+              <span className="w-8 h-8 shrink-0 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold">
+                {getInitials(comp.name)}
+              </span>
+              <span className="hidden lg:block text-sm truncate">{comp.name}</span>
+            </button>
           );
         })}
         {canManage && (
@@ -68,6 +79,16 @@ export default function ArchiveSidebar({ data, activeTab, onTabChange }) {
             </button>
           ))}
         </section>
+      )}
+
+      {ctxMenu && (
+        <CompetitionContextMenu
+          x={ctxMenu.x}
+          y={ctxMenu.y}
+          comp={ctxMenu.comp}
+          onClose={() => setCtxMenu(null)}
+          onEdit={(comp) => navigate(`/football-archive/competition/edit/${comp.id}`)}
+        />
       )}
     </aside>
   );
