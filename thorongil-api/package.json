@@ -1,6 +1,6 @@
 {
   "name": "thorongil-api",
-  "version": "0.0.70",
+  "version": "0.0.71",
   "description": "Backend that exposes REST API to retrieve data for the UI",
   "license": "ISC",
   "author": "",
