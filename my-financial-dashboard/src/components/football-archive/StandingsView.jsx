@@ -1,436 +1,75 @@
-import {
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-  Slider,
-  useMediaQuery,
-  useTheme,
-  Box,
-  Button,
-  TableSortLabel,
-  Stack,
-  Tooltip,
-  IconButton,
-} from "@mui/material";
+import { useState } from "react";
 import PropTypes from "prop-types";
-import { useEffect, useState, useMemo } from "react";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import { Slider } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { apiGet } from "../../utils/api";
+import { useStandingsData } from "./hooks/useStandingsData";
 
-function compareStandingsRows(a, b, sortBy, sortOrder) {
-  let aVal = a[sortBy];
-  let bVal = b[sortBy];
-  if (sortBy === "teamName") {
-    aVal = (aVal || "").toLowerCase();
-    bVal = (bVal || "").toLowerCase();
-  }
-  if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
-  if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
-  if (sortBy !== "points") {
-    if (a.points < b.points) return 1;
-    if (a.points > b.points) return -1;
-  }
-  if (sortBy !== "goalDifference") {
-    if (a.goalDifference < b.goalDifference) return 1;
-    if (a.goalDifference > b.goalDifference) return -1;
-  }
-  return 0;
+function SortTh({ label, col, sortBy, sortOrder, onSort, center }) {
+  const icon = sortBy !== col ? "↕" : sortOrder === "asc" ? "↑" : "↓";
+  return <th className={`px-3 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest cursor-pointer select-none${center ? " text-center" : ""}`} onClick={() => onSort(col)}>{label}<span className={sortBy === col ? "text-blue-400 ml-1" : "text-slate-700 ml-1"}>{icon}</span></th>;
 }
+SortTh.propTypes = { label: PropTypes.string, col: PropTypes.string, sortBy: PropTypes.string, sortOrder: PropTypes.string, onSort: PropTypes.func, center: PropTypes.bool };
 
-// eslint-disable-next-line complexity
-function StandingsView({ selectedEdition, selectedPhaseId, selectedGroupId, refreshTrigger }) {
+export default function StandingsView({ selectedEdition, selectedPhaseId, selectedGroupId, refreshTrigger }) {
   const { t } = useTranslation();
-  const [standings, setStandings] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [roundsInterval, setRoundsInterval] = useState([1, 0]);
-  const [sliderValue, setSliderValue] = useState([1, 0]);
-  const [maxRound, setMaxRound] = useState(0);
-  const [lastFetchedInterval, setLastFetchedInterval] = useState(null);
-
-  // Sorting state
-  const [sortBy, setSortBy] = useState("points");
-  const [sortOrder, setSortOrder] = useState("desc");
-
-  // Context tracking to reset states smoothly without double-renders
-  const contextKey = `${selectedEdition?.id}-${selectedPhaseId}-${selectedGroupId}`;
-  const [activeContextKey, setActiveContextKey] = useState(contextKey);
-
-  if (contextKey !== activeContextKey) {
-    setActiveContextKey(contextKey);
-    setRoundsInterval([1, 0]);
-    setSliderValue([1, 0]);
-    setLastFetchedInterval(null);
-    setMaxRound(0);
-    setSortBy("points");
-    setSortOrder("desc");
-    setStandings([]);
-    // React will immediately halt this render and restart with the new reset state, 
-    // ensuring `useEffect` only runs ONCE with the reset params!
-  }
-
-  const theme = useTheme();
-  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
-
-  // Default collapsed for mobile/tablet, expanded for desktop
   const [isExpanded, setIsExpanded] = useState(false);
-
-  useEffect(() => {
-    setIsExpanded(!isTablet);
-  }, [isTablet]);
-
-  // Column visibility logic
-  const showP2 = isExpanded; // P, W, D, L
-  const showP3 = isExpanded; // GF, GA, GD
-
-  const handleIntervalChange = (_event, newValue) => {
-    setRoundsInterval(newValue);
-  };
-
-  const handleSliderChange = (_event, newValue) => {
-    setSliderValue(newValue);
-  };
-
-  const handleSort = (property) => {
-    const isAsc = sortBy === property && sortOrder === "asc";
-    setSortOrder(isAsc ? "desc" : "asc");
-    setSortBy(property);
-  };
-
-  const resetSorting = () => {
-    setSortBy("points");
-    setSortOrder("desc");
-  };
-
-  const sortedStandings = useMemo(() => {
-    if (!standings || standings.length === 0) return [];
-    const result = [...standings];
-    result.sort((a, b) => compareStandingsRows(a, b, sortBy, sortOrder));
-    return result;
-  }, [standings, sortBy, sortOrder]);
-
-  useEffect(() => {
-    if (!selectedEdition) {
-      setStandings([]);
-      return;
-    }
-
-    // Skip redundant fetch if interval hasn't changed (e.g., just a refreshTrigger that didn't change)
-    if (
-      lastFetchedInterval &&
-      roundsInterval[0] === lastFetchedInterval[0] &&
-      roundsInterval[1] === lastFetchedInterval[1]
-    ) {
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    const params = new URLSearchParams();
-    if (roundsInterval[1] > 0) {
-      params.append("startInterval", roundsInterval[0]);
-      params.append("endInterval", roundsInterval[1]);
-    }
-
-    if (selectedPhaseId) params.append("phaseId", selectedPhaseId);
-    if (selectedGroupId) params.append("groupId", selectedGroupId);
-
-    const queryStr = params.toString() ? `?${params.toString()}` : "";
-
-    apiGet(`/api/competitions/editions/${selectedEdition.id}/standings${queryStr}`)
-      .then((result) => {
-        setStandings(result.standings);
-        setMaxRound(result.totalRounds);
-
-        if (roundsInterval[1] === 0) {
-          const safeMax = Math.max(1, result.totalRounds || 1);
-          const fullRange = [1, safeMax];
-          setSliderValue(fullRange);
-          setRoundsInterval(fullRange);
-          setLastFetchedInterval(fullRange);
-        } else {
-          setLastFetchedInterval(roundsInterval);
-        }
-
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching standings:", error);
-        setError(error.message);
-        setLoading(false);
-      });
-  }, [
-    selectedEdition,
-    selectedPhaseId,
-    selectedGroupId,
-    roundsInterval,
-    refreshTrigger,
-    lastFetchedInterval
-  ]);
-
-
-
-  if (!selectedEdition) {
-    return null;
-  }
+  const { sortedStandings, loading, error, sliderValue, handleSliderChange, handleIntervalChange, maxRound, sortBy, sortOrder, handleSort, resetSorting } = useStandingsData({ selectedEdition, selectedPhaseId, selectedGroupId, refreshTrigger });
+  const cols = isExpanded ? 10 : 4;
+  const st = { sortBy, sortOrder, onSort: handleSort };
 
   return (
-    <TableContainer
-      component={Paper}
-      variant="outlined"
-      sx={{
-        borderRadius: 2,
-        overflow: "auto",
-        "&::-webkit-scrollbar": {
-          width: "6px",
-          height: "6px",
-        },
-        "&::-webkit-scrollbar-track": {
-          background: "transparent",
-        },
-        "&::-webkit-scrollbar-thumb": {
-          background: "rgba(0,0,0,0.1)",
-          borderRadius: "10px",
-        },
-        "&::-webkit-scrollbar-thumb:hover": {
-          background: "rgba(0,0,0,0.2)",
-        },
-      }}
-    >
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider", bgcolor: "background.paper" }}
-      >
-        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-          {t("football.standings")}
-        </Typography>
-        <Stack direction="row" spacing={1}>
-          {(sortBy !== "points" || sortOrder !== "desc") && (
-            <Tooltip title={t("common.reset_sort")}>
-              <Box component="span">
-                <IconButton size="small" onClick={resetSorting} sx={{ border: "1px solid", borderColor: "divider" }}>
-                  <RestartAltIcon fontSize="small" />
-                </IconButton>
-              </Box>
-            </Tooltip>
-          )}
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={() => setIsExpanded(!isExpanded)}
-            startIcon={isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-            sx={{ borderRadius: 2, textTransform: "none", fontSize: "0.75rem" }}
-          >
-            {isExpanded ? t("common.less", "Less") : t("common.more", "More")}
-          </Button>
-        </Stack>
-      </Stack>
+    <div className="bg-slate-900 rounded-2xl overflow-hidden border border-slate-800">
+      <div className="flex items-center justify-between p-4 border-b border-slate-800">
+        <h2 className="text-lg font-bold text-white">{t("football.standings", "Classifica")}</h2>
+        <div className="flex items-center gap-2">
+          {(sortBy !== "points" || sortOrder !== "desc") && <button onClick={resetSorting} className="px-2 py-1 text-xs text-slate-400 border border-slate-700 rounded-lg hover:border-slate-500 hover:text-white transition-all">↺</button>}
+          <button onClick={() => setIsExpanded(!isExpanded)} className="px-3 py-1.5 text-xs text-slate-400 border border-slate-700 rounded-lg hover:border-blue-500 hover:text-blue-400 transition-all">
+            {isExpanded ? "▲ Meno" : "▼ Più"}
+          </button>
+        </div>
+      </div>
 
-      <Box sx={{ px: 4, py: 1, bgcolor: "background.paper" }}>
-        <Slider
-          value={sliderValue}
-          onChange={handleSliderChange}
-          onChangeCommitted={handleIntervalChange}
-          valueLabelDisplay="auto"
-          min={1}
-          max={maxRound}
-          size="small"
-        />
-        <Typography variant="caption" color="text.secondary" align="center" display="block">
-          {t("football.rounds_range", "Rounds Range")}: {sliderValue[0]} - {sliderValue[1]}
-        </Typography>
-      </Box>
+      {maxRound > 1 && (
+        <div className="px-6 py-3 border-b border-slate-800">
+          <Slider value={sliderValue} onChange={handleSliderChange} onChangeCommitted={handleIntervalChange} valueLabelDisplay="auto" min={1} max={maxRound} size="small" sx={{ color: "#3b82f6" }} />
+          <p className="text-[10px] text-slate-500 text-center mt-1">{t("football.rounds_range", "Giornate")}: {sliderValue[0]} – {sliderValue[1]}</p>
+        </div>
+      )}
 
-      <Table
-        size="small"
-        aria-label="standings table"
-        sx={{
-          minWidth: isExpanded ? 800 : "100%",
-          tableLayout: "fixed"
-        }}
-      >
-        <TableHead>
-          <TableRow sx={{ bgcolor: "action.hover" }}>
-            <TableCell sx={{ width: "50px", fontWeight: "bold" }}>Pos</TableCell>
-            <TableCell sx={{ fontWeight: "bold", width: "auto", minWidth: 150 }}>
-              <TableSortLabel
-                active={sortBy === "teamName"}
-                direction={sortBy === "teamName" ? sortOrder : "asc"}
-                onClick={() => handleSort("teamName")}
-              >
-                Team
-              </TableSortLabel>
-            </TableCell>
-            <TableCell align="center" sx={{ fontWeight: "bold", width: "50px" }}>
-              <TableSortLabel
-                active={sortBy === "played"}
-                direction={sortBy === "played" ? sortOrder : "desc"}
-                onClick={() => handleSort("played")}
-              >
-                P
-              </TableSortLabel>
-            </TableCell>
-            {showP2 && (
-              <>
-                <TableCell align="center" sx={{ fontWeight: "bold", width: "50px" }}>
-                  <TableSortLabel
-                    active={sortBy === "won"}
-                    direction={sortBy === "won" ? sortOrder : "desc"}
-                    onClick={() => handleSort("won")}
-                  >
-                    W
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", width: "50px" }}>
-                  <TableSortLabel
-                    active={sortBy === "drawn"}
-                    direction={sortBy === "drawn" ? sortOrder : "desc"}
-                    onClick={() => handleSort("drawn")}
-                  >
-                    D
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", width: "50px" }}>
-                  <TableSortLabel
-                    active={sortBy === "lost"}
-                    direction={sortBy === "lost" ? sortOrder : "desc"}
-                    onClick={() => handleSort("lost")}
-                  >
-                    L
-                  </TableSortLabel>
-                </TableCell>
-              </>
-            )}
-            {showP3 && (
-              <>
-                <TableCell align="center" sx={{ fontWeight: "bold", width: "50px" }}>
-                  <TableSortLabel
-                    active={sortBy === "goalsFor"}
-                    direction={sortBy === "goalsFor" ? sortOrder : "desc"}
-                    onClick={() => handleSort("goalsFor")}
-                  >
-                    GF
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", width: "50px" }}>
-                  <TableSortLabel
-                    active={sortBy === "goalsAgainst"}
-                    direction={sortBy === "goalsAgainst" ? sortOrder : "desc"}
-                    onClick={() => handleSort("goalsAgainst")}
-                  >
-                    GA
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", width: "50px" }}>
-                  <TableSortLabel
-                    active={sortBy === "goalDifference"}
-                    direction={sortBy === "goalDifference" ? sortOrder : "desc"}
-                    onClick={() => handleSort("goalDifference")}
-                  >
-                    GD
-                  </TableSortLabel>
-                </TableCell>
-              </>
-            )}
-            <TableCell
-              align="center"
-              sx={{
-                fontWeight: "bold",
-                bgcolor: "primary.soft",
-                color: "primary.main",
-                width: "60px"
-              }}
-            >
-              <TableSortLabel
-                active={sortBy === "points"}
-                direction={sortBy === "points" ? sortOrder : "desc"}
-                onClick={() => handleSort("points")}
-              >
-                Pts
-              </TableSortLabel>
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {loading && (
-            <TableRow>
-              <TableCell colSpan={isExpanded ? 10 : 4} align="center" sx={{ py: 4 }}>
-                <Typography variant="body2" color="text.secondary">Loading standings...</Typography>
-              </TableCell>
-            </TableRow>
-          )}
-          {error && (
-            <TableRow>
-              <TableCell colSpan={isExpanded ? 10 : 4} align="center" sx={{ py: 4 }}>
-                <Typography variant="body2" color="error">Error: {error}</Typography>
-              </TableCell>
-            </TableRow>
-          )}
-          {!loading && !error && sortedStandings.length === 0 && (
-            <TableRow>
-              <TableCell colSpan={isExpanded ? 10 : 4} align="center" sx={{ py: 4 }}>
-                <Typography variant="body2" color="text.secondary">No standings available</Typography>
-              </TableCell>
-            </TableRow>
-          )}
-          {!loading &&
-            !error &&
-            sortedStandings.map((team, index) => (
-              <TableRow key={team.teamId} hover>
-                <TableCell sx={{ color: "text.secondary" }}>{index + 1}</TableCell>
-                <TableCell sx={{ fontWeight: "medium" }}>{team.teamName}</TableCell>
-                <TableCell align="center">{team.played}</TableCell>
-                {showP2 && (
-                  <>
-                    <TableCell align="center">{team.won}</TableCell>
-                    <TableCell align="center">{team.drawn}</TableCell>
-                    <TableCell align="center">{team.lost}</TableCell>
-                  </>
-                )}
-                {showP3 && (
-                  <>
-                    <TableCell align="center">{team.goalsFor}</TableCell>
-                    <TableCell align="center">{team.goalsAgainst}</TableCell>
-                    <TableCell align="center">{team.goalDifference}</TableCell>
-                  </>
-                )}
-                <TableCell
-                  align="center"
-                  sx={{
-                    bgcolor: "action.selected",
-                    fontWeight: "bold",
-                    color: "primary.main"
-                  }}
-                >
-                  {team.points}
-                </TableCell>
-              </TableRow>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left whitespace-nowrap">
+          <thead>
+            <tr className="bg-slate-800/50">
+              <th className="px-3 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest w-10">#</th>
+              <SortTh label="Team" col="teamName" {...st} />
+              <SortTh label="P" col="played" {...st} center />
+              {isExpanded && <><SortTh label="V" col="won" {...st} center /><SortTh label="N" col="drawn" {...st} center /><SortTh label="S" col="lost" {...st} center /><SortTh label="GF" col="goalsFor" {...st} center /><SortTh label="GS" col="goalsAgainst" {...st} center /><SortTh label="DR" col="goalDifference" {...st} center /></>}
+              <SortTh label="Pts" col="points" {...st} center />
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-800">
+            {loading && <tr><td colSpan={cols} className="px-4 py-8 text-center text-slate-500 text-sm">Caricamento...</td></tr>}
+            {error && !loading && <tr><td colSpan={cols} className="px-4 py-8 text-center text-red-400 text-sm">Errore: {error}</td></tr>}
+            {!loading && !error && sortedStandings.length === 0 && <tr><td colSpan={cols} className="px-4 py-8 text-center text-slate-500 text-sm">Nessuna classifica disponibile</td></tr>}
+            {!loading && !error && sortedStandings.map((team, idx) => (
+              <tr key={team.teamId} className="hover:bg-blue-500/5 transition-colors">
+                <td className="px-3 py-2.5 text-sm text-slate-500">{idx + 1}</td>
+                <td className="px-3 py-2.5 text-sm text-slate-200 font-medium">{team.teamName}</td>
+                <td className="px-3 py-2.5 text-sm text-slate-400 text-center">{team.played}</td>
+                {isExpanded && <><td className="px-3 py-2.5 text-sm text-green-400 text-center">{team.won}</td><td className="px-3 py-2.5 text-sm text-yellow-400 text-center">{team.drawn}</td><td className="px-3 py-2.5 text-sm text-red-400 text-center">{team.lost}</td><td className="px-3 py-2.5 text-sm text-slate-400 text-center">{team.goalsFor}</td><td className="px-3 py-2.5 text-sm text-slate-400 text-center">{team.goalsAgainst}</td><td className="px-3 py-2.5 text-sm text-slate-400 text-center">{team.goalDifference}</td></>}
+                <td className="px-3 py-2.5 text-sm text-center"><span className="font-bold text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-lg">{team.points}</span></td>
+              </tr>
             ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
 
 StandingsView.propTypes = {
-  selectedEdition: PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    name: PropTypes.string,
-  }),
+  selectedEdition: PropTypes.shape({ id: PropTypes.number.isRequired, name: PropTypes.string }),
   selectedPhaseId: PropTypes.number,
   selectedGroupId: PropTypes.number,
   refreshTrigger: PropTypes.number,
 };
-
-export default StandingsView;
