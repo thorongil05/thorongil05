@@ -2,7 +2,6 @@ import { Box, CircularProgress } from "@mui/material";
 import StandingsView from "./StandingsView";
 import MatchesView from "./MatchesView";
 import TeamsView from "./TeamsView";
-import CompetitionProgress from "./competitions/CompetitionProgress";
 import PropTypes from "prop-types";
 
 const Spinner = () => (
@@ -28,10 +27,7 @@ export default function ArchiveContent({ data, activeTab }) {
 
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
-      <div className="shrink-0 px-6 pt-6 pb-2">
-        <CompetitionProgress edition={selectedEdition} refreshTrigger={refreshTrigger} />
-      </div>
-      <div className={`flex-1 min-h-0 px-6 pb-6 ${activeTab === "participants" ? "overflow-y-auto" : "overflow-hidden"}`}>
+      <div className={`flex-1 min-h-0 px-6 py-6 ${activeTab === "participants" ? "overflow-y-auto" : "overflow-hidden"}`}>
 
       {!isReady && activeTab !== "participants" && <Spinner />}
 

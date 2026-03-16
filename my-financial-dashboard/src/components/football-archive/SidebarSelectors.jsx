@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router";
 import PropTypes from "prop-types";
+import CompetitionProgress from "./competitions/CompetitionProgress";
 
 const selectCls = "w-full bg-slate-800 text-slate-200 text-sm rounded-lg px-3 py-2 border border-slate-700 focus:outline-none focus:border-blue-500 cursor-pointer";
 const labelCls = "text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2";
@@ -55,6 +56,7 @@ export default function SidebarSelectors({ data, canManage, onAddCompetition, sh
       )}
       <SelectRow label="Stagione" options={data.editions} value={data.selectedEdition?.id}
         onChange={(e) => data.setSelectedEdition(data.editions.find((x) => x.id === Number(e.target.value)))} />
+      <CompetitionProgress edition={data.selectedEdition} refreshTrigger={data.refreshTrigger} />
       <SelectRow label="Fase" options={data.phases} value={data.selectedPhaseId}
         onChange={(e) => data.handlePhaseChange(Number(e.target.value))} />
       <SelectRow label="Girone" options={data.groups} value={data.selectedGroupId}
