@@ -75,7 +75,7 @@ export function Hero({ info, education, skills }: HeroProps) {
               name: <span className="text-emerald-400">'{info.name}'</span>,
             </p>
             <p className="pl-6">
-              location: <span className="text-emerald-400">'{info.contacts.address.split(',')[0]}'</span>,
+              location: <span className="text-emerald-400">'{info.contacts.address}'</span>,
             </p>
             <p className="pl-6">
               education: <span className="text-emerald-400">'{education[0].degree}'</span>,

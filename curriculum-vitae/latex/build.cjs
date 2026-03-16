@@ -222,7 +222,8 @@ fs.writeFileSync(path.join(srcDir, 'main.tex'),
 \\tagline{${esc(role)}}
 \\socialinfo{
 \t\\email{${email}}\\\\
-\t\\address{${esc(contacts.address)}}
+\t\\address{${esc(contacts.address)}}\\\\
+\t\\website{${contacts.portfolio}}{Portfolio}
 }
 
 \\begin{document}

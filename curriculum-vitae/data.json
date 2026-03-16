@@ -4,9 +4,10 @@
         "role": "Software Engineer",
         "contacts": {
             "email": "[EMAIL_ADDRESS]",
-            "address": "Via Alessandro Cruto 4, 56123 Pisa (PI), Italy",
+            "address": "Pisa (PI), Italy",
             "linkedin": "https://www.linkedin.com/in/antonioacquavia/",
-            "github": "https://github.com/thorongil05"
+            "github": "https://github.com/thorongil05",
+            "portfolio": "https://thorongil05.github.io/thorongil05/"
         },
         "summary": "Software Engineer with a background in Artificial Intelligence and Data Engineering. Experienced across the full spectrum of software development: from owning critical backend components and leading end-to-end feature delivery, to building data platforms and conducting research in Information Retrieval. Passionate about understanding customer needs beyond the stated requirement, and about writing software that solves real problems."
     },
@@ -172,7 +173,11 @@
         {
             "name": "NeetCode Solutions",
             "description": "Personal collection of solutions to NeetCode algorithmic exercises, covering data structures and algorithms problems across multiple difficulty levels.",
-            "tech_stack": ["Python", "Algorithms", "Data Structures"],
+            "tech_stack": [
+                "Python",
+                "Algorithms",
+                "Data Structures"
+            ],
             "github": "https://github.com/thorongil05/neetcode"
         },
         {
