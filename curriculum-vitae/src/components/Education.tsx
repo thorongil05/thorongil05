@@ -15,7 +15,7 @@ export function Education({ education }: EducationProps) {
     <section id="education" className="py-24 px-6 bg-[#0d1526]">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold text-white mb-16">
-          Formazione
+          Education
         </h2>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

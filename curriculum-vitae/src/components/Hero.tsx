@@ -30,14 +30,14 @@ export function Hero({ info, education, skills }: HeroProps) {
             </span>
           </h1>
           <p className="text-xl text-slate-400 mb-10 leading-relaxed max-w-lg">
-            {info.role} esperto in <span className="text-white">AI & Data Engineering</span>. {info.summary}
+            {info.summary}
           </p>
           <div className="flex gap-4">
             <a
               href={`mailto:${info.contacts.email}`}
               className="bg-sky-600 hover:bg-sky-500 text-white px-8 py-3 rounded-full font-semibold transition-all shadow-lg shadow-sky-900/40"
             >
-              Contattami
+              Contact me
             </a>
             <div className="flex items-center gap-4 px-4 border-l border-slate-800 ml-2">
               <a

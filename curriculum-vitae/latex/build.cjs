@@ -82,8 +82,11 @@ const expEntries = data.experience.map((exp, i) => {
   const taskLines = (exp.tasks || [])
     .map(t => `\t\t\t\t\t\t\\item ${esc(t)}`)
     .join('\n');
+  const pubLine = exp.publication
+    ? `\n\t\t\t\t\t\t\\href{${exp.publication.url}}{\\textit{${esc(exp.publication.title)}}} --- ${esc(exp.publication.venue)}.`
+    : '';
   const body = taskLines
-    ? `\n\t\t\t\t\t\t\\begin{itemize}\n${taskLines}\n\t\t\t\t\t\t\\end{itemize}`
+    ? `\n\t\t\t\t\t\t\\begin{itemize}\n${taskLines}\n\t\t\t\t\t\t\\end{itemize}${pubLine}`
     : (exp.highlights ? `\n\t\t\t\t\t\t${esc(exp.highlights)}` : '');
   const tech = (exp.tech_stack || []).map(esc).join(', ');
   const sep = i < data.experience.length - 1 ? '\n\t\\emptySeparator' : '';

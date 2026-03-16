@@ -14,7 +14,7 @@ export function Projects({ projects }: ProjectsProps) {
   return (
     <section id="projects" className="py-24 px-6 max-w-5xl mx-auto">
       <h2 className="text-3xl font-bold text-white mb-16 text-center">
-        Progetti
+        Projects
       </h2>
 
       <div className="space-y-12">
