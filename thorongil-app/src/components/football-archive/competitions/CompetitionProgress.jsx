@@ -1,38 +1,54 @@
 import { useEffect, useState, useCallback } from "react";
-import { useTranslation } from "react-i18next";
 import { apiGet } from "../../../utils/api";
 import PropTypes from "prop-types";
 
-function CompetitionProgress({ edition, refreshTrigger }) {
-  const { t } = useTranslation();
-  const [count, setCount] = useState(0);
-  const total = edition?.metadata?.totalMatches;
+function ProgressBar({ label, count, total, colorCls, trackCls }) {
+  const pct = total ? Math.min(100, Math.round((count / total) * 100)) : 0;
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-xs text-slate-500">{label}</span>
+        <span className={`text-xs font-semibold tabular-nums ${colorCls}`}>{count} / {total}</span>
+      </div>
+      <div className={`h-1.5 rounded-full overflow-hidden ${trackCls}`}>
+        <div style={{ width: `${pct}%` }} className={`h-full rounded-full transition-all duration-500 ${colorCls.replace("text-", "bg-")}`} />
+      </div>
+    </div>
+  );
+}
 
-  const fetchCount = useCallback(() => {
+export default function CompetitionProgress({ edition, refreshTrigger }) {
+  const [progress, setProgress] = useState({ inserted: 0, completed: 0 });
+  const total = Number(edition?.metadata?.totalMatches) || 0;
+
+  const fetchProgress = useCallback(() => {
     if (!edition?.id) return;
-    apiGet(`/api/matches?editionId=${edition.id}`)
-      .then((res) => setCount(res.metadata?.count ?? res.data?.length ?? res.length ?? 0))
+    apiGet(`/api/matches/progress?editionId=${edition.id}`)
+      .then(setProgress)
       .catch(() => {});
   }, [edition?.id]);
 
-  useEffect(() => { fetchCount(); }, [fetchCount, refreshTrigger]);
+  useEffect(() => { fetchProgress(); }, [fetchProgress, refreshTrigger]);
 
   if (!total) return null;
 
-  const pct = Math.min(100, Math.round((count / total) * 100));
-
   return (
-    <div className="mt-4 pt-4 border-t border-slate-800">
-      <div className="flex items-center justify-between mb-1.5">
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-          {t("football.competition_progress", "Progresso")}
-        </p>
-        <span className="text-xs text-blue-400 font-semibold">{pct}%</span>
-      </div>
-      <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
-        <div style={{ width: `${pct}%` }} className="h-full bg-blue-500 rounded-full transition-all duration-500" />
-      </div>
-      <p className="text-xs text-slate-600 mt-1.5 text-right">{count} / {total} partite</p>
+    <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-2.5">
+      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Progresso</p>
+      <ProgressBar
+        label="Inserite"
+        count={progress.inserted}
+        total={total}
+        colorCls="text-blue-400"
+        trackCls="bg-slate-700"
+      />
+      <ProgressBar
+        label="Completate"
+        count={progress.completed}
+        total={total}
+        colorCls="text-green-400"
+        trackCls="bg-slate-700/60"
+      />
     </div>
   );
 }
@@ -47,4 +63,10 @@ CompetitionProgress.propTypes = {
   refreshTrigger: PropTypes.number,
 };
 
-export default CompetitionProgress;
+ProgressBar.propTypes = {
+  label: PropTypes.string.isRequired,
+  count: PropTypes.number.isRequired,
+  total: PropTypes.number.isRequired,
+  colorCls: PropTypes.string.isRequired,
+  trackCls: PropTypes.string.isRequired,
+};

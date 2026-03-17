@@ -40,6 +40,21 @@ router.get("/", authenticateToken, (request, response) => {
     });
 });
 
+router.get("/progress", authenticateToken, (request, response) => {
+  const { editionId } = request.query;
+  if (!editionId) {
+    response.status(400).send({ error: "editionId is required" });
+    return;
+  }
+  matchesDao
+    .getProgress(editionId)
+    .then((result) => response.send(result))
+    .catch((error) => {
+      logger.error({ error }, "Error fetching match progress");
+      response.status(500).send(error);
+    });
+});
+
 router.get("/rounds", authenticateToken, (request, response) => {
   const editionId = request.query.editionId;
   if (!editionId) {

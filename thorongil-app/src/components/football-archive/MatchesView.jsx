@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import MatchdayBuilder from "./MatchdayBuilder";
-import EditMatchDialog from "./EditMatchDialog";
+import MatchDialog from "./MatchDialog";
 import { useAuth } from "../../context/AuthContext";
 import MobileMatchesView from "./matches/MobileMatchesView";
 import DesktopMatchesView from "./matches/DesktopMatchesView";
@@ -41,7 +41,7 @@ function MatchesView({ selectedEdition, selectedPhaseId, selectedGroupId, teams,
           <MobileMatchesView {...viewProps} />
         </div>
       </div>
-      <EditMatchDialog
+      <MatchDialog
         open={matchDialogOpen}
         onClose={() => { setMatchDialogOpen(false); setMatchToEdit(null); }}
         onMatchUpdated={(round) => { if (round) data.setLastUsedRound(round); data.fetchMatches(); onMatchAdded?.(); }}
