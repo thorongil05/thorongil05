@@ -199,15 +199,17 @@ async function update(id, match) {
   return rows[0];
 }
 
-async function getProgress(editionId) {
+async function getProgress(editionId, groupId) {
+  const values = [editionId];
+  const groupFilter = groupId ? ` AND group_id = $${values.push(groupId)}` : "";
   const query = `
     SELECT
       COUNT(*)                                                              AS inserted,
       COUNT(*) FILTER (WHERE status IN ('COMPLETED', 'FORFEITED'))         AS completed
     FROM matches
-    WHERE edition_id = $1
+    WHERE edition_id = $1${groupFilter}
   `;
-  const { rows } = await pool.query(query, [editionId]);
+  const { rows } = await pool.query(query, values);
   return { inserted: Number(rows[0].inserted), completed: Number(rows[0].completed) };
 }
 

@@ -41,13 +41,13 @@ router.get("/", authenticateToken, (request, response) => {
 });
 
 router.get("/progress", authenticateToken, (request, response) => {
-  const { editionId } = request.query;
+  const { editionId, groupId } = request.query;
   if (!editionId) {
     response.status(400).send({ error: "editionId is required" });
     return;
   }
   matchesDao
-    .getProgress(editionId)
+    .getProgress(editionId, groupId || null)
     .then((result) => response.send(result))
     .catch((error) => {
       logger.error({ error }, "Error fetching match progress");
