@@ -1,12 +1,13 @@
-import { useState } from "react";
-import { CircularProgress } from "@mui/material";
-import { Paper } from "@mui/material";
+import { useState, useEffect } from "react";
+import { CircularProgress, Paper } from "@mui/material";
 import PropTypes from "prop-types";
 import { useCompetitionDetail } from "../hooks/useCompetitionDetail";
 import { useAuth } from "../../../context/AuthContext";
 import { UserRoles } from "../../../constants/roles";
 import CompetitionForm from "./CompetitionForm";
-import EditionsList from "./EditionsList";
+import EditionSidebar from "./EditionSidebar";
+import EditionDetail from "./EditionDetail";
+import EditionFormDialog from "./EditionFormDialog";
 
 const TYPE_LABELS = { LEAGUE: "Campionato", CUP: "Coppa", FRIENDLY: "Amichevole / Torneo" };
 
@@ -14,62 +15,99 @@ export default function CompetitionDetailPage({ id, onBack }) {
   const { user } = useAuth();
   const canManage = user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR;
   const { competition, editions, loading, loadCompetition, loadEditions } = useCompetitionDetail(id);
-  const [editing, setEditing] = useState(false);
+  const [selectedEdition, setSelectedEdition] = useState(null);
+  const [mobileView, setMobileView] = useState("list");
+  const [editingComp, setEditingComp] = useState(false);
+  const [addEditionOpen, setAddEditionOpen] = useState(false);
+
+  useEffect(() => {
+    if (!editions.length) return;
+    setSelectedEdition((prev) => {
+      if (prev) return editions.find((e) => e.id === prev.id) ?? editions[0];
+      return editions.find((e) => e.status === "CURRENT") ?? editions[0];
+    });
+  }, [editions]);
+
+  const handleSelectEdition = (edition) => {
+    setSelectedEdition(edition);
+    setMobileView("detail");
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="h-screen bg-slate-950 flex items-center justify-center">
         <CircularProgress />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 p-4 sm:p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
-
-        <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-center gap-3 min-w-0">
-              <button onClick={onBack} className="text-slate-400 hover:text-white text-xl leading-none shrink-0">←</button>
-              <div className="min-w-0">
-                <p className="text-xs text-slate-500 uppercase tracking-wider">Football Archive</p>
-                <h1 className="text-xl font-bold text-white truncate">{competition?.name ?? "Competizione"}</h1>
-              </div>
-            </div>
-            {canManage && !editing && (
-              <button onClick={() => setEditing(true)} className="shrink-0 text-sm text-slate-400 hover:text-white border border-slate-700 hover:border-slate-500 px-3 py-1.5 rounded-lg transition-colors">
-                ✏️ Modifica
-              </button>
-            )}
-          </div>
-
-          {!editing && competition && (
-            <div className="mt-4 pt-4 border-t border-slate-800 flex flex-wrap gap-4">
-              {competition.country && (
-                <div><p className="text-xs text-slate-500 uppercase tracking-wider">Paese</p><p className="text-sm text-slate-200 mt-0.5">{competition.country}</p></div>
-              )}
-              <div><p className="text-xs text-slate-500 uppercase tracking-wider">Tipo</p><p className="text-sm text-slate-200 mt-0.5">{TYPE_LABELS[competition.type] ?? competition.type}</p></div>
-            </div>
+    <div className="h-screen flex flex-col bg-slate-950 overflow-hidden">
+      <header className="flex items-center gap-3 px-4 py-3 border-b border-slate-800 bg-slate-900 shrink-0">
+        <button onClick={onBack} className="text-slate-400 hover:text-white text-xl leading-none shrink-0">←</button>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs text-slate-500 uppercase tracking-wider">Football Archive</p>
+          <h1 className="text-base font-bold text-white truncate">{competition?.name ?? "Competizione"}</h1>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {competition && (
+            <span className="hidden sm:block text-xs text-slate-500">
+              {TYPE_LABELS[competition.type] ?? competition.type}
+            </span>
           )}
-
-          {editing && (
-            <div className="mt-4 pt-4 border-t border-slate-800">
-              <Paper sx={{ p: 3, borderRadius: 2 }}>
-                <CompetitionForm
-                  competitionToEdit={competition}
-                  onSubmitSuccess={() => { loadCompetition(); setEditing(false); }}
-                  onCancel={() => setEditing(false)}
-                />
-              </Paper>
-            </div>
+          {canManage && !editingComp && (
+            <button
+              onClick={() => setEditingComp(true)}
+              className="text-sm text-slate-400 hover:text-white border border-slate-700 hover:border-slate-500 px-3 py-1.5 rounded-lg transition-colors"
+            >
+              ✏️
+            </button>
           )}
         </div>
+      </header>
 
-        {competition && (
-          <EditionsList competitionId={id} editions={editions} onUpdate={loadEditions} />
-        )}
+      {editingComp && competition && (
+        <div className="px-4 py-3 border-b border-slate-800 bg-slate-900/60 shrink-0">
+          <Paper sx={{ p: 2, borderRadius: 2 }}>
+            <CompetitionForm
+              competitionToEdit={competition}
+              onSubmitSuccess={() => { loadCompetition(); setEditingComp(false); }}
+              onCancel={() => setEditingComp(false)}
+            />
+          </Paper>
+        </div>
+      )}
+
+      <div className="flex-1 flex overflow-hidden">
+        <aside className={`w-full md:w-72 shrink-0 border-r border-slate-800 flex-col ${mobileView === "detail" ? "hidden md:flex" : "flex"}`}>
+          <EditionSidebar
+            editions={editions}
+            selectedId={selectedEdition?.id}
+            onSelect={handleSelectEdition}
+            onAdd={() => setAddEditionOpen(true)}
+            canManage={canManage}
+          />
+        </aside>
+
+        <main className={`flex-1 overflow-hidden flex-col ${mobileView === "list" ? "hidden md:flex" : "flex"}`}>
+          <EditionDetail
+            edition={selectedEdition}
+            competitionId={id}
+            canManage={canManage}
+            onUpdate={loadEditions}
+            onBack={() => setMobileView("list")}
+          />
+        </main>
       </div>
+
+      {canManage && (
+        <EditionFormDialog
+          open={addEditionOpen}
+          onClose={() => setAddEditionOpen(false)}
+          competitionId={id}
+          onSuccess={loadEditions}
+        />
+      )}
     </div>
   );
 }
