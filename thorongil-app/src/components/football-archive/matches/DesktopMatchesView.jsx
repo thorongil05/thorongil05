@@ -3,6 +3,8 @@ import { UserRoles } from "../../../constants/roles";
 import { useAuth } from "../../../context/AuthContext";
 import PropTypes from "prop-types";
 import { MatchStatusBadge } from "../components/MatchStatusBadge";
+import { useMatchContextMenu } from "../hooks/useMatchContextMenu";
+import MatchContextMenu from "../MatchContextMenu";
 
 const thCls = "px-4 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest";
 const thCenterCls = "px-4 py-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest";
@@ -27,53 +29,58 @@ export default function DesktopMatchesView({ matches, loading, error, sortBy, so
   const canManage = user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR;
   const hi = (id) => id === Number(selectedTeamId);
   const teamCls = (id) => `${tdCls} ${hi(id) ? "font-bold text-blue-400" : "text-slate-200"}`;
-  const cols = canManage ? 5 : 4;
+  const { menu, closeMenu, onContextMenu } = useMatchContextMenu();
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-left whitespace-nowrap">
-        <thead>
-          <tr className="bg-slate-800/50">
-            <SortTh label={t("football.round", "G.")} col="round" sortBy={sortBy} sortOrder={sortOrder} onSort={handleRequestSort} />
-            <th className={thCls}>{t("football.home_team", "Casa")}</th>
-            <th className={thCenterCls}>{t("football.score", "Ris.")}</th>
-            <th className={thCls}>{t("football.away_team", "Ospite")}</th>
-            {canManage && <th className={thCls} />}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-800">
-          {loading && <tr><td colSpan={cols} className="px-4 py-8 text-center text-slate-500 text-sm">Caricamento...</td></tr>}
-          {error && !loading && <tr><td colSpan={cols} className="px-4 py-8 text-center text-red-400 text-sm">Errore: {error}</td></tr>}
-          {!loading && !error && matches.length === 0 && <tr><td colSpan={cols} className="px-4 py-8 text-center text-slate-500 text-sm">Nessuna partita trovata</td></tr>}
-          {!loading && !error && matches.map((match) => (
-            <tr key={match.id} className="hover:bg-blue-500/5 transition-colors group">
-              <td className={`${tdCls} text-slate-500 font-mono`}>{match.round || "-"}</td>
-              <td className={teamCls(match.homeTeam?.id)}>{match.homeTeam?.name || "?"}</td>
-              <td className={tdCenterCls}>
-                {match.status && match.status !== "COMPLETED" && match.status !== "IN_PROGRESS" && match.status !== "FORFEITED"
-                  ? <MatchStatusBadge status={match.status} />
-                  : <span className="inline-flex items-center gap-1.5">
-                      <span className="inline-block font-bold font-mono bg-slate-800 rounded-lg px-3 py-0.5 text-white text-sm">
-                        {match.homeScore ?? "—"} - {match.awayScore ?? "—"}
-                      </span>
-                      <MatchStatusBadge status={match.status} />
-                    </span>
-                }
-              </td>
-              <td className={teamCls(match.awayTeam?.id)}>{match.awayTeam?.name || "?"}</td>
-              {canManage && (
-                <td className="px-4 py-3 text-right">
-                  <div className="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => handleEditMatch(match)} className="text-slate-500 hover:text-blue-400 transition-colors text-xs p-1">✎</button>
-                    <button onClick={() => handleDeleteMatch(match.id)} className="text-slate-500 hover:text-red-400 transition-colors text-xs p-1">✕</button>
-                  </div>
-                </td>
-              )}
+    <>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left whitespace-nowrap">
+          <thead>
+            <tr className="bg-slate-800/50">
+              <SortTh label={t("football.round", "G.")} col="round" sortBy={sortBy} sortOrder={sortOrder} onSort={handleRequestSort} />
+              <th className={thCls}>{t("football.home_team", "Casa")}</th>
+              <th className={thCenterCls}>{t("football.score", "Ris.")}</th>
+              <th className={thCls}>{t("football.away_team", "Ospite")}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody className="divide-y divide-slate-800">
+            {loading && <tr><td colSpan={4} className="px-4 py-8 text-center text-slate-500 text-sm">Caricamento...</td></tr>}
+            {error && !loading && <tr><td colSpan={4} className="px-4 py-8 text-center text-red-400 text-sm">Errore: {error}</td></tr>}
+            {!loading && !error && matches.length === 0 && <tr><td colSpan={4} className="px-4 py-8 text-center text-slate-500 text-sm">Nessuna partita trovata</td></tr>}
+            {!loading && !error && matches.map((match) => (
+              <tr
+                key={match.id}
+                className={`hover:bg-blue-500/5 transition-colors ${canManage ? "cursor-context-menu" : ""}`}
+                onContextMenu={canManage ? (e) => onContextMenu(match, e) : undefined}
+              >
+                <td className={`${tdCls} text-slate-500 font-mono`}>{match.round || "-"}</td>
+                <td className={teamCls(match.homeTeam?.id)}>{match.homeTeam?.name || "?"}</td>
+                <td className={tdCenterCls}>
+                  {match.status && match.status !== "COMPLETED" && match.status !== "IN_PROGRESS" && match.status !== "FORFEITED"
+                    ? <MatchStatusBadge status={match.status} />
+                    : <span className="inline-flex items-center gap-1.5">
+                        <span className="inline-block font-bold font-mono bg-slate-800 rounded-lg px-3 py-0.5 text-white text-sm">
+                          {match.homeScore ?? "—"} - {match.awayScore ?? "—"}
+                        </span>
+                        <MatchStatusBadge status={match.status} />
+                      </span>
+                  }
+                </td>
+                <td className={teamCls(match.awayTeam?.id)}>{match.awayTeam?.name || "?"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {menu && (
+        <MatchContextMenu
+          x={menu.x} y={menu.y} match={menu.match}
+          onClose={closeMenu}
+          onEdit={handleEditMatch}
+          onDelete={handleDeleteMatch}
+        />
+      )}
+    </>
   );
 }
 
