@@ -10,6 +10,7 @@ import AddIcon from "@mui/icons-material/Add";
 import SaveIcon from "@mui/icons-material/Save";
 import { apiGet, apiPost, apiDelete, apiPut } from "../../../../utils/api";
 import PropTypes from "prop-types";
+import GroupEditForm from "./GroupEditForm";
 
 function PhaseDetailView({ phase, onUpdate, onDelete }) {
     const [editingPhase, setEditingPhase] = useState(null);
@@ -90,7 +91,10 @@ function PhaseDetailView({ phase, onUpdate, onDelete }) {
     const handleUpdateGroup = async () => {
         if (!editingGroup || !editingGroup.name) return;
         try {
-            await apiPut(`/api/competitions/groups/${editingGroup.id}`, { name: editingGroup.name });
+            await apiPut(`/api/competitions/groups/${editingGroup.id}`, {
+                name: editingGroup.name,
+                metadata: editingGroup.metadata || {},
+            });
             setEditingGroup(null);
             fetchGroups();
         } catch (err) {
@@ -258,20 +262,24 @@ function PhaseDetailView({ phase, onUpdate, onDelete }) {
                                     }}
                                 >
                                     {editingGroup?.id === group.id ? (
-                                        <Stack direction="row" spacing={1} sx={{ width: '100%' }}>
-                                            <TextField
-                                                size="small"
-                                                fullWidth
-                                                autoFocus
-                                                value={editingGroup.name}
-                                                onChange={(e) => setEditingGroup({ ...editingGroup, name: e.target.value })}
-                                            />
-                                            <IconButton color="primary" onClick={handleUpdateGroup}><SaveIcon fontSize="small" /></IconButton>
-                                            <IconButton onClick={() => setEditingGroup(null)}><DeleteIcon fontSize="small" /></IconButton>
-                                        </Stack>
+                                        <GroupEditForm
+                                            group={editingGroup}
+                                            onChange={setEditingGroup}
+                                            onSave={handleUpdateGroup}
+                                            onCancel={() => setEditingGroup(null)}
+                                        />
                                     ) : (
                                         <>
-                                            <Typography variant="body1" sx={{ fontWeight: 600 }}>{group.name}</Typography>
+                                            <Box>
+                                                <Typography variant="body1" sx={{ fontWeight: 600 }}>{group.name}</Typography>
+                                                <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap sx={{ mt: 0.5 }}>
+                                                    {group.metadata?.participantsCount > 0 && <Chip size="small" label={`${group.metadata.participantsCount} partecipanti`} />}
+                                                    {group.metadata?.promotionsCount > 0 && <Chip size="small" color="success" label={`↑ ${group.metadata.promotionsCount} prom.`} />}
+                                                    {group.metadata?.relegationsCount > 0 && <Chip size="small" color="error" label={`↓ ${group.metadata.relegationsCount} retr.`} />}
+                                                    {group.metadata?.playoffSpotsCount > 0 && <Chip size="small" color="warning" label={`${group.metadata.playoffSpotsCount} playoff`} />}
+                                                    {group.metadata?.playoutSpotsCount > 0 && <Chip size="small" color="warning" variant="outlined" label={`${group.metadata.playoutSpotsCount} playout`} />}
+                                                </Stack>
+                                            </Box>
                                             <Stack direction="row">
                                                 <IconButton size="small" onClick={() => setEditingGroup({ ...group })}>
                                                     <EditIcon fontSize="small" />

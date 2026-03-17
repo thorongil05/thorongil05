@@ -1,7 +1,8 @@
 import {
     Box, Typography, Button, Stack, Paper, IconButton,
-    TextField, MenuItem, Collapse, Divider, List, ListItem, ListItemText, ListItemSecondaryAction
+    TextField, MenuItem, Collapse, Divider, List, ListItem, ListItemText, ListItemSecondaryAction, Chip
 } from "@mui/material";
+import GroupEditForm from "./phase-management/GroupEditForm";
 import { useState, useEffect, useCallback } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -259,7 +260,10 @@ function PhaseItem({ phase, onDelete, onEdit, isExpanded, onToggle }) {
     const handleUpdateGroup = async () => {
         if (!editingGroup || !editingGroup.name) return;
         try {
-            await apiPut(`/api/competitions/groups/${editingGroup.id}`, { name: editingGroup.name });
+            await apiPut(`/api/competitions/groups/${editingGroup.id}`, {
+                name: editingGroup.name,
+                metadata: editingGroup.metadata || {},
+            });
             setEditingGroup(null);
             fetchGroups();
         } catch (err) {
@@ -323,33 +327,40 @@ function PhaseItem({ phase, onDelete, onEdit, isExpanded, onToggle }) {
                                 </Stack>
                             )}
 
-                            {editingGroup && (
-                                <Stack direction="row" spacing={1} sx={{ mb: 2, p: 1, bgcolor: 'action.selected', borderRadius: 1 }}>
-                                    <TextField
-                                        label="Modifica Girone"
-                                        size="small"
-                                        value={editingGroup.name}
-                                        onChange={(e) => setEditingGroup({ ...editingGroup, name: e.target.value })}
-                                        sx={{ flex: 1 }}
-                                        autoFocus
-                                    />
-                                    <Button variant="contained" size="small" color="secondary" onClick={handleUpdateGroup}>Modifica</Button>
-                                    <Button size="small" onClick={() => setEditingGroup(null)}>Annulla</Button>
-                                </Stack>
-                            )}
-
                             <List size="small" disablePadding>
                                 {groups.map(group => (
-                                    <ListItem key={group.id} divider>
-                                        <ListItemText primary={group.name} primaryTypographyProps={{ variant: 'body2' }} />
-                                        <ListItemSecondaryAction>
-                                            <IconButton size="small" sx={{ mr: 1 }} onClick={() => setEditingGroup({ ...group })}>
-                                                <EditIcon fontSize="small" />
-                                            </IconButton>
-                                            <IconButton size="small" edge="end" color="error" onClick={() => handleDeleteGroup(group.id)}>
-                                                <DeleteIcon fontSize="small" />
-                                            </IconButton>
-                                        </ListItemSecondaryAction>
+                                    <ListItem key={group.id} divider sx={{ flexDirection: 'column', alignItems: 'stretch' }}>
+                                        {editingGroup?.id === group.id ? (
+                                            <Box sx={{ py: 1 }}>
+                                                <GroupEditForm
+                                                    group={editingGroup}
+                                                    onChange={setEditingGroup}
+                                                    onSave={handleUpdateGroup}
+                                                    onCancel={() => setEditingGroup(null)}
+                                                />
+                                            </Box>
+                                        ) : (
+                                            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ width: '100%' }}>
+                                                <Box>
+                                                    <Typography variant="body2">{group.name}</Typography>
+                                                    <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap sx={{ mt: 0.5 }}>
+                                                        {group.metadata?.participantsCount > 0 && <Chip size="small" label={`${group.metadata.participantsCount} part.`} />}
+                                                        {group.metadata?.promotionsCount > 0 && <Chip size="small" color="success" label={`↑ ${group.metadata.promotionsCount}`} />}
+                                                        {group.metadata?.relegationsCount > 0 && <Chip size="small" color="error" label={`↓ ${group.metadata.relegationsCount}`} />}
+                                                        {group.metadata?.playoffSpotsCount > 0 && <Chip size="small" color="warning" label={`PO ${group.metadata.playoffSpotsCount}`} />}
+                                                        {group.metadata?.playoutSpotsCount > 0 && <Chip size="small" color="warning" variant="outlined" label={`PLO ${group.metadata.playoutSpotsCount}`} />}
+                                                    </Stack>
+                                                </Box>
+                                                <ListItemSecondaryAction>
+                                                    <IconButton size="small" sx={{ mr: 1 }} onClick={() => setEditingGroup({ ...group })}>
+                                                        <EditIcon fontSize="small" />
+                                                    </IconButton>
+                                                    <IconButton size="small" edge="end" color="error" onClick={() => handleDeleteGroup(group.id)}>
+                                                        <DeleteIcon fontSize="small" />
+                                                    </IconButton>
+                                                </ListItemSecondaryAction>
+                                            </Stack>
+                                        )}
                                     </ListItem>
                                 ))}
                                 {groups.length === 0 && !isAddingGroup && (

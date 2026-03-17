@@ -3,13 +3,66 @@ import PropTypes from "prop-types";
 import { apiGet, apiPost, apiPut, apiDelete } from "../../../../utils/api";
 
 const inp = "bg-slate-700 border border-slate-600 text-white text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500";
+const numInp = `${inp} w-full`;
+const lbl = "text-xs text-slate-400 mb-1 block";
+
+function Field({ label, value, onChange }) {
+  return (
+    <div>
+      <label className={lbl}>{label}</label>
+      <input type="number" min="0" value={value ?? ""} onChange={(e) => onChange(e.target.value)} className={numInp} />
+    </div>
+  );
+}
+
+Field.propTypes = { label: PropTypes.string.isRequired, value: PropTypes.number, onChange: PropTypes.func.isRequired };
+
+function GroupEditInline({ group, onChange, onSave, onCancel }) {
+  const setMeta = (field, val) => {
+    const parsed = val === "" ? undefined : parseInt(val);
+    onChange({ ...group, metadata: { ...(group.metadata || {}), [field]: parsed } });
+  };
+
+  return (
+    <div className="space-y-3 py-1">
+      <div>
+        <label className={lbl}>Nome girone</label>
+        <input
+          value={group.name}
+          onChange={(e) => onChange({ ...group, name: e.target.value })}
+          autoFocus
+          placeholder="Es. Gruppo A"
+          className={`w-full ${inp}`}
+        />
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <Field label="Partecipanti" value={group.metadata?.participantsCount} onChange={(v) => setMeta("participantsCount", v)} />
+        <Field label="Partite totali" value={group.metadata?.totalMatches} onChange={(v) => setMeta("totalMatches", v)} />
+        <Field label="Promozioni dirette" value={group.metadata?.promotionsCount} onChange={(v) => setMeta("promotionsCount", v)} />
+        <Field label="Retrocessioni dirette" value={group.metadata?.relegationsCount} onChange={(v) => setMeta("relegationsCount", v)} />
+        <Field label="Posti playoff" value={group.metadata?.playoffSpotsCount} onChange={(v) => setMeta("playoffSpotsCount", v)} />
+        <Field label="Posti playout" value={group.metadata?.playoutSpotsCount} onChange={(v) => setMeta("playoutSpotsCount", v)} />
+      </div>
+      <div className="flex justify-end gap-2 pt-1">
+        <button onClick={onCancel} className="text-sm text-slate-400 border border-slate-600 hover:border-slate-500 px-4 py-1.5 rounded-lg transition-colors">Annulla</button>
+        <button onClick={onSave} className="text-sm bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-lg transition-colors">Salva</button>
+      </div>
+    </div>
+  );
+}
+
+GroupEditInline.propTypes = {
+  group: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+};
 
 export default function GroupsList({ phase }) {
   const [groups, setGroups] = useState([]);
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState("");
-  const [editingId, setEditingId] = useState(null);
-  const [editingName, setEditingName] = useState("");
+  const [editingGroup, setEditingGroup] = useState(null);
 
   const fetchGroups = useCallback(() => {
     if (phase.type !== "GROUP") return;
@@ -29,8 +82,12 @@ export default function GroupsList({ phase }) {
   };
 
   const handleUpdate = async () => {
-    await apiPut(`/api/competitions/groups/${editingId}`, { name: editingName }).catch(() => {});
-    setEditingId(null); fetchGroups();
+    if (!editingGroup?.name) return;
+    await apiPut(`/api/competitions/groups/${editingGroup.id}`, {
+      name: editingGroup.name,
+      metadata: editingGroup.metadata || {},
+    }).catch(() => {});
+    setEditingGroup(null); fetchGroups();
   };
 
   const handleDelete = async (id) => {
@@ -58,19 +115,32 @@ export default function GroupsList({ phase }) {
 
       <div className="space-y-1">
         {groups.map((g) => (
-          <div key={g.id} className="flex items-center gap-2 bg-slate-800/50 rounded-lg px-3 py-2 border border-slate-700">
-            {editingId === g.id ? (
-              <>
-                <input value={editingName} onChange={(e) => setEditingName(e.target.value)} autoFocus className={`flex-1 ${inp}`} />
-                <button onClick={handleUpdate} className="text-xs text-blue-400 hover:text-blue-300">✓</button>
-                <button onClick={() => setEditingId(null)} className="text-xs text-slate-500 hover:text-white">✕</button>
-              </>
+          <div key={g.id} className="bg-slate-800/50 rounded-lg px-3 py-2 border border-slate-700">
+            {editingGroup?.id === g.id ? (
+              <GroupEditInline
+                group={editingGroup}
+                onChange={setEditingGroup}
+                onSave={handleUpdate}
+                onCancel={() => setEditingGroup(null)}
+              />
             ) : (
-              <>
-                <span className="text-sm text-slate-200 flex-1">{g.name}</span>
-                <button onClick={() => { setEditingId(g.id); setEditingName(g.name); }} className="text-xs text-slate-500 hover:text-slate-300 transition-colors">✏️</button>
-                <button onClick={() => handleDelete(g.id)} className="text-xs text-slate-600 hover:text-red-400 transition-colors">🗑️</button>
-              </>
+              <div className="flex items-start gap-2">
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-semibold text-slate-200">{g.name}</span>
+                  {Object.keys(g.metadata || {}).some((k) => g.metadata[k] > 0) && (
+                    <dl className="mt-2 flex flex-wrap gap-x-6 gap-y-2">
+                      {g.metadata?.participantsCount > 0 && <div><dt className="text-xs text-slate-500">Partecipanti</dt><dd className="text-sm text-slate-200 font-semibold">{g.metadata.participantsCount}</dd></div>}
+                      {g.metadata?.totalMatches > 0 && <div><dt className="text-xs text-slate-500">Partite totali</dt><dd className="text-sm text-slate-200 font-semibold">{g.metadata.totalMatches}</dd></div>}
+                      {g.metadata?.promotionsCount > 0 && <div><dt className="text-xs text-slate-500">Promozioni dirette</dt><dd className="text-sm text-green-400 font-semibold">{g.metadata.promotionsCount}</dd></div>}
+                      {g.metadata?.relegationsCount > 0 && <div><dt className="text-xs text-slate-500">Retrocessioni dirette</dt><dd className="text-sm text-red-400 font-semibold">{g.metadata.relegationsCount}</dd></div>}
+                      {g.metadata?.playoffSpotsCount > 0 && <div><dt className="text-xs text-slate-500">Posti playoff</dt><dd className="text-sm text-yellow-400 font-semibold">{g.metadata.playoffSpotsCount}</dd></div>}
+                      {g.metadata?.playoutSpotsCount > 0 && <div><dt className="text-xs text-slate-500">Posti playout</dt><dd className="text-sm text-orange-400 font-semibold">{g.metadata.playoutSpotsCount}</dd></div>}
+                    </dl>
+                  )}
+                </div>
+                <button onClick={() => setEditingGroup({ ...g })} className="text-xs text-slate-500 hover:text-slate-300 transition-colors shrink-0">✏️</button>
+                <button onClick={() => handleDelete(g.id)} className="text-xs text-slate-600 hover:text-red-400 transition-colors shrink-0">🗑️</button>
+              </div>
             )}
           </div>
         ))}

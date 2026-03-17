@@ -66,6 +66,7 @@ module.exports = {
   mapToGroup: function (input) {
     return {
       name: input.name,
+      metadata: input.metadata || {},
     };
   },
 };
