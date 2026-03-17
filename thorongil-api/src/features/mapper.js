@@ -39,6 +39,7 @@ module.exports = {
       awayGoals: input.awayGoals,
       stadium: input.stadium,
       round: input.round,
+      status: input.status,
     };
   },
   mapToCompetition: function (input) {

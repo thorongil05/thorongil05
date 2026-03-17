@@ -2,16 +2,16 @@ import { useEffect, useState, useCallback } from "react";
 import { apiGet } from "../../../utils/api";
 import PropTypes from "prop-types";
 
-function ProgressBar({ label, count, total, colorCls, trackCls }) {
+function ProgressBar({ label, count, total, labelCls, fillCls, trackCls }) {
   const pct = total ? Math.min(100, Math.round((count / total) * 100)) : 0;
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
         <span className="text-xs text-slate-500">{label}</span>
-        <span className={`text-xs font-semibold tabular-nums ${colorCls}`}>{count} / {total}</span>
+        <span className={`text-xs font-semibold tabular-nums ${labelCls}`}>{count} / {total}</span>
       </div>
       <div className={`h-1.5 rounded-full overflow-hidden ${trackCls}`}>
-        <div style={{ width: `${pct}%` }} className={`h-full rounded-full transition-all duration-500 ${colorCls.replace("text-", "bg-")}`} />
+        <div style={{ width: `${pct}%` }} className={`h-full rounded-full transition-all duration-500 ${fillCls}`} />
       </div>
     </div>
   );
@@ -39,14 +39,16 @@ export default function CompetitionProgress({ edition, refreshTrigger }) {
         label="Inserite"
         count={progress.inserted}
         total={total}
-        colorCls="text-blue-400"
+        labelCls="text-blue-400"
+        fillCls="bg-blue-400"
         trackCls="bg-slate-700"
       />
       <ProgressBar
         label="Completate"
         count={progress.completed}
         total={total}
-        colorCls="text-green-400"
+        labelCls="text-green-400"
+        fillCls="bg-green-400"
         trackCls="bg-slate-700/60"
       />
     </div>
@@ -67,6 +69,7 @@ ProgressBar.propTypes = {
   label: PropTypes.string.isRequired,
   count: PropTypes.number.isRequired,
   total: PropTypes.number.isRequired,
-  colorCls: PropTypes.string.isRequired,
+  labelCls: PropTypes.string.isRequired,
+  fillCls: PropTypes.string.isRequired,
   trackCls: PropTypes.string.isRequired,
 };
