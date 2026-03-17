@@ -17,16 +17,21 @@ function ProgressBar({ label, count, total, labelCls, fillCls, trackCls }) {
   );
 }
 
-export default function CompetitionProgress({ edition, refreshTrigger }) {
+export default function CompetitionProgress({ edition, group, refreshTrigger }) {
   const [progress, setProgress] = useState({ inserted: 0, completed: 0 });
-  const total = Number(edition?.metadata?.totalMatches) || 0;
+
+  const total = group
+    ? Number(group.metadata?.totalMatches) || 0
+    : Number(edition?.metadata?.totalMatches) || 0;
 
   const fetchProgress = useCallback(() => {
     if (!edition?.id) return;
-    apiGet(`/api/matches/progress?editionId=${edition.id}`)
+    const params = new URLSearchParams({ editionId: edition.id });
+    if (group?.id) params.set("groupId", group.id);
+    apiGet(`/api/matches/progress?${params}`)
       .then(setProgress)
       .catch(() => {});
-  }, [edition?.id]);
+  }, [edition?.id, group?.id]);
 
   useEffect(() => { fetchProgress(); }, [fetchProgress, refreshTrigger]);
 
@@ -57,6 +62,12 @@ export default function CompetitionProgress({ edition, refreshTrigger }) {
 
 CompetitionProgress.propTypes = {
   edition: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    metadata: PropTypes.shape({
+      totalMatches: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    }),
+  }),
+  group: PropTypes.shape({
     id: PropTypes.number.isRequired,
     metadata: PropTypes.shape({
       totalMatches: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),

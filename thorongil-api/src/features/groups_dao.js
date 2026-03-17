@@ -3,13 +3,19 @@ const logger = require("pino")();
 
 async function insert(group) {
   const query = `
-        INSERT INTO competition_groups (phase_id, name)
-        VALUES ($1, $2)
+        INSERT INTO competition_groups (phase_id, name, metadata)
+        VALUES ($1, $2, $3)
         RETURNING *;
     `;
-  const values = [group.phaseId, group.name];
+  const values = [group.phaseId, group.name, group.metadata || {}];
   const { rows } = await pool.query(query, values);
   logger.info({ group: rows[0] }, "Group inserted");
+  return mapRowToGroup(rows[0]);
+}
+
+async function findById(id) {
+  const query = "SELECT * FROM competition_groups WHERE id = $1;";
+  const { rows } = await pool.query(query, [id]);
   return mapRowToGroup(rows[0]);
 }
 
@@ -33,11 +39,11 @@ async function deleteGroup(id) {
 async function update(id, group) {
   const query = `
         UPDATE competition_groups
-        SET name = $1
-        WHERE id = $2
+        SET name = $1, metadata = $2
+        WHERE id = $3
         RETURNING *;
     `;
-  const values = [group.name, id];
+  const values = [group.name, group.metadata || {}, id];
   const { rows } = await pool.query(query, values);
   logger.info({ group: rows[0] }, "Group updated");
   return mapRowToGroup(rows[0]);
@@ -49,11 +55,13 @@ function mapRowToGroup(row) {
     id: row.id,
     phaseId: row.phase_id,
     name: row.name,
+    metadata: row.metadata || {},
   };
 }
 
 module.exports = {
   insert,
+  findById,
   retrieveByPhase,
   update,
   deleteGroup,

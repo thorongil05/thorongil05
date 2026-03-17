@@ -2,6 +2,7 @@ const pool = require("./database");
 const logger = require("pino")();
 const matchesDao = require("./matches_dao");
 const standingsService = require("./standings_service");
+const groupsDao = require("./groups_dao");
 
 async function insert(competitionEntry) {
   const query = `
@@ -129,15 +130,19 @@ async function getStandings(editionId, args = {}) {
   if (args && args.endInterval) {
     endInterval = args.endInterval;
   }
+  const rawStandings = standingsService.calculateStandings(matches, startInterval, endInterval);
+
+  let groupMetadata = null;
+  if (args.groupId) {
+    const group = await groupsDao.findById(args.groupId);
+    groupMetadata = group?.metadata || null;
+  }
+
   return {
     totalRounds: totalRounds,
     startInterval: startInterval,
     endInterval: endInterval,
-    standings: standingsService.calculateStandings(
-      matches,
-      startInterval,
-      endInterval,
-    ),
+    standings: standingsService.assignTags(rawStandings, groupMetadata),
   };
 }
 

@@ -55,6 +55,26 @@ function initializeTeam(team) {
   };
 }
 
+function assignTags(standings, metadata) {
+  if (!metadata) return standings.map((s) => ({ ...s, tags: [] }));
+  const n = standings.length;
+  const promoted = metadata.promotionsCount || 0;
+  const playoff = metadata.playoffSpotsCount || 0;
+  const relegated = metadata.relegationsCount || 0;
+  const playout = metadata.playoutSpotsCount || 0;
+
+  return standings.map((entry, index) => {
+    const pos = index + 1;
+    const tags = [];
+    if (pos <= promoted) tags.push("PROMOTED");
+    else if (pos <= promoted + playoff) tags.push("PLAYOFF");
+    if (pos > n - relegated) tags.push("RELEGATED");
+    else if (relegated + playout > 0 && pos > n - relegated - playout) tags.push("PLAYOUT");
+    return { ...entry, tags };
+  });
+}
+
 module.exports = {
   calculateStandings,
+  assignTags,
 };

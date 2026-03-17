@@ -56,7 +56,11 @@ export default function SidebarSelectors({ data, canManage, onAddCompetition, sh
       )}
       <SelectRow label="Stagione" options={data.editions} value={data.selectedEdition?.id}
         onChange={(e) => data.setSelectedEdition(data.editions.find((x) => x.id === Number(e.target.value)))} />
-      <CompetitionProgress edition={data.selectedEdition} refreshTrigger={data.refreshTrigger} />
+      <CompetitionProgress
+        edition={data.selectedEdition}
+        group={data.groups?.find((g) => g.id === data.selectedGroupId) ?? null}
+        refreshTrigger={data.refreshTrigger}
+      />
       <SelectRow label="Fase" options={data.phases} value={data.selectedPhaseId}
         onChange={(e) => data.handlePhaseChange(Number(e.target.value))} />
       <SelectRow label="Girone" options={data.groups} value={data.selectedGroupId}
