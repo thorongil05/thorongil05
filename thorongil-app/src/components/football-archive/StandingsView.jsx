@@ -4,6 +4,27 @@ import { Slider } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useStandingsData } from "./hooks/useStandingsData";
 
+const TAG_ROW = {
+  PROMOTED:  "border-l-2 border-green-500  bg-green-500/5",
+  PLAYOFF:   "border-l-2 border-blue-400   bg-blue-400/5",
+  PLAYOUT:   "border-l-2 border-orange-400 bg-orange-400/5",
+  RELEGATED: "border-l-2 border-red-500    bg-red-500/5",
+};
+const TAG_DOT = {
+  PROMOTED:  "bg-green-500",
+  PLAYOFF:   "bg-blue-400",
+  PLAYOUT:   "bg-orange-400",
+  RELEGATED: "bg-red-500",
+};
+const TAG_LABEL = {
+  PROMOTED:  "Promossa",
+  PLAYOFF:   "Playoff",
+  PLAYOUT:   "Playout",
+  RELEGATED: "Retrocessa",
+};
+
+function rowTag(tags) { return tags?.[0] ?? null; }
+
 function SortTh({ label, col, sortBy, sortOrder, onSort, center }) {
   const icon = sortBy !== col ? "↕" : sortOrder === "asc" ? "↑" : "↓";
   return <th className={`px-3 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest cursor-pointer select-none${center ? " text-center" : ""}`} onClick={() => onSort(col)}>{label}<span className={sortBy === col ? "text-blue-400 ml-1" : "text-slate-700 ml-1"}>{icon}</span></th>;
@@ -51,15 +72,23 @@ export default function StandingsView({ selectedEdition, selectedPhaseId, select
             {loading && <tr><td colSpan={cols} className="px-4 py-8 text-center text-slate-500 text-sm">Caricamento...</td></tr>}
             {error && !loading && <tr><td colSpan={cols} className="px-4 py-8 text-center text-red-400 text-sm">Errore: {error}</td></tr>}
             {!loading && !error && sortedStandings.length === 0 && <tr><td colSpan={cols} className="px-4 py-8 text-center text-slate-500 text-sm">Nessuna classifica disponibile</td></tr>}
-            {!loading && !error && sortedStandings.map((team, idx) => (
-              <tr key={team.teamId} className="hover:bg-blue-500/5 transition-colors">
-                <td className="px-3 py-2.5 text-sm text-slate-500">{idx + 1}</td>
+            {!loading && !error && sortedStandings.map((team, idx) => {
+              const tag = rowTag(team.tags);
+              return (
+              <tr key={team.teamId} className={`transition-colors hover:brightness-110 ${TAG_ROW[tag] ?? "border-l-2 border-transparent hover:bg-blue-500/5"}`}>
+                <td className="px-3 py-2.5 text-sm text-slate-500">
+                  <span className="flex items-center gap-1.5">
+                    {tag && <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${TAG_DOT[tag]}`} title={TAG_LABEL[tag]} />}
+                    {idx + 1}
+                  </span>
+                </td>
                 <td className="px-3 py-2.5 text-sm text-slate-200 font-medium">{team.teamName}</td>
                 <td className="px-3 py-2.5 text-sm text-slate-400 text-center">{team.played}</td>
                 {isExpanded && <><td className="px-3 py-2.5 text-sm text-green-400 text-center">{team.won}</td><td className="px-3 py-2.5 text-sm text-yellow-400 text-center">{team.drawn}</td><td className="px-3 py-2.5 text-sm text-red-400 text-center">{team.lost}</td><td className="px-3 py-2.5 text-sm text-slate-400 text-center">{team.goalsFor}</td><td className="px-3 py-2.5 text-sm text-slate-400 text-center">{team.goalsAgainst}</td><td className="px-3 py-2.5 text-sm text-slate-400 text-center">{team.goalDifference}</td></>}
                 <td className="px-3 py-2.5 text-sm text-center"><span className="font-bold text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-lg">{team.points}</span></td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

@@ -13,6 +13,12 @@ async function insert(group) {
   return mapRowToGroup(rows[0]);
 }
 
+async function findById(id) {
+  const query = "SELECT * FROM competition_groups WHERE id = $1;";
+  const { rows } = await pool.query(query, [id]);
+  return mapRowToGroup(rows[0]);
+}
+
 async function retrieveByPhase(phaseId) {
   const query = `
         SELECT * FROM competition_groups 
@@ -55,6 +61,7 @@ function mapRowToGroup(row) {
 
 module.exports = {
   insert,
+  findById,
   retrieveByPhase,
   update,
   deleteGroup,
