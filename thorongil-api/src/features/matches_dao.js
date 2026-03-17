@@ -194,6 +194,18 @@ async function update(id, match) {
   return rows[0];
 }
 
+async function getProgress(editionId) {
+  const query = `
+    SELECT
+      COUNT(*)                                                                            AS inserted,
+      COUNT(*) FILTER (WHERE home_goals IS NOT NULL AND away_goals IS NOT NULL)           AS completed
+    FROM matches
+    WHERE edition_id = $1
+  `;
+  const { rows } = await pool.query(query, [editionId]);
+  return { inserted: Number(rows[0].inserted), completed: Number(rows[0].completed) };
+}
+
 async function deleteMatch(id) {
   const query = "DELETE FROM matches WHERE id = $1 RETURNING *;";
   const { rows } = await pool.query(query, [id]);
@@ -207,5 +219,6 @@ module.exports = {
   findMatches: findMatches,
   update: update,
   findRounds: findRounds,
+  getProgress: getProgress,
   deleteMatch: deleteMatch,
 };
