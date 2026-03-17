@@ -4,7 +4,9 @@ import { useAuth } from "../../../context/AuthContext";
 import PropTypes from "prop-types";
 
 const thCls = "px-4 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest";
+const thCenterCls = "px-4 py-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest";
 const tdCls = "px-4 py-3 text-sm";
+const tdCenterCls = "px-4 py-3 text-sm text-center";
 
 function SortTh({ label, col, sortBy, sortOrder, onSort }) {
   const icon = sortBy !== col ? "↕" : sortOrder === "asc" ? "↑" : "↓";
@@ -33,7 +35,7 @@ export default function DesktopMatchesView({ matches, loading, error, sortBy, so
           <tr className="bg-slate-800/50">
             <SortTh label={t("football.round", "G.")} col="round" sortBy={sortBy} sortOrder={sortOrder} onSort={handleRequestSort} />
             <th className={thCls}>{t("football.home_team", "Casa")}</th>
-            <th className={`${thCls} text-center`}>{t("football.score", "Ris.")}</th>
+            <th className={thCenterCls}>{t("football.score", "Ris.")}</th>
             <th className={thCls}>{t("football.away_team", "Ospite")}</th>
             {canManage && <th className={thCls} />}
           </tr>
@@ -46,8 +48,8 @@ export default function DesktopMatchesView({ matches, loading, error, sortBy, so
             <tr key={match.id} className="hover:bg-blue-500/5 transition-colors group">
               <td className={`${tdCls} text-slate-500 font-mono`}>{match.round || "-"}</td>
               <td className={teamCls(match.homeTeam?.id)}>{match.homeTeam?.name || "?"}</td>
-              <td className={tdCls}>
-                <span className="flex items-center justify-center font-bold font-mono bg-slate-800 rounded-lg px-3 py-0.5 text-white w-fit mx-auto text-sm">
+              <td className={tdCenterCls}>
+                <span className="inline-block font-bold font-mono bg-slate-800 rounded-lg px-3 py-0.5 text-white text-sm">
                   {match.homeScore} - {match.awayScore}
                 </span>
               </td>
