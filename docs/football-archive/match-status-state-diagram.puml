@@ -1,0 +1,41 @@
+@startuml match-status-state-diagram
+
+title Match Status — State Diagram
+
+[*] --> SCHEDULED : match created
+
+SCHEDULED --> IN_PROGRESS : match starts
+SCHEDULED --> POSTPONED : match postponed
+SCHEDULED --> CANCELLED : match cancelled\nbefore start
+
+IN_PROGRESS --> COMPLETED : match ends\n(home_goals + away_goals set)
+IN_PROGRESS --> SUSPENDED : match interrupted
+IN_PROGRESS --> FORFEITED : forfeit declared\nduring match
+
+SUSPENDED --> IN_PROGRESS : match resumes
+SUSPENDED --> COMPLETED : resumed and finished
+SUSPENDED --> CANCELLED : not replayed
+SUSPENDED --> FORFEITED : forfeit declared\nafter suspension
+
+POSTPONED --> SCHEDULED : rescheduled
+POSTPONED --> CANCELLED : not replayed
+POSTPONED --> FORFEITED : forfeit declared\nafter postponement
+
+CANCELLED --> [*]
+COMPLETED --> [*]
+FORFEITED --> [*]
+
+note right of COMPLETED
+  home_goals and away_goals
+  are meaningful only in
+  COMPLETED and IN_PROGRESS
+end note
+
+note right of FORFEITED
+  Score is stored explicitly:
+  home_goals=3, away_goals=0 → home team wins
+  home_goals=0, away_goals=3 → away team wins
+  No separate field needed.
+end note
+
+@enduml

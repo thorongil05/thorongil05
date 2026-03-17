@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { UserRoles } from "../../../constants/roles";
 import { useAuth } from "../../../context/AuthContext";
 import PropTypes from "prop-types";
+import { MatchStatusBadge } from "../components/MatchStatusBadge";
 
 const thCls = "px-4 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest";
 const thCenterCls = "px-4 py-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest";
@@ -49,9 +50,15 @@ export default function DesktopMatchesView({ matches, loading, error, sortBy, so
               <td className={`${tdCls} text-slate-500 font-mono`}>{match.round || "-"}</td>
               <td className={teamCls(match.homeTeam?.id)}>{match.homeTeam?.name || "?"}</td>
               <td className={tdCenterCls}>
-                <span className="inline-block font-bold font-mono bg-slate-800 rounded-lg px-3 py-0.5 text-white text-sm">
-                  {match.homeScore} - {match.awayScore}
-                </span>
+                {match.status && match.status !== "COMPLETED" && match.status !== "IN_PROGRESS" && match.status !== "FORFEITED"
+                  ? <MatchStatusBadge status={match.status} />
+                  : <span className="inline-flex items-center gap-1.5">
+                      <span className="inline-block font-bold font-mono bg-slate-800 rounded-lg px-3 py-0.5 text-white text-sm">
+                        {match.homeScore ?? "—"} - {match.awayScore ?? "—"}
+                      </span>
+                      <MatchStatusBadge status={match.status} />
+                    </span>
+                }
               </td>
               <td className={teamCls(match.awayTeam?.id)}>{match.awayTeam?.name || "?"}</td>
               {canManage && (

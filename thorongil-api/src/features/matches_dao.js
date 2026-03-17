@@ -4,8 +4,8 @@ const logger = require("pino")();
 async function insert(matchEntry) {
   const query = `
         INSERT INTO matches
-            (match_date, edition_id, phase_id, group_id, home_team_id, away_team_id, home_goals, away_goals, stadium, round)
-        VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            (match_date, edition_id, phase_id, group_id, home_team_id, away_team_id, home_goals, away_goals, stadium, round, status)
+        VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         RETURNING *;
     `;
 
@@ -20,6 +20,7 @@ async function insert(matchEntry) {
     matchEntry.awayGoals,
     matchEntry.stadium,
     matchEntry.round,
+    matchEntry.status || "SCHEDULED",
   ];
 
   const { rows } = await pool.query(query, values);
@@ -35,8 +36,8 @@ async function bulkInsert(matchEntries) {
     for (const matchEntry of matchEntries) {
       const query = `
         INSERT INTO matches
-            (match_date, edition_id, phase_id, group_id, home_team_id, away_team_id, home_goals, away_goals, stadium, round)
-        VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            (match_date, edition_id, phase_id, group_id, home_team_id, away_team_id, home_goals, away_goals, stadium, round, status)
+        VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         RETURNING *;
       `;
       const values = [
@@ -50,6 +51,7 @@ async function bulkInsert(matchEntries) {
         matchEntry.awayGoals,
         matchEntry.stadium,
         matchEntry.round,
+        matchEntry.status || "SCHEDULED",
       ];
       const { rows } = await client.query(query, values);
       results.push(rows[0]);
@@ -113,6 +115,7 @@ function mapRowToMatch(row) {
     awayScore: row.away_goals,
     stadium: row.stadium,
     round: row.round,
+    status: row.status,
     homeTeam: { id: row.home_team_id, name: row.home_team_name, city: row.home_team_city },
     awayTeam: { id: row.away_team_id, name: row.away_team_name, city: row.away_team_city },
   };
@@ -120,7 +123,7 @@ function mapRowToMatch(row) {
 
 async function findMatches(args = {}) {
   logger.info({ args }, "Retrieving matches");
-  
+
   let query = `
     SELECT
       m.*, ht.name as home_team_name, ht.city as home_team_city,
@@ -161,17 +164,18 @@ async function findRounds(editionId) {
 async function update(id, match) {
   const query = `
     UPDATE matches
-    SET match_date = $1, 
-        edition_id = $2, 
+    SET match_date = $1,
+        edition_id = $2,
         phase_id = $3,
         group_id = $4,
-        home_team_id = $5, 
-        away_team_id = $6, 
-        home_goals = $7, 
-        away_goals = $8, 
-        stadium = $9, 
-        round = $10
-    WHERE id = $11
+        home_team_id = $5,
+        away_team_id = $6,
+        home_goals = $7,
+        away_goals = $8,
+        stadium = $9,
+        round = $10,
+        status = $11
+    WHERE id = $12
     RETURNING *;
   `;
 
@@ -186,6 +190,7 @@ async function update(id, match) {
     match.awayGoals,
     match.stadium,
     match.round,
+    match.status || "SCHEDULED",
     id,
   ];
 
@@ -197,8 +202,8 @@ async function update(id, match) {
 async function getProgress(editionId) {
   const query = `
     SELECT
-      COUNT(*)                                                                            AS inserted,
-      COUNT(*) FILTER (WHERE home_goals IS NOT NULL AND away_goals IS NOT NULL)           AS completed
+      COUNT(*)                                                              AS inserted,
+      COUNT(*) FILTER (WHERE status IN ('COMPLETED', 'FORFEITED'))         AS completed
     FROM matches
     WHERE edition_id = $1
   `;

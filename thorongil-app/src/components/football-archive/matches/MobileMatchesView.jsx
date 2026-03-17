@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../context/AuthContext";
 import { UserRoles } from "../../../constants/roles";
 import PropTypes from "prop-types";
+import { MatchStatusBadge } from "../components/MatchStatusBadge";
 
 export default function MobileMatchesView({ matches, loading, error, handleEditMatch, handleDeleteMatch, selectedTeamId }) {
   const { t } = useTranslation();
@@ -25,12 +26,15 @@ export default function MobileMatchesView({ matches, loading, error, handleEditM
           <div className="flex-1 py-3 px-3 space-y-1.5">
             <div className="flex items-center justify-between gap-2">
               <span className={`text-sm truncate ${hi(match.homeTeam?.id) ? "font-bold text-blue-400" : "text-slate-200"}`}>{match.homeTeam?.name || "?"}</span>
-              <span className="font-bold font-mono text-white text-sm shrink-0">{match.homeScore}</span>
+              <span className="font-bold font-mono text-white text-sm shrink-0">{match.homeScore ?? "—"}</span>
             </div>
             <div className="flex items-center justify-between gap-2">
               <span className={`text-sm truncate ${hi(match.awayTeam?.id) ? "font-bold text-blue-400" : "text-slate-400"}`}>{match.awayTeam?.name || "?"}</span>
-              <span className="font-bold font-mono text-white text-sm shrink-0">{match.awayScore}</span>
+              <span className="font-bold font-mono text-white text-sm shrink-0">{match.awayScore ?? "—"}</span>
             </div>
+            {match.status && match.status !== "COMPLETED" && (
+              <div><MatchStatusBadge status={match.status} /></div>
+            )}
           </div>
           {canManage && (
             <div className="flex flex-col justify-center gap-2 px-3 shrink-0">
