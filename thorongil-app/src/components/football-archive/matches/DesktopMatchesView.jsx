@@ -5,30 +5,37 @@ import PropTypes from "prop-types";
 import { MatchStatusBadge } from "../components/MatchStatusBadge";
 import { useMatchContextMenu } from "../hooks/useMatchContextMenu";
 import MatchContextMenu from "../MatchContextMenu";
+import { getMatchWinner } from "../constants/matchResult";
 
-const thCls = "px-4 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest";
-const thCenterCls = "px-4 py-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest";
-const tdCls = "px-4 py-3 text-sm";
-const tdCenterCls = "px-4 py-3 text-sm text-center";
+const base10 = "text-[10px] font-bold text-slate-400 uppercase tracking-widest";
+const thCls = `px-4 py-3 text-left ${base10}`;
+const thNarrowCls = `w-px px-2 py-3 text-left ${base10}`;
+const thRightCls = `pl-4 pr-2 py-3 text-right ${base10}`;
+const thScoreCls = `px-2 py-3 text-center ${base10}`;
+const thAwayCls = `pr-4 pl-2 py-3 text-left ${base10}`;
+const tdScoreCls = "px-2 py-3 text-sm text-center";
+const tdHomeCls = "pl-4 pr-2 py-3 text-sm text-right";
+const tdAwayCls = "pr-4 pl-2 py-3 text-sm";
 
-function SortTh({ label, col, sortBy, sortOrder, onSort }) {
+function SortTh({ label, col, sortBy, sortOrder, onSort, className }) {
   const icon = sortBy !== col ? "↕" : sortOrder === "asc" ? "↑" : "↓";
   const iconCls = sortBy !== col ? "text-slate-700 ml-1" : "text-blue-400 ml-1";
   return (
-    <th className={`${thCls} cursor-pointer select-none`} onClick={() => onSort(col)}>
+    <th className={`${className ?? thCls} cursor-pointer select-none`} onClick={() => onSort(col)}>
       {label}<span className={iconCls}>{icon}</span>
     </th>
   );
 }
 
-SortTh.propTypes = { label: PropTypes.string, col: PropTypes.string, sortBy: PropTypes.string, sortOrder: PropTypes.string, onSort: PropTypes.func };
+SortTh.propTypes = { label: PropTypes.string, col: PropTypes.string, sortBy: PropTypes.string, sortOrder: PropTypes.string, onSort: PropTypes.func, className: PropTypes.string };
 
 export default function DesktopMatchesView({ matches, loading, error, sortBy, sortOrder, handleRequestSort, handleEditMatch, handleDeleteMatch, selectedTeamId }) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const canManage = user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR;
   const hi = (id) => id === Number(selectedTeamId);
-  const teamCls = (id) => `${tdCls} ${hi(id) ? "font-bold text-blue-400" : "text-slate-200"}`;
+  const homeCls = (id, w) => `${tdHomeCls} ${hi(id) ? "font-bold text-blue-400" : w === "home" ? "font-bold text-white" : w === "away" ? "text-slate-500" : "text-slate-200"}`;
+  const awayCls = (id, w) => `${tdAwayCls} ${hi(id) ? "font-bold text-blue-400" : w === "away" ? "font-bold text-white" : w === "home" ? "text-slate-500" : "text-slate-200"}`;
   const { menu, closeMenu, onContextMenu } = useMatchContextMenu();
 
   return (
@@ -37,38 +44,42 @@ export default function DesktopMatchesView({ matches, loading, error, sortBy, so
         <table className="w-full text-left whitespace-nowrap">
           <thead>
             <tr className="bg-slate-800/50">
-              <SortTh label={t("football.round", "G.")} col="round" sortBy={sortBy} sortOrder={sortOrder} onSort={handleRequestSort} />
-              <th className={thCls}>{t("football.home_team", "Casa")}</th>
-              <th className={thCenterCls}>{t("football.score", "Ris.")}</th>
-              <th className={thCls}>{t("football.away_team", "Ospite")}</th>
+              <SortTh label={t("football.round", "G.")} col="round" sortBy={sortBy} sortOrder={sortOrder} onSort={handleRequestSort} className={thNarrowCls} />
+              <th className={thRightCls}>{t("football.home_team", "Casa")}</th>
+              <th className={thScoreCls}>{t("football.score", "Ris.")}</th>
+              <th className={thAwayCls}>{t("football.away_team", "Ospite")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800">
             {loading && <tr><td colSpan={4} className="px-4 py-8 text-center text-slate-500 text-sm">Caricamento...</td></tr>}
             {error && !loading && <tr><td colSpan={4} className="px-4 py-8 text-center text-red-400 text-sm">Errore: {error}</td></tr>}
             {!loading && !error && matches.length === 0 && <tr><td colSpan={4} className="px-4 py-8 text-center text-slate-500 text-sm">Nessuna partita trovata</td></tr>}
-            {!loading && !error && matches.map((match) => (
-              <tr
-                key={match.id}
-                className={`hover:bg-blue-500/5 transition-colors ${canManage ? "cursor-context-menu" : ""}`}
-                onContextMenu={canManage ? (e) => onContextMenu(match, e) : undefined}
-              >
-                <td className={`${tdCls} text-slate-500 font-mono`}>{match.round || "-"}</td>
-                <td className={teamCls(match.homeTeam?.id)}>{match.homeTeam?.name || "?"}</td>
-                <td className={tdCenterCls}>
-                  {match.status && match.status !== "COMPLETED" && match.status !== "IN_PROGRESS" && match.status !== "FORFEITED"
-                    ? <MatchStatusBadge status={match.status} />
-                    : <span className="inline-flex items-center gap-1.5">
-                        <span className="inline-block font-bold font-mono bg-slate-800 rounded-lg px-3 py-0.5 text-white text-sm">
-                          {match.homeScore ?? "—"} - {match.awayScore ?? "—"}
+            {!loading && !error && matches.map((match) => {
+              const winner = getMatchWinner(match);
+              const hScoreCls = winner === "away" ? "text-slate-500" : "text-white";
+              const aScoreCls = winner === "home" ? "text-slate-500" : "text-white";
+              return (
+                <tr key={match.id} className={`hover:bg-blue-500/5 transition-colors ${canManage ? "cursor-context-menu" : ""}`}
+                  onContextMenu={canManage ? (e) => onContextMenu(match, e) : undefined}>
+                  <td className="w-px px-2 py-3 text-sm text-slate-500 font-mono whitespace-nowrap">{match.round || "-"}</td>
+                  <td className={homeCls(match.homeTeam?.id, winner)}>{match.homeTeam?.name || "?"}</td>
+                  <td className={tdScoreCls}>
+                    {match.status && match.status !== "COMPLETED" && match.status !== "IN_PROGRESS" && match.status !== "FORFEITED"
+                      ? <MatchStatusBadge status={match.status} />
+                      : <span className="inline-flex items-center gap-1.5">
+                          <span className="inline-flex items-center gap-1 font-bold font-mono bg-slate-800 rounded-lg px-3 py-0.5 text-sm">
+                            <span className={hScoreCls}>{match.homeScore ?? "—"}</span>
+                            <span className="text-slate-600">-</span>
+                            <span className={aScoreCls}>{match.awayScore ?? "—"}</span>
+                          </span>
+                          <MatchStatusBadge status={match.status} />
                         </span>
-                        <MatchStatusBadge status={match.status} />
-                      </span>
-                  }
-                </td>
-                <td className={teamCls(match.awayTeam?.id)}>{match.awayTeam?.name || "?"}</td>
-              </tr>
-            ))}
+                    }
+                  </td>
+                  <td className={awayCls(match.awayTeam?.id, winner)}>{match.awayTeam?.name || "?"}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
