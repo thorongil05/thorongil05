@@ -17,29 +17,6 @@ function updateTeamStats(stats, goalsFor, goalsAgainst) {
   }
 }
 
-function calculateStandings(matches, startInterval, endInterval) {
-  logger.info(`Standings for ${matches.length} matches [${startInterval}, ${endInterval}]`);
-  const standings = {};
-
-  matches.forEach((match) => {
-    if (match.round < startInterval || match.round > endInterval) return;
-    if (!standings[match.homeTeam.id]) standings[match.homeTeam.id] = initializeTeam(match.homeTeam);
-    if (!standings[match.awayTeam.id]) standings[match.awayTeam.id] = initializeTeam(match.awayTeam);
-    
-    if (match.homeScore === null || match.awayScore === null) return;
-
-    updateTeamStats(standings[match.homeTeam.id], match.homeScore, match.awayScore);
-    updateTeamStats(standings[match.awayTeam.id], match.awayScore, match.homeScore);
-  });
-
-  return Object.values(standings).sort((a, b) => {
-    if (b.points !== a.points) return b.points - a.points;
-    if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
-    if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
-    return a.teamName.localeCompare(b.teamName);
-  });
-}
-
 function initializeTeam(team) {
   return {
     teamId: team.id,
@@ -53,6 +30,126 @@ function initializeTeam(team) {
     goalDifference: 0,
     points: 0,
   };
+}
+
+function getH2HStats(teams, matches) {
+  const ids = new Set(teams.map((t) => t.teamId));
+  const stats = Object.fromEntries(
+    teams.map((t) => [t.teamId, { points: 0, goalDifference: 0 }]),
+  );
+  matches
+    .filter(
+      (m) =>
+        ids.has(m.homeTeam.id) &&
+        ids.has(m.awayTeam.id) &&
+        m.homeScore != null &&
+        m.awayScore != null,
+    )
+    .forEach((m) => {
+      if (m.homeScore > m.awayScore) {
+        stats[m.homeTeam.id].points += 3;
+      } else if (m.homeScore < m.awayScore) {
+        stats[m.awayTeam.id].points += 3;
+      } else {
+        stats[m.homeTeam.id].points += 1;
+        stats[m.awayTeam.id].points += 1;
+      }
+      stats[m.homeTeam.id].goalDifference += m.homeScore - m.awayScore;
+      stats[m.awayTeam.id].goalDifference += m.awayScore - m.homeScore;
+    });
+  return stats;
+}
+
+function getValueFn(criterion, h2hStats) {
+  switch (criterion) {
+    case "HEAD_TO_HEAD_POINTS":
+      return (t) => h2hStats?.[t.teamId]?.points ?? 0;
+    case "HEAD_TO_HEAD_GOAL_DIFFERENCE":
+      return (t) => h2hStats?.[t.teamId]?.goalDifference ?? 0;
+    case "GOAL_DIFFERENCE":
+      return (t) => t.goalDifference;
+    case "GOALS_FOR":
+      return (t) => t.goalsFor;
+    case "GOALS_AGAINST":
+      return (t) => -t.goalsAgainst;
+    case "WINS":
+      return (t) => t.won;
+    default:
+      return () => 0;
+  }
+}
+
+function resolveGroup(teams, criteria, allMatches) {
+  if (teams.length <= 1) return teams;
+  if (criteria.length === 0) {
+    return [...teams].sort((a, b) => a.teamName.localeCompare(b.teamName));
+  }
+  const [criterion, ...rest] = criteria;
+  const isH2H =
+    criterion === "HEAD_TO_HEAD_POINTS" ||
+    criterion === "HEAD_TO_HEAD_GOAL_DIFFERENCE";
+  const h2hStats = isH2H ? getH2HStats(teams, allMatches) : null;
+  const valueFn = getValueFn(criterion, h2hStats);
+  const sorted = [...teams].sort((a, b) => valueFn(b) - valueFn(a));
+  const result = [];
+  let i = 0;
+  while (i < sorted.length) {
+    let j = i + 1;
+    while (j < sorted.length && valueFn(sorted[j]) === valueFn(sorted[i])) j++;
+    const group = sorted.slice(i, j);
+    result.push(...(group.length > 1 ? resolveGroup(group, rest, allMatches) : group));
+    i = j;
+  }
+  return result;
+}
+
+function sortByPoints(teams, criteria, matches) {
+  const byPoints = [...teams].sort((a, b) => b.points - a.points);
+  const result = [];
+  let i = 0;
+  while (i < byPoints.length) {
+    let j = i + 1;
+    while (j < byPoints.length && byPoints[j].points === byPoints[i].points) j++;
+    const group = byPoints.slice(i, j);
+    result.push(...(group.length > 1 ? resolveGroup(group, criteria, matches) : group));
+    i = j;
+  }
+  return result;
+}
+
+function inInterval(match, startInterval, endInterval) {
+  return match.round >= startInterval && match.round <= endInterval;
+}
+
+function processMatch(standings, match) {
+  if (!standings[match.homeTeam.id]) standings[match.homeTeam.id] = initializeTeam(match.homeTeam);
+  if (!standings[match.awayTeam.id]) standings[match.awayTeam.id] = initializeTeam(match.awayTeam);
+  if (match.homeScore === null || match.awayScore === null) return;
+  updateTeamStats(standings[match.homeTeam.id], match.homeScore, match.awayScore);
+  updateTeamStats(standings[match.awayTeam.id], match.awayScore, match.homeScore);
+}
+
+function resolveCriteria(tiebreakerCriteria) {
+  if (Array.isArray(tiebreakerCriteria) && tiebreakerCriteria.length > 0) {
+    return tiebreakerCriteria;
+  }
+  return ["GOAL_DIFFERENCE", "GOALS_FOR"];
+}
+
+function calculateStandings(matches, startInterval, endInterval, tiebreakerCriteria) {
+  logger.info(`Standings for ${matches.length} matches [${startInterval}, ${endInterval}]`);
+  const standings = {};
+
+  matches
+    .filter((m) => inInterval(m, startInterval, endInterval))
+    .forEach((match) => processMatch(standings, match));
+
+  const criteria = resolveCriteria(tiebreakerCriteria);
+  const scoredMatches = matches.filter(
+    (m) => inInterval(m, startInterval, endInterval) && m.homeScore !== null && m.awayScore !== null,
+  );
+
+  return sortByPoints(Object.values(standings), criteria, scoredMatches);
 }
 
 function assignTags(standings, metadata) {

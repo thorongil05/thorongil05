@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -7,22 +8,40 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router";
 import { useState } from "react";
-import { 
-  Button, 
-  Stack, 
-  Collapse, 
-  List, 
-  ListItem, 
-  ListItemText, 
+import {
+  Button,
+  Stack,
+  Collapse,
+  List,
+  ListItem,
+  ListItemText,
   ListItemButton,
   useTheme,
   useMediaQuery,
-  Divider
+  Divider,
+  Chip,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useAuth } from "../../context/AuthContext";
 import { UserRoles } from "../../constants/roles";
+
+const ROLE_CHIP = {
+  [UserRoles.ADMIN]:  { label: "Admin",  color: "error" },
+  [UserRoles.EDITOR]: { label: "Editor", color: "primary" },
+  [UserRoles.VIEWER]: { label: "Viewer", color: "default" },
+};
+
+function UserChip({ user }) {
+  const chip = ROLE_CHIP[user.role] ?? { label: user.role, color: "default" };
+  return (
+    <Stack direction="row" alignItems="center" spacing={1}>
+      <Typography variant="body2" sx={{ opacity: 0.85 }}>{user.username}</Typography>
+      <Chip label={chip.label} color={chip.color} size="small" sx={{ fontWeight: "bold", fontSize: "0.65rem" }} />
+    </Stack>
+  );
+}
+UserChip.propTypes = { user: PropTypes.shape({ username: PropTypes.string, role: PropTypes.string }).isRequired };
 
 const navigation = [
   {
@@ -90,6 +109,7 @@ export default function Navbar() {
             <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
                <LanguageSwitcher />
             </Box>
+            {user && <UserChip user={user} />}
             {user ? (
               <Button variant="outlined" color="inherit" onClick={logout} fullWidth>
                 {t("nav.logout")}
@@ -156,6 +176,7 @@ export default function Navbar() {
           {!isMobile && (
             <Stack direction="row" spacing={2} alignItems="center">
               <LanguageSwitcher />
+              {user && <UserChip user={user} />}
               {user ? (
                 <Button color="inherit" onClick={logout}>
                   {t("nav.logout")}
