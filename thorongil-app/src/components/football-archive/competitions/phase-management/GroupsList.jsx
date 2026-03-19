@@ -2,6 +2,69 @@ import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { apiGet, apiPost, apiPut, apiDelete } from "../../../../utils/api";
 import TiebreakerEditor from "./TiebreakerEditor";
+import { TIEBREAKER_CRITERIA_OPTIONS } from "../../constants/tiebreakerCriteria";
+
+function CriteriaModal({ criteria, onClose }) {
+  const labels = criteria.map((v) => TIEBREAKER_CRITERIA_OPTIONS.find((o) => o.value === v)?.label ?? v);
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/50" />
+      <div className="relative bg-slate-800 border border-slate-700 rounded-2xl p-5 w-full max-w-xs shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-semibold text-white">Criteri di ex-aequo</p>
+          <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors text-sm">✕</button>
+        </div>
+        <p className="text-xs text-slate-500 mb-3">Punti è sempre il primo criterio. Alfabetico è sempre l&apos;ultimo.</p>
+        <ol className="space-y-1.5">
+          {labels.map((label, i) => (
+            <li key={i} className="flex items-center gap-2 text-sm text-slate-200">
+              <span className="w-5 h-5 rounded-full bg-slate-700 text-slate-400 text-xs flex items-center justify-center shrink-0 font-mono">{i + 1}</span>
+              {label}
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  );
+}
+CriteriaModal.propTypes = { criteria: PropTypes.arrayOf(PropTypes.string).isRequired, onClose: PropTypes.func.isRequired };
+
+function CriteriaBadge({ criteria, onClick }) {
+  const count = criteria?.length ?? 0;
+  if (count === 0) return <span className="text-xs text-slate-600 italic">Nessun criterio</span>;
+  return (
+    <button onClick={onClick} className="text-xs text-blue-400 hover:text-blue-300 border border-blue-500/30 hover:border-blue-400/50 bg-blue-500/10 px-2 py-0.5 rounded-full transition-colors">
+      Criteri attivi {count}
+    </button>
+  );
+}
+CriteriaBadge.propTypes = { criteria: PropTypes.array, onClick: PropTypes.func.isRequired };
+
+function GroupReadView({ g, onEdit, onDelete, onCriteriaClick }) {
+  return (
+    <div className="flex items-start gap-2">
+      <div className="flex-1 min-w-0">
+        <span className="text-sm font-semibold text-slate-200">{g.name}</span>
+        {Object.keys(g.metadata || {}).some((k) => g.metadata[k] > 0) && (
+          <dl className="mt-2 flex flex-wrap gap-x-6 gap-y-2">
+            {g.metadata?.participantsCount > 0 && <div><dt className="text-xs text-slate-500">Partecipanti</dt><dd className="text-sm text-slate-200 font-semibold">{g.metadata.participantsCount}</dd></div>}
+            {g.metadata?.totalMatches > 0 && <div><dt className="text-xs text-slate-500">Partite totali</dt><dd className="text-sm text-slate-200 font-semibold">{g.metadata.totalMatches}</dd></div>}
+            {g.metadata?.promotionsCount > 0 && <div><dt className="text-xs text-slate-500">Promozioni dirette</dt><dd className="text-sm text-green-400 font-semibold">{g.metadata.promotionsCount}</dd></div>}
+            {g.metadata?.relegationsCount > 0 && <div><dt className="text-xs text-slate-500">Retrocessioni dirette</dt><dd className="text-sm text-red-400 font-semibold">{g.metadata.relegationsCount}</dd></div>}
+            {g.metadata?.playoffSpotsCount > 0 && <div><dt className="text-xs text-slate-500">Posti playoff</dt><dd className="text-sm text-yellow-400 font-semibold">{g.metadata.playoffSpotsCount}</dd></div>}
+            {g.metadata?.playoutSpotsCount > 0 && <div><dt className="text-xs text-slate-500">Posti playout</dt><dd className="text-sm text-orange-400 font-semibold">{g.metadata.playoutSpotsCount}</dd></div>}
+          </dl>
+        )}
+        <div className="mt-2">
+          <CriteriaBadge criteria={g.metadata?.tiebreakerCriteria} onClick={onCriteriaClick} />
+        </div>
+      </div>
+      <button onClick={onEdit} className="text-xs text-slate-500 hover:text-slate-300 transition-colors shrink-0">✏️</button>
+      <button onClick={onDelete} className="text-xs text-slate-600 hover:text-red-400 transition-colors shrink-0">🗑️</button>
+    </div>
+  );
+}
+GroupReadView.propTypes = { g: PropTypes.object.isRequired, onEdit: PropTypes.func.isRequired, onDelete: PropTypes.func.isRequired, onCriteriaClick: PropTypes.func.isRequired };
 
 const inp = "bg-slate-700 border border-slate-600 text-white text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500";
 const numInp = `${inp} w-full`;
@@ -74,6 +137,7 @@ export default function GroupsList({ phase }) {
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState("");
   const [editingGroup, setEditingGroup] = useState(null);
+  const [criteriaModal, setCriteriaModal] = useState(null);
 
   const fetchGroups = useCallback(() => {
     if (phase.type !== "GROUP") return;
@@ -135,27 +199,17 @@ export default function GroupsList({ phase }) {
                 onCancel={() => setEditingGroup(null)}
               />
             ) : (
-              <div className="flex items-start gap-2">
-                <div className="flex-1 min-w-0">
-                  <span className="text-sm font-semibold text-slate-200">{g.name}</span>
-                  {Object.keys(g.metadata || {}).some((k) => g.metadata[k] > 0) && (
-                    <dl className="mt-2 flex flex-wrap gap-x-6 gap-y-2">
-                      {g.metadata?.participantsCount > 0 && <div><dt className="text-xs text-slate-500">Partecipanti</dt><dd className="text-sm text-slate-200 font-semibold">{g.metadata.participantsCount}</dd></div>}
-                      {g.metadata?.totalMatches > 0 && <div><dt className="text-xs text-slate-500">Partite totali</dt><dd className="text-sm text-slate-200 font-semibold">{g.metadata.totalMatches}</dd></div>}
-                      {g.metadata?.promotionsCount > 0 && <div><dt className="text-xs text-slate-500">Promozioni dirette</dt><dd className="text-sm text-green-400 font-semibold">{g.metadata.promotionsCount}</dd></div>}
-                      {g.metadata?.relegationsCount > 0 && <div><dt className="text-xs text-slate-500">Retrocessioni dirette</dt><dd className="text-sm text-red-400 font-semibold">{g.metadata.relegationsCount}</dd></div>}
-                      {g.metadata?.playoffSpotsCount > 0 && <div><dt className="text-xs text-slate-500">Posti playoff</dt><dd className="text-sm text-yellow-400 font-semibold">{g.metadata.playoffSpotsCount}</dd></div>}
-                      {g.metadata?.playoutSpotsCount > 0 && <div><dt className="text-xs text-slate-500">Posti playout</dt><dd className="text-sm text-orange-400 font-semibold">{g.metadata.playoutSpotsCount}</dd></div>}
-                    </dl>
-                  )}
-                </div>
-                <button onClick={() => setEditingGroup({ ...g })} className="text-xs text-slate-500 hover:text-slate-300 transition-colors shrink-0">✏️</button>
-                <button onClick={() => handleDelete(g.id)} className="text-xs text-slate-600 hover:text-red-400 transition-colors shrink-0">🗑️</button>
-              </div>
+              <GroupReadView
+                g={g}
+                onEdit={() => setEditingGroup({ ...g })}
+                onDelete={() => handleDelete(g.id)}
+                onCriteriaClick={() => setCriteriaModal(g.metadata?.tiebreakerCriteria ?? [])}
+              />
             )}
           </div>
         ))}
       </div>
+      {criteriaModal && <CriteriaModal criteria={criteriaModal} onClose={() => setCriteriaModal(null)} />}
     </div>
   );
 }
