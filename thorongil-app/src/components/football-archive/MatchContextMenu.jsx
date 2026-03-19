@@ -1,5 +1,8 @@
 import { useEffect, useRef } from "react";
 import PropTypes from "prop-types";
+import { MATCH_DIALOG_MODE as MODE } from "./constants/matchDialogModes";
+
+const btnCls = "w-full text-left flex items-center gap-2.5 px-3 py-2 text-slate-200 hover:bg-slate-700/70 transition-colors text-sm";
 
 export default function MatchContextMenu({ x, y, match, onClose, onEdit, onDelete }) {
   const ref = useRef();
@@ -9,46 +12,30 @@ export default function MatchContextMenu({ x, y, match, onClose, onEdit, onDelet
     const onKey = (e) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("mousedown", onMouse);
     document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onMouse);
-      document.removeEventListener("keydown", onKey);
-    };
+    return () => { document.removeEventListener("mousedown", onMouse); document.removeEventListener("keydown", onKey); };
   }, [onClose]);
 
-  const safeX = Math.min(x, window.innerWidth - 210);
-  const safeY = Math.min(y, window.innerHeight - 110);
+  const safeX = Math.min(x, window.innerWidth - 220);
+  const safeY = Math.min(y, window.innerHeight - 160);
   const label = `${match.homeTeam?.name} vs ${match.awayTeam?.name}`;
+  const act = (mode) => { onEdit(match, mode); onClose(); };
 
   return (
-    <div
-      ref={ref}
-      className="fixed z-50 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl py-1 min-w-[210px] text-sm"
-      style={{ left: safeX, top: safeY }}
-    >
-      <p className="px-3 py-2 text-slate-400 text-xs font-semibold truncate border-b border-slate-700/60">
-        {label}
-      </p>
-      <button
-        onClick={() => { onEdit(match); onClose(); }}
-        className="w-full text-left flex items-center gap-2.5 px-3 py-2 text-slate-200 hover:bg-slate-700/70 transition-colors"
-      >
-        <span className="text-slate-400">✎</span> Modifica partita
-      </button>
-      <button
-        onClick={() => { onDelete(match.id); onClose(); }}
-        className="w-full text-left flex items-center gap-2.5 px-3 py-2 text-red-400 hover:bg-slate-700/70 transition-colors"
-      >
-        <span>✕</span> Elimina partita
-      </button>
+    <div ref={ref} className="fixed z-50 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl py-1 min-w-[220px]" style={{ left: safeX, top: safeY }}>
+      <p className="px-3 py-2 text-slate-400 text-xs font-semibold truncate border-b border-slate-700/60">{label}</p>
+      <button onClick={() => act(MODE.UPDATE_SCORE)} className={btnCls}><span className="text-slate-400 w-4">⚽</span> Aggiorna risultato</button>
+      <button onClick={() => act(MODE.UPDATE_TEAMS)} className={btnCls}><span className="text-slate-400 w-4">⇄</span> Modifica squadre</button>
+      <button onClick={() => act(MODE.UPDATE_DATE)} className={btnCls}><span className="text-slate-400 w-4">📅</span> Modifica giornata / data</button>
+      <div className="border-t border-slate-700/60 mt-1 pt-1">
+        <button onClick={() => { onDelete(match.id); onClose(); }} className="w-full text-left flex items-center gap-2.5 px-3 py-2 text-red-400 hover:bg-slate-700/70 transition-colors text-sm">
+          <span className="w-4">✕</span> Elimina partita
+        </button>
+      </div>
     </div>
   );
 }
 
 MatchContextMenu.propTypes = {
-  x: PropTypes.number.isRequired,
-  y: PropTypes.number.isRequired,
-  match: PropTypes.object.isRequired,
-  onClose: PropTypes.func.isRequired,
-  onEdit: PropTypes.func.isRequired,
-  onDelete: PropTypes.func.isRequired,
+  x: PropTypes.number.isRequired, y: PropTypes.number.isRequired, match: PropTypes.object.isRequired,
+  onClose: PropTypes.func.isRequired, onEdit: PropTypes.func.isRequired, onDelete: PropTypes.func.isRequired,
 };
