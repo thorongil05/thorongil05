@@ -13,9 +13,10 @@ const Spinner = () => (
 export default function ArchiveContent({ data, activeTab }) {
   const {
     selectedEdition, selectedPhaseId, selectedGroupId,
-    phases, teams, teamsLoading, fetchTeams,
+    groups, phases, teams, teamsLoading, fetchTeams,
     refreshTrigger, triggerRefresh, isReady,
   } = data;
+  const selectedGroup = groups?.find((g) => g.id === selectedGroupId) ?? null;
 
   if (!selectedEdition) {
     return (
@@ -36,6 +37,7 @@ export default function ArchiveContent({ data, activeTab }) {
           selectedEdition={selectedEdition}
           selectedPhaseId={selectedPhaseId}
           selectedGroupId={selectedGroupId}
+          selectedGroup={selectedGroup}
           refreshTrigger={refreshTrigger}
         />
       )}

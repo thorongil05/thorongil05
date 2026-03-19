@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { apiGet, apiPost, apiPut, apiDelete } from "../../../../utils/api";
+import TiebreakerEditor from "./TiebreakerEditor";
 
 const inp = "bg-slate-700 border border-slate-600 text-white text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500";
 const numInp = `${inp} w-full`;
@@ -23,6 +24,10 @@ function GroupEditInline({ group, onChange, onSave, onCancel }) {
     onChange({ ...group, metadata: { ...(group.metadata || {}), [field]: parsed } });
   };
 
+  const handleTiebreakerChange = (criteria) => {
+    onChange({ ...group, metadata: { ...(group.metadata || {}), tiebreakerCriteria: criteria } });
+  };
+
   return (
     <div className="space-y-3 py-1">
       <div>
@@ -42,6 +47,12 @@ function GroupEditInline({ group, onChange, onSave, onCancel }) {
         <Field label="Retrocessioni dirette" value={group.metadata?.relegationsCount} onChange={(v) => setMeta("relegationsCount", v)} />
         <Field label="Posti playoff" value={group.metadata?.playoffSpotsCount} onChange={(v) => setMeta("playoffSpotsCount", v)} />
         <Field label="Posti playout" value={group.metadata?.playoutSpotsCount} onChange={(v) => setMeta("playoutSpotsCount", v)} />
+      </div>
+      <div className="border-t border-slate-700 pt-3">
+        <TiebreakerEditor
+          value={group.metadata?.tiebreakerCriteria ?? []}
+          onChange={handleTiebreakerChange}
+        />
       </div>
       <div className="flex justify-end gap-2 pt-1">
         <button onClick={onCancel} className="text-sm text-slate-400 border border-slate-600 hover:border-slate-500 px-4 py-1.5 rounded-lg transition-colors">Annulla</button>

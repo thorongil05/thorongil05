@@ -103,6 +103,12 @@ async function updateEdition(id, editionEntry) {
   return rows[0];
 }
 
+async function fetchGroupMetadata(groupId) {
+  if (!groupId) return null;
+  const group = await groupsDao.findById(groupId);
+  return group?.metadata || null;
+}
+
 async function getStandings(editionId, args = {}) {
   logger.info({ editionId, args }, "Retrieving standings");
   const matches = await matchesDao.findMatches({
@@ -130,13 +136,14 @@ async function getStandings(editionId, args = {}) {
   if (args && args.endInterval) {
     endInterval = args.endInterval;
   }
-  const rawStandings = standingsService.calculateStandings(matches, startInterval, endInterval);
-
-  let groupMetadata = null;
-  if (args.groupId) {
-    const group = await groupsDao.findById(args.groupId);
-    groupMetadata = group?.metadata || null;
-  }
+  const groupMetadata = await fetchGroupMetadata(args.groupId);
+  const tiebreakerCriteria = groupMetadata?.tiebreakerCriteria ?? null;
+  const rawStandings = standingsService.calculateStandings(
+    matches,
+    startInterval,
+    endInterval,
+    tiebreakerCriteria,
+  );
 
   return {
     totalRounds: totalRounds,
