@@ -15,7 +15,9 @@ import {
   Stack,
   useMediaQuery,
   useTheme,
+  Button,
 } from "@mui/material";
+import { useNavigate } from "react-router";
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "../../context/AuthContext";
 import EditIcon from "@mui/icons-material/Edit";
@@ -26,6 +28,7 @@ import { apiGet } from "../../utils/api";
 
 function AdminDashboardView() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -109,6 +112,7 @@ function AdminDashboardView() {
 
   return (
     <Box p={{ xs: 1, sm: 3 }}>
+      <Button size="small" onClick={() => navigate("/")} sx={{ mb: 2, color: "text.secondary" }}>← Home</Button>
       <Typography variant="h4" gutterBottom>{t("admin.dashboard", "Admin Dashboard")}</Typography>
       <Typography variant="h6" gutterBottom color="text.secondary">{t("admin.user_management", "User Management")}</Typography>
       <UsersTable users={users} isMobile={isMobile} currentUser={currentUser} onEdit={handleEdit} onDelete={handleDelete} t={t} />

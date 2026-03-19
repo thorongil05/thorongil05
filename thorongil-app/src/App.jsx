@@ -51,8 +51,8 @@ function App() {
         path="/football-archive/competition/edit/:id"
         element={<ProtectedRoute><CompetitionManagementPage /></ProtectedRoute>}
       ></Route>
+      <Route path="/" element={<LandingPage />}></Route>
       <Route path="/" element={<Main></Main>}>
-        <Route index element={<LandingPage />}></Route>
         <Route path="/instruments" element={<Home></Home>}></Route>
         <Route path="/bonds" element={<BondsView></BondsView>}></Route>
         <Route
