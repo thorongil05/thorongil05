@@ -10,6 +10,7 @@ import RegisterView from "./components/auth/RegisterView";
 import { useAuth } from "./context/AuthContext";
 
 import AdminDashboardView from "./components/admin/AdminDashboardView";
+import LandingPage from "./components/core/LandingPage";
 import FantacalcionLayout from "./components/fantacalcion/FantacalcionLayout";
 import CompetitionManagementPage from "./components/football-archive/competitions/CompetitionManagementPage";
 import FootballArchiveLayout from "./components/football-archive/FootballArchiveLayout";
@@ -51,6 +52,7 @@ function App() {
         element={<ProtectedRoute><CompetitionManagementPage /></ProtectedRoute>}
       ></Route>
       <Route path="/" element={<Main></Main>}>
+        <Route index element={<LandingPage />}></Route>
         <Route path="/instruments" element={<Home></Home>}></Route>
         <Route path="/bonds" element={<BondsView></BondsView>}></Route>
         <Route
