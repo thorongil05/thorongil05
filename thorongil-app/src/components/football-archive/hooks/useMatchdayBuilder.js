@@ -67,6 +67,21 @@ export function useMatchdayBuilder({
     setMatches((prev) => { const nm = [...prev]; applySlotDrop(nm, { idx, slot, team, teamId, src, setAvailableTeams }); return nm; });
   };
 
+  const addTeamToFirstSlot = (teamId) => {
+    const team = availableTeams.find((t) => t.id === teamId);
+    if (!team) return;
+    setMatches((prev) => {
+      const nm = prev.map((m) => ({ ...m }));
+      let placed = false;
+      for (const match of nm) {
+        if (!match.homeTeam) { match.homeTeam = team; placed = true; break; }
+        if (!match.awayTeam) { match.awayTeam = team; placed = true; break; }
+      }
+      if (placed) setAvailableTeams((a) => a.filter((t) => t.id !== teamId));
+      return nm;
+    });
+  };
+
   const removeFromSlot = (matchId, slotType) => {
     setMatches((prev) => {
       const nm = [...prev];
@@ -80,5 +95,5 @@ export function useMatchdayBuilder({
   const resetBuilder = () => { setAvailableTeams([...teams]); setMatches(makeMatches(teams)); setError(null); };
   const handleSave = () => saveMatchday({ matches, round, selectedEdition, selectedPhaseId, selectedGroupId, setIsSubmitting, setError, onMatchesCreated, onClose });
 
-  return { round, setRound, availableTeams, matches, activeTeam, isSubmitting, error, sensors, handleDragStart, handleDragEnd, removeFromSlot, resetBuilder, handleSave };
+  return { round, setRound, availableTeams, matches, activeTeam, isSubmitting, error, sensors, handleDragStart, handleDragEnd, addTeamToFirstSlot, removeFromSlot, resetBuilder, handleSave };
 }

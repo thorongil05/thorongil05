@@ -1,7 +1,7 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import PropTypes from "prop-types";
 
-export function DraggableTeam({ team, disabled }) {
+export function DraggableTeam({ team, disabled, onClick }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `team-${team.id}`,
     data: { team },
@@ -15,14 +15,15 @@ export function DraggableTeam({ team, disabled }) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
+      onClick={onClick ? () => onClick(team.id) : undefined}
       style={style}
-      className={`flex items-center bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-200 text-sm rounded-full px-3 py-1.5 cursor-grab active:cursor-grabbing touch-none select-none transition-colors ${isDragging ? "opacity-40" : ""}`}
+      className={`flex items-center bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-200 text-sm rounded-full px-3 py-1.5 cursor-pointer active:cursor-grabbing touch-none select-none transition-colors ${isDragging ? "opacity-40" : ""}`}
     >
       {team.name}
     </div>
   );
 }
-DraggableTeam.propTypes = { team: PropTypes.object.isRequired, disabled: PropTypes.bool };
+DraggableTeam.propTypes = { team: PropTypes.object.isRequired, disabled: PropTypes.bool, onClick: PropTypes.func };
 
 export function DropZone({ id, team, label, onRemove }) {
   const { isOver, setNodeRef } = useDroppable({ id });
@@ -49,7 +50,7 @@ DropZone.propTypes = {
   onRemove: PropTypes.func,
 };
 
-export function AvailableTeamsArea({ teams }) {
+export function AvailableTeamsArea({ teams, onTeamClick }) {
   const { setNodeRef, isOver } = useDroppable({ id: "available-area" });
   return (
     <div
@@ -59,9 +60,9 @@ export function AvailableTeamsArea({ teams }) {
       {teams.length === 0 ? (
         <span className="text-xs text-slate-600 w-full text-center py-2">Tutte le squadre sono state assegnate</span>
       ) : (
-        teams.map((t) => <DraggableTeam key={t.id} team={t} />)
+        teams.map((t) => <DraggableTeam key={t.id} team={t} onClick={onTeamClick} />)
       )}
     </div>
   );
 }
-AvailableTeamsArea.propTypes = { teams: PropTypes.array.isRequired };
+AvailableTeamsArea.propTypes = { teams: PropTypes.array.isRequired, onTeamClick: PropTypes.func };
