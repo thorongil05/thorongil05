@@ -15,7 +15,7 @@ export default function MobileMatchesView({ matches, loading, error, handleEditM
   const { user } = useAuth();
   const canManage = user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR;
   const hi = (id) => id === Number(selectedTeamId);
-  const { menu, closeMenu, getLongPressProps } = useMatchContextMenu();
+  const { menu, closeMenu, openMenu } = useMatchContextMenu();
 
   if (loading) return <p className="text-sm text-slate-500 text-center py-6">Caricamento...</p>;
   if (error) return <p className="text-sm text-red-400 text-center py-6">Errore: {error}</p>;
@@ -29,7 +29,7 @@ export default function MobileMatchesView({ matches, loading, error, handleEditM
           const winner = getMatchWinner(match);
           const isLive = match.status === "IN_PROGRESS";
           return (
-            <div key={match.id} className="flex items-stretch select-none" {...(canManage ? getLongPressProps(match) : {})}>
+            <div key={match.id} className="flex items-stretch">
               <div className="w-8 bg-slate-800/50 flex items-center justify-center shrink-0">
                 <span className="text-[9px] font-bold text-slate-500" style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}>
                   {t("football.round_short", "G.")} {match.round || "-"}
@@ -49,6 +49,12 @@ export default function MobileMatchesView({ matches, loading, error, handleEditM
                       <MatchStatusBadge status={match.status} />
                       {isLive && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shrink-0" />}
                     </div>}
+                {canManage && (
+                  <button
+                    className="shrink-0 px-2 self-stretch flex items-center text-slate-600 hover:text-slate-300 active:text-slate-200 transition-colors"
+                    onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); openMenu(match, r.left, r.bottom); }}
+                  >···</button>
+                )}
               </div>
             </div>
           );
