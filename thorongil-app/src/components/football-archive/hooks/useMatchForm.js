@@ -13,7 +13,7 @@ function buildMatchData(match, selectedEdition) {
     awayTeamId: match.awayTeam.id,
     homeGoals: match.homeTeamScore,
     awayGoals: match.awayTeamScore,
-    matchDate: new Date().toISOString(),
+    matchDate: null,
     editionId: selectedEdition.id,
     phaseId: match.phaseId,
     groupId: match.groupId,

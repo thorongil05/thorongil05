@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { useTranslation } from "react-i18next";
 import { UserRoles } from "../../../constants/roles";
 import { useAuth } from "../../../context/AuthContext";
@@ -5,7 +6,7 @@ import PropTypes from "prop-types";
 import { MatchStatusBadge } from "../components/MatchStatusBadge";
 import { useMatchContextMenu } from "../hooks/useMatchContextMenu";
 import MatchContextMenu from "../MatchContextMenu";
-import { getMatchWinner } from "../constants/matchResult";
+import { getMatchWinner, groupMatchesByDate } from "../constants/matchResult";
 
 const base10 = "text-[10px] font-bold text-slate-400 uppercase tracking-widest";
 const thCls = `px-4 py-3 text-left ${base10}`;
@@ -56,7 +57,10 @@ export default function DesktopMatchesView({ matches, loading, error, sortBy, so
             {loading && <tr><td colSpan={4} className="px-4 py-8 text-center text-slate-500 text-sm">Caricamento...</td></tr>}
             {error && !loading && <tr><td colSpan={4} className="px-4 py-8 text-center text-red-400 text-sm">Errore: {error}</td></tr>}
             {!loading && !error && matches.length === 0 && <tr><td colSpan={4} className="px-4 py-8 text-center text-slate-500 text-sm">Nessuna partita trovata</td></tr>}
-            {!loading && !error && matches.map((match) => {
+            {!loading && !error && groupMatchesByDate(matches).map(({ label, items }) => (
+              <Fragment key={label ?? "no-date"}>
+                <tr><td colSpan={4} className="px-4 py-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider bg-slate-800/60">{label ?? "Data non definita"}</td></tr>
+                {items.map((match) => {
               const winner = getMatchWinner(match);
               const isLive = match.status === "IN_PROGRESS";
               return (
@@ -81,7 +85,9 @@ export default function DesktopMatchesView({ matches, loading, error, sortBy, so
                   <td className={awayCls(match.awayTeam?.id, winner === "away")}>{match.awayTeam?.name || "?"}</td>
                 </tr>
               );
-            })}
+                })}
+              </Fragment>
+            ))}
           </tbody>
         </table>
       </div>

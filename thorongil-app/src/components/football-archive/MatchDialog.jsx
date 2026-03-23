@@ -6,6 +6,11 @@ import { STATUS_OPTIONS } from "./constants/matchStatus";
 import { MATCH_DIALOG_MODE as MODE } from "./constants/matchDialogModes";
 
 const selectCls = "w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500";
+const toDatetimeLocal = (iso) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+};
 
 const TITLES = {
   [MODE.INSERT]: "Aggiungi Partita",
@@ -109,7 +114,7 @@ function MatchMetaFields({ match, setMatch, disabled }) {
       </div>
       <div className="flex-1">
         <label className="block text-xs text-slate-500 mb-1.5">Data</label>
-        <input type="date" className={selectCls} value={match.matchDate} onChange={(e) => setMatch((p) => ({ ...p, matchDate: e.target.value }))} disabled={disabled} />
+        <input type="datetime-local" className={selectCls} value={match.matchDate} onChange={(e) => setMatch((p) => ({ ...p, matchDate: e.target.value }))} disabled={disabled} />
       </div>
     </div>
   );
@@ -126,7 +131,7 @@ export default function MatchDialog({ open, onClose, onMatchUpdated, mode, match
   useEffect(() => {
     if (!open) return;
     if (matchToEdit) {
-      setMatch({ homeScore: matchToEdit.homeScore, awayScore: matchToEdit.awayScore, round: matchToEdit.round || "", matchDate: matchToEdit.matchDate ? matchToEdit.matchDate.split("T")[0] : "", status: matchToEdit.status || "SCHEDULED" });
+      setMatch({ homeScore: matchToEdit.homeScore, awayScore: matchToEdit.awayScore, round: matchToEdit.round || "", matchDate: toDatetimeLocal(matchToEdit.matchDate), status: matchToEdit.status || "SCHEDULED" });
       setForfeitWinner(matchToEdit.status === "FORFEITED" ? (matchToEdit.homeScore === 3 ? "home" : "away") : null);
       setHomeTeamId(String(matchToEdit.homeTeam?.id || ""));
       setAwayTeamId(String(matchToEdit.awayTeam?.id || ""));

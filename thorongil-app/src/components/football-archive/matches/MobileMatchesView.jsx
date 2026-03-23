@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import { MatchStatusBadge } from "../components/MatchStatusBadge";
 import { useMatchContextMenu } from "../hooks/useMatchContextMenu";
 import MatchContextMenu from "../MatchContextMenu";
-import { getMatchWinner } from "../constants/matchResult";
+import { getMatchWinner, groupMatchesByDate } from "../constants/matchResult";
 
 const getTeamNameClass = (isHighlighted, isWinner) =>
   isHighlighted ? "font-bold text-blue-400" : isWinner ? "font-bold text-slate-200" : "text-slate-200";
@@ -23,8 +23,14 @@ export default function MobileMatchesView({ matches, loading, error, handleEditM
 
   return (
     <>
-      <div className="divide-y divide-slate-800">
-        {matches.map((match) => {
+      <div>
+        {groupMatchesByDate(matches).map(({ label, items }) => (
+          <div key={label ?? "no-date"}>
+            <div className="px-3 py-1.5 bg-slate-800/60 border-y border-slate-700/50 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+              {label ?? "Data non definita"}
+            </div>
+            <div className="divide-y divide-slate-800">
+              {items.map((match) => {
           const showScore = match.homeScore != null || match.awayScore != null;
           const winner = getMatchWinner(match);
           const isLive = match.status === "IN_PROGRESS";
@@ -59,6 +65,9 @@ export default function MobileMatchesView({ matches, loading, error, handleEditM
             </div>
           );
         })}
+            </div>
+          </div>
+        ))}
       </div>
       {menu && (
         <MatchContextMenu
