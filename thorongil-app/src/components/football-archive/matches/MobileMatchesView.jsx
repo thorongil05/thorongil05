@@ -7,6 +7,15 @@ import { useMatchContextMenu } from "../hooks/useMatchContextMenu";
 import MatchContextMenu from "../MatchContextMenu";
 import { getMatchWinner } from "../constants/matchResult";
 
+const getTeamNameClass = (isHighlighted, winner, side) => {
+  if (isHighlighted) return "font-bold text-blue-400";
+  if (winner === side) return "font-bold text-white";
+  if (winner && winner !== side) return "text-slate-500";
+  return side === "home" ? "text-slate-200" : "text-slate-400";
+};
+const getScoreClass = (winner, losingSide) =>
+  `font-bold font-mono text-sm ${winner === losingSide ? "text-slate-500" : "text-white"}`;
+
 export default function MobileMatchesView({ matches, loading, error, handleEditMatch, handleDeleteMatch, selectedTeamId }) {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -24,10 +33,10 @@ export default function MobileMatchesView({ matches, loading, error, handleEditM
         {matches.map((match) => {
           const showScore = match.homeScore != null || match.awayScore != null;
           const winner = getMatchWinner(match);
-          const homeName = hi(match.homeTeam?.id) ? "font-bold text-blue-400" : winner === "home" ? "font-bold text-white" : winner === "away" ? "text-slate-500" : "text-slate-200";
-          const awayName = hi(match.awayTeam?.id) ? "font-bold text-blue-400" : winner === "away" ? "font-bold text-white" : winner === "home" ? "text-slate-500" : "text-slate-400";
-          const homeScoreCls = `font-bold font-mono text-sm ${winner === "away" ? "text-slate-500" : "text-white"}`;
-          const awayScoreCls = `font-bold font-mono text-sm ${winner === "home" ? "text-slate-500" : "text-white"}`;
+          const homeName = getTeamNameClass(hi(match.homeTeam?.id), winner, "home");
+          const awayName = getTeamNameClass(hi(match.awayTeam?.id), winner, "away");
+          const homeScoreCls = getScoreClass(winner, "away");
+          const awayScoreCls = getScoreClass(winner, "home");
           return (
             <div key={match.id} className="flex items-stretch select-none" {...(canManage ? getLongPressProps(match) : {})}>
               <div className="w-8 bg-slate-800/50 flex items-center justify-center shrink-0">
