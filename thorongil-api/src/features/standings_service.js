@@ -136,7 +136,19 @@ function resolveCriteria(tiebreakerCriteria) {
   return ["GOAL_DIFFERENCE", "GOALS_FOR"];
 }
 
-function calculateStandings(matches, startInterval, endInterval, tiebreakerCriteria) {
+function applyPenalties(teams, penalties) {
+  if (!penalties?.length) return teams;
+  const totals = {};
+  penalties.forEach((p) => { totals[p.teamId] = (totals[p.teamId] || 0) + p.points; });
+  return teams.map((t) => {
+    const deduction = totals[t.teamId] ?? 0;
+    if (!deduction) return t;
+    return { ...t, points: t.points - deduction, penaltyPoints: deduction };
+  });
+}
+
+function calculateStandings(matches, startInterval, endInterval, options = {}) {
+  const { tiebreakerCriteria, penalties } = options;
   logger.info(`Standings for ${matches.length} matches [${startInterval}, ${endInterval}]`);
   const standings = {};
 
@@ -149,7 +161,8 @@ function calculateStandings(matches, startInterval, endInterval, tiebreakerCrite
     (m) => inInterval(m, startInterval, endInterval) && m.homeScore !== null && m.awayScore !== null,
   );
 
-  return sortByPoints(Object.values(standings), criteria, scoredMatches);
+  const withPenalties = applyPenalties(Object.values(standings), penalties);
+  return sortByPoints(withPenalties, criteria, scoredMatches);
 }
 
 function assignTags(standings, metadata) {

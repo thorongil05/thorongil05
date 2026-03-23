@@ -39,10 +39,10 @@ export default function PhaseList({ editionId, phases, onUpdate }) {
 
       {adding && (
         <div className="bg-slate-800/50 rounded-xl border border-blue-500/40 p-3 mb-3">
-          <div className="flex gap-2 mb-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
             <input value={newPhase.name} onChange={(e) => setNewPhase((p) => ({ ...p, name: e.target.value }))}
-              placeholder="Nome fase" autoFocus className={inpCls} />
-            <select value={newPhase.type} onChange={(e) => setNewPhase((p) => ({ ...p, type: e.target.value }))} className={selCls}>
+              placeholder="Nome fase" autoFocus className={`${inpCls} flex-none w-full`} />
+            <select value={newPhase.type} onChange={(e) => setNewPhase((p) => ({ ...p, type: e.target.value }))} className={`${selCls} w-full`}>
               <option value="GROUP">Gironi</option>
               <option value="KNOCKOUT">Eliminazione</option>
             </select>
