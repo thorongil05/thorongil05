@@ -16,6 +16,7 @@ export function useMatchesViewData({
   const [error, setError] = useState(null);
   const [rounds, setRounds] = useState([]);
   const [selectedRound, setSelectedRound] = useState("All");
+  const [currentRound, setCurrentRound] = useState(null);
   const [selectedTeamId, setSelectedTeamId] = useState("All");
   const [sortBy, setSortBy] = useState("match_date");
   const [sortOrder, setSortOrder] = useState("asc");
@@ -29,6 +30,7 @@ export function useMatchesViewData({
     setMatches([]);
     setMatchesCount(0);
     setRounds([]);
+    setCurrentRound(null);
     setSelectedRound(null);
     setError(null);
     setLoading(false);
@@ -53,9 +55,10 @@ export function useMatchesViewData({
     if (selectedGroupId) urlSearchParams.append("groupId", selectedGroupId);
 
     apiGet(`/api/matches/rounds?${urlSearchParams}`)
-      .then(({ rounds, currentRound }) => {
+      .then(({ rounds, currentRound: cr }) => {
         setRounds(rounds);
-        setSelectedRound(currentRound ?? "All");
+        setCurrentRound(cr);
+        setSelectedRound(cr ?? "All");
       })
       .catch((err) => console.error("Error fetching rounds:", err));
   }, [selectedEdition, selectedPhaseId, selectedGroupId]);
@@ -99,9 +102,14 @@ export function useMatchesViewData({
       });
   }, [selectedEdition, selectedPhaseId, selectedGroupId, selectedRound, selectedTeamId, sortBy, sortOrder]);
 
+  const handleSetSelectedTeamId = (teamId) => {
+    setSelectedTeamId(teamId);
+    setSelectedRound(teamId && teamId !== "All" ? "All" : currentRound ?? "All");
+  };
+
   const handleResetFilters = () => {
-    setSelectedRound("All");
     setSelectedTeamId("All");
+    setSelectedRound(currentRound ?? "All");
     setSortBy("match_date");
     setSortOrder("asc");
   };
@@ -149,7 +157,7 @@ export function useMatchesViewData({
     selectedRound,
     setSelectedRound,
     selectedTeamId,
-    setSelectedTeamId,
+    setSelectedTeamId: handleSetSelectedTeamId,
     sortBy,
     sortOrder,
     lastUsedRound,
