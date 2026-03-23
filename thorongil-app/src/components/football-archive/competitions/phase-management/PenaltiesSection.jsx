@@ -1,18 +1,28 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
-import { useAuth } from "../../../../context/AuthContext";
-import { UserRoles } from "../../../../constants/roles";
-import { apiGet, apiPut } from "../../../../utils/api";
 
 const inp = "bg-slate-700 border border-slate-600 text-white text-sm rounded-lg px-2 py-1 focus:outline-none focus:border-blue-500";
 
-function AddPenaltyForm({ teams, onAdd }) {
+function PenaltyRow({ penalty, onRemove }) {
+  return (
+    <div className="flex items-center gap-2 bg-slate-700 border border-slate-600 rounded-lg px-3 py-1.5 text-sm text-slate-200">
+      <span className="flex-1">{penalty.teamName}</span>
+      <span className="text-red-400 font-bold shrink-0">-{penalty.points} pt</span>
+      {penalty.reason && <span className="text-slate-500 text-xs truncate max-w-[80px]">{penalty.reason}</span>}
+      <button onClick={onRemove} className="text-slate-500 hover:text-red-400 transition-colors text-xs font-bold">✕</button>
+    </div>
+  );
+}
+PenaltyRow.propTypes = { penalty: PropTypes.object.isRequired, onRemove: PropTypes.func.isRequired };
+
+function AddPenaltyRow({ teams, onAdd }) {
   const [form, setForm] = useState({ teamId: "", points: 1, reason: "" });
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   const handleAdd = () => {
     if (!form.teamId || !form.points) return;
-    onAdd({ teamId: Number(form.teamId), points: Number(form.points), reason: form.reason || null });
+    const team = teams.find((t) => t.id === Number(form.teamId));
+    onAdd({ teamId: Number(form.teamId), teamName: team?.name ?? "", points: Number(form.points), reason: form.reason || null });
     setForm({ teamId: "", points: 1, reason: "" });
   };
 
@@ -24,71 +34,36 @@ function AddPenaltyForm({ teams, onAdd }) {
       </select>
       <input type="number" min="1" value={form.points} onChange={(e) => set("points", e.target.value)} className={`${inp} w-14`} placeholder="Pt" />
       <input value={form.reason} onChange={(e) => set("reason", e.target.value)} className={`${inp} flex-1 min-w-[80px]`} placeholder="Motivazione" />
-      <button onClick={handleAdd} disabled={!form.teamId || !form.points} className="text-xs bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white px-2.5 py-1 rounded-lg transition-colors">+ Aggiungi</button>
+      <button onClick={handleAdd} disabled={!form.teamId || !form.points} className="text-xs bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white px-2.5 py-1 rounded-lg transition-colors">
+        + Aggiungi
+      </button>
     </div>
   );
 }
-AddPenaltyForm.propTypes = { teams: PropTypes.array.isRequired, onAdd: PropTypes.func.isRequired };
+AddPenaltyRow.propTypes = { teams: PropTypes.array.isRequired, onAdd: PropTypes.func.isRequired };
 
-export default function PenaltiesSection({ group, editionId, onGroupUpdated }) {
-  const { user } = useAuth();
-  const canManage = user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR;
-  const [teams, setTeams] = useState([]);
-  const [open, setOpen] = useState(false);
+export default function PenaltiesEditor({ value, onChange, teams }) {
+  const penalties = value ?? [];
 
-  const penalties = group.metadata?.penalties ?? [];
-
-  const fetchTeams = useCallback(() => {
-    if (teams.length > 0) return;
-    apiGet(`/api/competitions/editions/${editionId}/teams`)
-      .then((r) => setTeams(r.data || r))
-      .catch(() => {});
-  }, [editionId, teams.length]);
-
-  useEffect(() => { if (open && canManage) fetchTeams(); }, [open, canManage, fetchTeams]);
-
-  const savePenalties = async (updated) => {
-    const metadata = { ...(group.metadata || {}), penalties: updated };
-    await apiPut(`/api/competitions/groups/${group.id}`, { name: group.name, metadata }).catch(console.error);
-    onGroupUpdated();
-  };
-
-  const handleAdd = (penalty) => {
-    const team = teams.find((t) => t.id === penalty.teamId);
-    savePenalties([...penalties, { ...penalty, teamName: team?.name ?? "" }]);
-  };
-
-  const handleDelete = (idx) => savePenalties(penalties.filter((_, i) => i !== idx));
-
-  if (!canManage && penalties.length === 0) return null;
+  const handleAdd = (p) => onChange([...penalties, p]);
+  const handleRemove = (idx) => onChange(penalties.filter((_, i) => i !== idx));
 
   return (
-    <div className="mt-2 pt-2 border-t border-slate-700/50">
-      <button onClick={() => setOpen((o) => !o)} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors">
-        <span>{open ? "▾" : "▸"}</span>
-        <span>Penalità</span>
-        {penalties.length > 0 && <span className="text-red-400 font-semibold">({penalties.length})</span>}
-      </button>
-      {open && (
-        <div className="mt-2 space-y-1">
-          {penalties.length === 0 && <p className="text-xs text-slate-600">Nessuna penalità.</p>}
-          {penalties.map((p, i) => (
-            <div key={i} className="flex items-center gap-2 text-xs">
-              <span className="flex-1 text-slate-300 font-medium truncate">{p.teamName}</span>
-              <span className="text-red-400 font-bold shrink-0">-{p.points} pt</span>
-              {p.reason && <span className="text-slate-500 truncate max-w-[100px]">{p.reason}</span>}
-              {canManage && <button onClick={() => handleDelete(i)} className="text-slate-600 hover:text-red-400 transition-colors shrink-0">✕</button>}
-            </div>
-          ))}
-          {canManage && <AddPenaltyForm teams={teams} onAdd={handleAdd} />}
-        </div>
-      )}
+    <div className="space-y-2">
+      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Penalità</p>
+      <div className="space-y-1 min-h-[2rem]">
+        {penalties.length === 0 && <p className="text-xs text-slate-600 italic py-1">Nessuna penalità configurata</p>}
+        {penalties.map((p, i) => (
+          <PenaltyRow key={i} penalty={p} onRemove={() => handleRemove(i)} />
+        ))}
+      </div>
+      <AddPenaltyRow teams={teams} onAdd={handleAdd} />
     </div>
   );
 }
 
-PenaltiesSection.propTypes = {
-  group: PropTypes.object.isRequired,
-  editionId: PropTypes.number.isRequired,
-  onGroupUpdated: PropTypes.func.isRequired,
+PenaltiesEditor.propTypes = {
+  value: PropTypes.array,
+  onChange: PropTypes.func.isRequired,
+  teams: PropTypes.array.isRequired,
 };
