@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useStandingsData } from "./hooks/useStandingsData";
 import { useAuth } from "../../context/AuthContext";
 import { UserRoles } from "../../constants/roles";
+import StatsCarousel from "./StatsCarousel";
 
 const TAG_ROW = {
   PROMOTED:  "border-l-2 border-l-green-500  bg-green-500/5",
@@ -147,6 +148,7 @@ export default function StandingsView({ selectedEdition, selectedPhaseId, select
           </tbody>
         </table>
       </div>
+      <StatsCarousel selectedEdition={selectedEdition} selectedPhaseId={selectedPhaseId} selectedGroupId={selectedGroupId} />
     </div>
   );
 }

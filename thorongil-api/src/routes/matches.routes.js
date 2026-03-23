@@ -55,6 +55,21 @@ router.get("/progress", authenticateToken, (request, response) => {
     });
 });
 
+router.get("/stats", authenticateToken, (request, response) => {
+  const { editionId, phaseId, groupId } = request.query;
+  if (!editionId) {
+    response.status(400).send({ error: "editionId is required" });
+    return;
+  }
+  matchesDao
+    .getStats(editionId, phaseId || null, groupId || null)
+    .then((result) => response.send(result))
+    .catch((error) => {
+      logger.error({ error }, "Error fetching match stats");
+      response.status(500).send(error);
+    });
+});
+
 router.get("/rounds", authenticateToken, (request, response) => {
   const { editionId, phaseId, groupId } = request.query;
   if (!editionId) {
