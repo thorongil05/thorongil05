@@ -56,7 +56,10 @@ function StandingsRow({ team, idx, isExpanded }) {
           {idx + 1}
         </span>
       </td>
-      <td className="px-3 py-2.5 text-sm text-slate-200 font-medium">{team.teamName}</td>
+      <td className="px-3 py-2.5 text-sm text-slate-200 font-medium">
+        {team.teamName}
+        {team.penaltyPoints > 0 && <span className="ml-1 text-red-400 text-xs font-normal">(-{team.penaltyPoints})</span>}
+      </td>
       <td className="px-3 py-2.5 text-sm text-slate-400 text-center">{team.played}</td>
       {isExpanded && <ExpandedCells team={team} />}
       <td className="px-3 py-2.5 text-sm text-center"><span className="font-bold text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-lg">{team.points}</span></td>

@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { apiGet, apiPost, apiPut, apiDelete } from "../../../../utils/api";
 import TiebreakerEditor from "./TiebreakerEditor";
 import { TIEBREAKER_CRITERIA_OPTIONS } from "../../constants/tiebreakerCriteria";
+import PenaltiesSection from "./PenaltiesSection";
 
 function CriteriaModal({ criteria, onClose }) {
   const labels = criteria.map((v) => TIEBREAKER_CRITERIA_OPTIONS.find((o) => o.value === v)?.label ?? v);
@@ -40,7 +41,7 @@ function CriteriaBadge({ criteria, onClick }) {
 }
 CriteriaBadge.propTypes = { criteria: PropTypes.array, onClick: PropTypes.func.isRequired };
 
-function GroupReadView({ g, onEdit, onDelete, onCriteriaClick }) {
+function GroupReadView({ g, onEdit, onDelete, onCriteriaClick, onGroupUpdated, editionId }) {
   return (
     <div className="flex items-start gap-2">
       <div className="flex-1 min-w-0">
@@ -58,13 +59,14 @@ function GroupReadView({ g, onEdit, onDelete, onCriteriaClick }) {
         <div className="mt-2">
           <CriteriaBadge criteria={g.metadata?.tiebreakerCriteria} onClick={onCriteriaClick} />
         </div>
+        <PenaltiesSection group={g} editionId={editionId} onGroupUpdated={onGroupUpdated} />
       </div>
       <button onClick={onEdit} className="text-xs text-slate-500 hover:text-slate-300 transition-colors shrink-0">✏️</button>
       <button onClick={onDelete} className="text-xs text-slate-600 hover:text-red-400 transition-colors shrink-0">🗑️</button>
     </div>
   );
 }
-GroupReadView.propTypes = { g: PropTypes.object.isRequired, onEdit: PropTypes.func.isRequired, onDelete: PropTypes.func.isRequired, onCriteriaClick: PropTypes.func.isRequired };
+GroupReadView.propTypes = { g: PropTypes.object.isRequired, onEdit: PropTypes.func.isRequired, onDelete: PropTypes.func.isRequired, onCriteriaClick: PropTypes.func.isRequired, onGroupUpdated: PropTypes.func.isRequired, editionId: PropTypes.number.isRequired };
 
 const inp = "bg-slate-700 border border-slate-600 text-white text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500";
 const numInp = `${inp} w-full`;
@@ -204,6 +206,8 @@ export default function GroupsList({ phase }) {
                 onEdit={() => setEditingGroup({ ...g })}
                 onDelete={() => handleDelete(g.id)}
                 onCriteriaClick={() => setCriteriaModal(g.metadata?.tiebreakerCriteria ?? [])}
+                onGroupUpdated={fetchGroups}
+                editionId={phase.editionId}
               />
             )}
           </div>

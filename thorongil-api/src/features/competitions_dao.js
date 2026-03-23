@@ -137,12 +137,14 @@ async function getStandings(editionId, args = {}) {
     endInterval = args.endInterval;
   }
   const groupMetadata = await fetchGroupMetadata(args.groupId);
-  const tiebreakerCriteria = groupMetadata?.tiebreakerCriteria ?? null;
   const rawStandings = standingsService.calculateStandings(
     matches,
     startInterval,
     endInterval,
-    tiebreakerCriteria,
+    {
+      tiebreakerCriteria: groupMetadata?.tiebreakerCriteria ?? null,
+      penalties: groupMetadata?.penalties ?? [],
+    },
   );
 
   return {
