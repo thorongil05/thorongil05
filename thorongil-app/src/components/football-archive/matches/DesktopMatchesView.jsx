@@ -15,8 +15,8 @@ const thRightCls = `pl-4 pr-2 py-3 text-right ${base10}`;
 const thScoreCls = `px-2 py-3 text-center ${base10}`;
 const thAwayCls = `pr-4 pl-2 py-3 text-left ${base10}`;
 const tdScoreCls = "px-2 py-3 text-sm text-center";
-const showOnlyBadge = (status) =>
-  status && status !== "COMPLETED" && status !== "IN_PROGRESS" && status !== "FORFEITED";
+const SCORE_VISIBLE_STATUSES = new Set(["COMPLETED", "IN_PROGRESS", "FORFEITED", "CANCELLED"]);
+const showOnlyBadge = (status) => status && !SCORE_VISIBLE_STATUSES.has(status);
 const tdHomeCls = "pl-4 pr-2 py-3 text-sm text-right";
 const tdAwayCls = "pr-4 pl-2 py-3 text-sm";
 
@@ -71,15 +71,17 @@ export default function DesktopMatchesView({ matches, loading, error, sortBy, so
                   <td className={tdScoreCls}>
                     {showOnlyBadge(match.status)
                       ? <MatchStatusBadge status={match.status} />
-                      : <span className="inline-flex items-center gap-1.5">
+                      : <div className="flex flex-col items-center gap-0.5">
                           <span className="inline-flex items-center gap-1 font-bold font-mono bg-slate-800 rounded-lg px-3 py-0.5 text-sm">
                             <span className="text-white">{match.homeScore ?? "—"}</span>
                             <span className="text-slate-600">-</span>
                             <span className="text-white">{match.awayScore ?? "—"}</span>
                           </span>
-                          <MatchStatusBadge status={match.status} />
-                          {isLive && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />}
-                        </span>
+                          <div className="flex items-center gap-1">
+                            <MatchStatusBadge status={match.status} />
+                            {isLive && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />}
+                          </div>
+                        </div>
                     }
                   </td>
                   <td className={awayCls(match.awayTeam?.id, winner === "away")}>{match.awayTeam?.name || "?"}</td>

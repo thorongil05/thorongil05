@@ -122,6 +122,7 @@ function inInterval(match, startInterval, endInterval) {
 }
 
 function processMatch(standings, match) {
+  if (match.status === "CANCELLED") return;
   if (!standings[match.homeTeam.id]) standings[match.homeTeam.id] = initializeTeam(match.homeTeam);
   if (!standings[match.awayTeam.id]) standings[match.awayTeam.id] = initializeTeam(match.awayTeam);
   if (match.homeScore === null || match.awayScore === null) return;
