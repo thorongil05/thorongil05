@@ -56,20 +56,17 @@ router.get("/progress", authenticateToken, (request, response) => {
 });
 
 router.get("/rounds", authenticateToken, (request, response) => {
-  const editionId = request.query.editionId;
+  const { editionId, phaseId, groupId } = request.query;
   if (!editionId) {
     response.status(400).send({ error: "editionId is required" });
     return;
   }
   matchesDao
-    .findRounds(editionId)
-    .then((result) => {
-      response.send(result);
-    })
+    .findRounds(editionId, phaseId || null, groupId || null)
+    .then((result) => response.send(result))
     .catch((error) => {
-      response.status(500);
-      response.send(error);
-      console.log(error);
+      response.status(500).send(error);
+      logger.error({ error }, "Error fetching rounds");
     });
 });
 
