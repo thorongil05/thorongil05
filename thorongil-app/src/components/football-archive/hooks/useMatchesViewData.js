@@ -18,7 +18,7 @@ export function useMatchesViewData({
   const [selectedRound, setSelectedRound] = useState("All");
   const [selectedTeamId, setSelectedTeamId] = useState("All");
   const [sortBy, setSortBy] = useState("match_date");
-  const [sortOrder, setSortOrder] = useState("desc");
+  const [sortOrder, setSortOrder] = useState("asc");
   const [lastUsedRound, setLastUsedRound] = useState("");
 
   const contextKey = `${selectedEdition?.id}-${selectedPhaseId}-${selectedGroupId}`;
@@ -103,7 +103,7 @@ export function useMatchesViewData({
     setSelectedRound("All");
     setSelectedTeamId("All");
     setSortBy("match_date");
-    setSortOrder("desc");
+    setSortOrder("asc");
   };
 
   const handleRequestSort = (property) => {
