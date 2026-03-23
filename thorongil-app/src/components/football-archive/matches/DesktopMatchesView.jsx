@@ -16,7 +16,7 @@ const thScoreCls = `px-2 py-3 text-center ${base10}`;
 const thAwayCls = `pr-4 pl-2 py-3 text-left ${base10}`;
 const tdScoreCls = "px-2 py-3 text-sm text-center";
 const SCORE_VISIBLE_STATUSES = new Set(["COMPLETED", "IN_PROGRESS", "FORFEITED", "CANCELLED"]);
-const showOnlyBadge = (status) => status && !SCORE_VISIBLE_STATUSES.has(status);
+const showOnlyBadge = (match) => match.status && (!SCORE_VISIBLE_STATUSES.has(match.status) || (match.status === "CANCELLED" && match.homeScore == null && match.awayScore == null));
 const tdHomeCls = "pl-4 pr-2 py-3 text-sm text-right";
 const tdAwayCls = "pr-4 pl-2 py-3 text-sm";
 
@@ -69,7 +69,7 @@ export default function DesktopMatchesView({ matches, loading, error, sortBy, so
                   <td className="w-px px-2 py-3 text-sm text-slate-500 font-mono whitespace-nowrap">{match.round || "-"}</td>
                   <td className={homeCls(match.homeTeam?.id, winner === "home")}>{match.homeTeam?.name || "?"}</td>
                   <td className={tdScoreCls}>
-                    {showOnlyBadge(match.status)
+                    {showOnlyBadge(match)
                       ? <MatchStatusBadge status={match.status} />
                       : <div className="flex flex-col items-center gap-0.5">
                           <span className="inline-flex items-center gap-1 font-bold font-mono bg-slate-800 rounded-lg px-3 py-0.5 text-sm">
