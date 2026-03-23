@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { apiGet, apiPost, apiPut, apiDelete } from "../../../../utils/api";
 import TiebreakerEditor from "./TiebreakerEditor";
 import { TIEBREAKER_CRITERIA_OPTIONS } from "../../constants/tiebreakerCriteria";
-import PenaltiesSection from "./PenaltiesSection";
+import PenaltiesEditor from "./PenaltiesSection";
 
 function CriteriaModal({ criteria, onClose }) {
   const labels = criteria.map((v) => TIEBREAKER_CRITERIA_OPTIONS.find((o) => o.value === v)?.label ?? v);
@@ -41,7 +41,42 @@ function CriteriaBadge({ criteria, onClick }) {
 }
 CriteriaBadge.propTypes = { criteria: PropTypes.array, onClick: PropTypes.func.isRequired };
 
-function GroupReadView({ g, onEdit, onDelete, onCriteriaClick, onGroupUpdated, editionId }) {
+function PenaltiesBadge({ penalties, onClick }) {
+  const count = penalties?.length ?? 0;
+  if (count === 0) return null;
+  return (
+    <button onClick={onClick} className="text-xs text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-400/50 bg-red-500/10 px-2 py-0.5 rounded-full transition-colors">
+      Penalità {count}
+    </button>
+  );
+}
+PenaltiesBadge.propTypes = { penalties: PropTypes.array, onClick: PropTypes.func.isRequired };
+
+function PenaltiesModal({ penalties, onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/50" />
+      <div className="relative bg-slate-800 border border-slate-700 rounded-2xl p-5 w-full max-w-xs shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-semibold text-white">Penalità</p>
+          <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors text-sm">✕</button>
+        </div>
+        <div className="space-y-2">
+          {penalties.map((p, i) => (
+            <div key={i} className="flex items-center gap-2 text-sm">
+              <span className="flex-1 text-slate-200">{p.teamName}</span>
+              <span className="text-red-400 font-bold shrink-0">-{p.points} pt</span>
+              {p.reason && <span className="text-slate-500 text-xs truncate">{p.reason}</span>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+PenaltiesModal.propTypes = { penalties: PropTypes.array.isRequired, onClose: PropTypes.func.isRequired };
+
+function GroupReadView({ g, onEdit, onDelete, onCriteriaClick, onPenaltiesClick }) {
   return (
     <div className="flex items-start gap-2">
       <div className="flex-1 min-w-0">
@@ -56,17 +91,17 @@ function GroupReadView({ g, onEdit, onDelete, onCriteriaClick, onGroupUpdated, e
             {g.metadata?.playoutSpotsCount > 0 && <div><dt className="text-xs text-slate-500">Posti playout</dt><dd className="text-sm text-orange-400 font-semibold">{g.metadata.playoutSpotsCount}</dd></div>}
           </dl>
         )}
-        <div className="mt-2">
+        <div className="mt-2 flex flex-wrap gap-2">
           <CriteriaBadge criteria={g.metadata?.tiebreakerCriteria} onClick={onCriteriaClick} />
+          <PenaltiesBadge penalties={g.metadata?.penalties} onClick={onPenaltiesClick} />
         </div>
-        <PenaltiesSection group={g} editionId={editionId} onGroupUpdated={onGroupUpdated} />
       </div>
       <button onClick={onEdit} className="text-xs text-slate-500 hover:text-slate-300 transition-colors shrink-0">✏️</button>
       <button onClick={onDelete} className="text-xs text-slate-600 hover:text-red-400 transition-colors shrink-0">🗑️</button>
     </div>
   );
 }
-GroupReadView.propTypes = { g: PropTypes.object.isRequired, onEdit: PropTypes.func.isRequired, onDelete: PropTypes.func.isRequired, onCriteriaClick: PropTypes.func.isRequired, onGroupUpdated: PropTypes.func.isRequired, editionId: PropTypes.number.isRequired };
+GroupReadView.propTypes = { g: PropTypes.object.isRequired, onEdit: PropTypes.func.isRequired, onDelete: PropTypes.func.isRequired, onCriteriaClick: PropTypes.func.isRequired, onPenaltiesClick: PropTypes.func.isRequired };
 
 const inp = "bg-slate-700 border border-slate-600 text-white text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500";
 const numInp = `${inp} w-full`;
@@ -83,7 +118,15 @@ function Field({ label, value, onChange }) {
 
 Field.propTypes = { label: PropTypes.string.isRequired, value: PropTypes.number, onChange: PropTypes.func.isRequired };
 
-function GroupEditInline({ group, onChange, onSave, onCancel }) {
+function GroupEditInline({ group, onChange, onSave, onCancel, editionId }) {
+  const [teams, setTeams] = useState([]);
+
+  useEffect(() => {
+    apiGet(`/api/competitions/editions/${editionId}/teams`)
+      .then((r) => setTeams(r.data || r))
+      .catch(() => {});
+  }, [editionId]);
+
   const setMeta = (field, val) => {
     const parsed = val === "" ? undefined : parseInt(val);
     onChange({ ...group, metadata: { ...(group.metadata || {}), [field]: parsed } });
@@ -91,6 +134,10 @@ function GroupEditInline({ group, onChange, onSave, onCancel }) {
 
   const handleTiebreakerChange = (criteria) => {
     onChange({ ...group, metadata: { ...(group.metadata || {}), tiebreakerCriteria: criteria } });
+  };
+
+  const handlePenaltiesChange = (penalties) => {
+    onChange({ ...group, metadata: { ...(group.metadata || {}), penalties } });
   };
 
   return (
@@ -114,10 +161,10 @@ function GroupEditInline({ group, onChange, onSave, onCancel }) {
         <Field label="Posti playout" value={group.metadata?.playoutSpotsCount} onChange={(v) => setMeta("playoutSpotsCount", v)} />
       </div>
       <div className="border-t border-slate-700 pt-3">
-        <TiebreakerEditor
-          value={group.metadata?.tiebreakerCriteria ?? []}
-          onChange={handleTiebreakerChange}
-        />
+        <TiebreakerEditor value={group.metadata?.tiebreakerCriteria ?? []} onChange={handleTiebreakerChange} />
+      </div>
+      <div className="border-t border-slate-700 pt-3">
+        <PenaltiesEditor value={group.metadata?.penalties ?? []} onChange={handlePenaltiesChange} teams={teams} />
       </div>
       <div className="flex justify-end gap-2 pt-1">
         <button onClick={onCancel} className="text-sm text-slate-400 border border-slate-600 hover:border-slate-500 px-4 py-1.5 rounded-lg transition-colors">Annulla</button>
@@ -132,6 +179,7 @@ GroupEditInline.propTypes = {
   onChange: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
+  editionId: PropTypes.number.isRequired,
 };
 
 export default function GroupsList({ phase }) {
@@ -140,6 +188,7 @@ export default function GroupsList({ phase }) {
   const [newName, setNewName] = useState("");
   const [editingGroup, setEditingGroup] = useState(null);
   const [criteriaModal, setCriteriaModal] = useState(null);
+  const [penaltiesModal, setPenaltiesModal] = useState(null);
 
   const fetchGroups = useCallback(() => {
     if (phase.type !== "GROUP") return;
@@ -199,6 +248,7 @@ export default function GroupsList({ phase }) {
                 onChange={setEditingGroup}
                 onSave={handleUpdate}
                 onCancel={() => setEditingGroup(null)}
+                editionId={phase.editionId}
               />
             ) : (
               <GroupReadView
@@ -206,14 +256,14 @@ export default function GroupsList({ phase }) {
                 onEdit={() => setEditingGroup({ ...g })}
                 onDelete={() => handleDelete(g.id)}
                 onCriteriaClick={() => setCriteriaModal(g.metadata?.tiebreakerCriteria ?? [])}
-                onGroupUpdated={fetchGroups}
-                editionId={phase.editionId}
+                onPenaltiesClick={() => setPenaltiesModal(g.metadata?.penalties ?? [])}
               />
             )}
           </div>
         ))}
       </div>
       {criteriaModal && <CriteriaModal criteria={criteriaModal} onClose={() => setCriteriaModal(null)} />}
+      {penaltiesModal && <PenaltiesModal penalties={penaltiesModal} onClose={() => setPenaltiesModal(null)} />}
     </div>
   );
 }

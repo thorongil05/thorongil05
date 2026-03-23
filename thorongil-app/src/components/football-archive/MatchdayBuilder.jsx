@@ -8,7 +8,7 @@ import MatchSlot from "./matchday/MatchSlot";
 
 function MatchdayBuilder({ open, onClose, onMatchesCreated, teams, selectedEdition, selectedPhaseId, selectedGroupId, defaultRound }) {
   const isMobile = useMediaQuery("(max-width:600px)");
-  const { round, setRound, availableTeams, matches, activeTeam, isSubmitting, error, sensors, handleDragStart, handleDragEnd, removeFromSlot, resetBuilder, handleSave } =
+  const { round, setRound, availableTeams, matches, activeTeam, isSubmitting, error, sensors, handleDragStart, handleDragEnd, addTeamToFirstSlot, removeFromSlot, resetBuilder, handleSave } =
     useMatchdayBuilder({ open, teams, defaultRound, selectedEdition, selectedPhaseId, selectedGroupId, onMatchesCreated, onClose });
 
   return (
@@ -44,7 +44,7 @@ function MatchdayBuilder({ open, onClose, onMatchesCreated, teams, selectedEditi
                 className="bg-slate-700 border border-slate-600 text-white text-sm rounded-lg px-3 py-1.5 w-24 focus:outline-none focus:border-blue-500"
                 placeholder="es. 1" />
             </div>
-            <p className="text-xs text-slate-500 flex-1">Trascina le squadre negli slot per formare le partite.</p>
+            <p className="text-xs text-slate-500 flex-1">Clicca o trascina le squadre negli slot per formare le partite.</p>
             <button onClick={resetBuilder} className="text-xs text-slate-400 hover:text-white border border-slate-700 hover:border-slate-500 px-3 py-1.5 rounded-lg transition-colors shrink-0">
               Reset
             </button>
@@ -56,7 +56,7 @@ function MatchdayBuilder({ open, onClose, onMatchesCreated, teams, selectedEditi
 
           <div>
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Squadre disponibili</p>
-            <AvailableTeamsArea teams={availableTeams} />
+            <AvailableTeamsArea teams={availableTeams} onTeamClick={addTeamToFirstSlot} />
           </div>
 
           <div className="border-t border-slate-700/50" />
