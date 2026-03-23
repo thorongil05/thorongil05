@@ -50,6 +50,7 @@ export default function MobileMatchesView({ matches, loading, error, handleEditM
                   ? <div className="flex flex-col items-center gap-1.5 shrink-0">
                       <span className="font-bold font-mono text-sm text-white">{match.homeScore ?? "—"}</span>
                       <span className="font-bold font-mono text-sm text-white">{match.awayScore ?? "—"}</span>
+                      {match.status === "CANCELLED" && <MatchStatusBadge status={match.status} />}
                     </div>
                   : <div className="flex items-center gap-1.5 shrink-0">
                       <MatchStatusBadge status={match.status} />

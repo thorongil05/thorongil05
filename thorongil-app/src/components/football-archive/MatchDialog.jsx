@@ -142,7 +142,11 @@ export default function MatchDialog({ open, onClose, onMatchUpdated, mode, match
     setError(null);
   }, [open, matchToEdit]);
 
-  const handleStatusChange = (status) => { setMatch((p) => ({ ...p, status, homeScore: null, awayScore: null })); setForfeitWinner(null); };
+  const SCORE_PRESERVED_STATUSES = new Set(["COMPLETED", "IN_PROGRESS", "CANCELLED"]);
+  const handleStatusChange = (status) => {
+    setMatch((p) => ({ ...p, status, ...(!SCORE_PRESERVED_STATUSES.has(status) && { homeScore: null, awayScore: null }) }));
+    setForfeitWinner(null);
+  };
 
   const handleSubmit = async () => {
     const needsTeams = mode === MODE.INSERT || mode === MODE.UPDATE_TEAMS;
@@ -168,7 +172,7 @@ export default function MatchDialog({ open, onClose, onMatchUpdated, mode, match
   };
 
   if (!open) return null;
-  const showScores = ["COMPLETED", "IN_PROGRESS"].includes(match.status);
+  const showScores = ["COMPLETED", "IN_PROGRESS", "CANCELLED"].includes(match.status);
   const needsTeams = mode === MODE.INSERT || mode === MODE.UPDATE_TEAMS;
   return (
     <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
