@@ -14,6 +14,8 @@ const thRightCls = `pl-4 pr-2 py-3 text-right ${base10}`;
 const thScoreCls = `px-2 py-3 text-center ${base10}`;
 const thAwayCls = `pr-4 pl-2 py-3 text-left ${base10}`;
 const tdScoreCls = "px-2 py-3 text-sm text-center";
+const showOnlyBadge = (status) =>
+  status && status !== "COMPLETED" && status !== "IN_PROGRESS" && status !== "FORFEITED";
 const tdHomeCls = "pl-4 pr-2 py-3 text-sm text-right";
 const tdAwayCls = "pr-4 pl-2 py-3 text-sm";
 
@@ -34,8 +36,8 @@ export default function DesktopMatchesView({ matches, loading, error, sortBy, so
   const { user } = useAuth();
   const canManage = user?.role === UserRoles.ADMIN || user?.role === UserRoles.EDITOR;
   const hi = (id) => id === Number(selectedTeamId);
-  const homeCls = (id, w) => `${tdHomeCls} ${hi(id) ? "font-bold text-blue-400" : w === "home" ? "font-bold text-white" : w === "away" ? "text-slate-500" : "text-slate-200"}`;
-  const awayCls = (id, w) => `${tdAwayCls} ${hi(id) ? "font-bold text-blue-400" : w === "away" ? "font-bold text-white" : w === "home" ? "text-slate-500" : "text-slate-200"}`;
+  const homeCls = (id, isWinner) => `${tdHomeCls} ${hi(id) ? "font-bold text-blue-400" : isWinner ? "font-bold text-slate-200" : "text-slate-200"}`;
+  const awayCls = (id, isWinner) => `${tdAwayCls} ${hi(id) ? "font-bold text-blue-400" : isWinner ? "font-bold text-slate-200" : "text-slate-200"}`;
   const { menu, closeMenu, onContextMenu } = useMatchContextMenu();
 
   return (
@@ -56,27 +58,27 @@ export default function DesktopMatchesView({ matches, loading, error, sortBy, so
             {!loading && !error && matches.length === 0 && <tr><td colSpan={4} className="px-4 py-8 text-center text-slate-500 text-sm">Nessuna partita trovata</td></tr>}
             {!loading && !error && matches.map((match) => {
               const winner = getMatchWinner(match);
-              const hScoreCls = winner === "away" ? "text-slate-500" : "text-white";
-              const aScoreCls = winner === "home" ? "text-slate-500" : "text-white";
+              const isLive = match.status === "IN_PROGRESS";
               return (
                 <tr key={match.id} className={`hover:bg-blue-500/5 transition-colors ${canManage ? "cursor-context-menu" : ""}`}
                   onContextMenu={canManage ? (e) => onContextMenu(match, e) : undefined}>
                   <td className="w-px px-2 py-3 text-sm text-slate-500 font-mono whitespace-nowrap">{match.round || "-"}</td>
-                  <td className={homeCls(match.homeTeam?.id, winner)}>{match.homeTeam?.name || "?"}</td>
+                  <td className={homeCls(match.homeTeam?.id, winner === "home")}>{match.homeTeam?.name || "?"}</td>
                   <td className={tdScoreCls}>
-                    {match.status && match.status !== "COMPLETED" && match.status !== "IN_PROGRESS" && match.status !== "FORFEITED"
+                    {showOnlyBadge(match.status)
                       ? <MatchStatusBadge status={match.status} />
                       : <span className="inline-flex items-center gap-1.5">
                           <span className="inline-flex items-center gap-1 font-bold font-mono bg-slate-800 rounded-lg px-3 py-0.5 text-sm">
-                            <span className={hScoreCls}>{match.homeScore ?? "—"}</span>
+                            <span className="text-white">{match.homeScore ?? "—"}</span>
                             <span className="text-slate-600">-</span>
-                            <span className={aScoreCls}>{match.awayScore ?? "—"}</span>
+                            <span className="text-white">{match.awayScore ?? "—"}</span>
                           </span>
                           <MatchStatusBadge status={match.status} />
+                          {isLive && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />}
                         </span>
                     }
                   </td>
-                  <td className={awayCls(match.awayTeam?.id, winner)}>{match.awayTeam?.name || "?"}</td>
+                  <td className={awayCls(match.awayTeam?.id, winner === "away")}>{match.awayTeam?.name || "?"}</td>
                 </tr>
               );
             })}

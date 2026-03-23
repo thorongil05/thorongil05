@@ -7,14 +7,8 @@ import { useMatchContextMenu } from "../hooks/useMatchContextMenu";
 import MatchContextMenu from "../MatchContextMenu";
 import { getMatchWinner } from "../constants/matchResult";
 
-const getTeamNameClass = (isHighlighted, winner, side) => {
-  if (isHighlighted) return "font-bold text-blue-400";
-  if (winner === side) return "font-bold text-white";
-  if (winner && winner !== side) return "text-slate-500";
-  return side === "home" ? "text-slate-200" : "text-slate-400";
-};
-const getScoreClass = (winner, losingSide) =>
-  `font-bold font-mono text-sm ${winner === losingSide ? "text-slate-500" : "text-white"}`;
+const getTeamNameClass = (isHighlighted, isWinner) =>
+  isHighlighted ? "font-bold text-blue-400" : isWinner ? "font-bold text-slate-200" : "text-slate-200";
 
 export default function MobileMatchesView({ matches, loading, error, handleEditMatch, handleDeleteMatch, selectedTeamId }) {
   const { t } = useTranslation();
@@ -33,10 +27,7 @@ export default function MobileMatchesView({ matches, loading, error, handleEditM
         {matches.map((match) => {
           const showScore = match.homeScore != null || match.awayScore != null;
           const winner = getMatchWinner(match);
-          const homeName = getTeamNameClass(hi(match.homeTeam?.id), winner, "home");
-          const awayName = getTeamNameClass(hi(match.awayTeam?.id), winner, "away");
-          const homeScoreCls = getScoreClass(winner, "away");
-          const awayScoreCls = getScoreClass(winner, "home");
+          const isLive = match.status === "IN_PROGRESS";
           return (
             <div key={match.id} className="flex items-stretch select-none" {...(canManage ? getLongPressProps(match) : {})}>
               <div className="w-8 bg-slate-800/50 flex items-center justify-center shrink-0">
@@ -46,15 +37,18 @@ export default function MobileMatchesView({ matches, loading, error, handleEditM
               </div>
               <div className="flex-1 py-3 px-3 flex items-center gap-2">
                 <div className="flex-1 space-y-1.5 min-w-0">
-                  <div className="text-sm truncate"><span className={homeName}>{match.homeTeam?.name || "?"}</span></div>
-                  <div className="text-sm truncate"><span className={awayName}>{match.awayTeam?.name || "?"}</span></div>
+                  <span className={`text-sm truncate block ${getTeamNameClass(hi(match.homeTeam?.id), winner === "home")}`}>{match.homeTeam?.name || "?"}</span>
+                  <span className={`text-sm truncate block ${getTeamNameClass(hi(match.awayTeam?.id), winner === "away")}`}>{match.awayTeam?.name || "?"}</span>
                 </div>
                 {showScore
-                  ? <div className="flex flex-col items-end gap-1.5 shrink-0">
-                      <span className={homeScoreCls}>{match.homeScore ?? "—"}</span>
-                      <span className={awayScoreCls}>{match.awayScore ?? "—"}</span>
+                  ? <div className="flex flex-col items-center gap-1.5 shrink-0">
+                      <span className="font-bold font-mono text-sm text-white">{match.homeScore ?? "—"}</span>
+                      <span className="font-bold font-mono text-sm text-white">{match.awayScore ?? "—"}</span>
                     </div>
-                  : <MatchStatusBadge status={match.status} />}
+                  : <div className="flex items-center gap-1.5 shrink-0">
+                      <MatchStatusBadge status={match.status} />
+                      {isLive && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shrink-0" />}
+                    </div>}
               </div>
             </div>
           );
