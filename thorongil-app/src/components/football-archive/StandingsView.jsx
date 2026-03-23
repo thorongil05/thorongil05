@@ -7,16 +7,10 @@ import { useAuth } from "../../context/AuthContext";
 import { UserRoles } from "../../constants/roles";
 
 const TAG_ROW = {
-  PROMOTED:  "border-l-2 border-green-500  bg-green-500/5",
-  PLAYOFF:   "border-l-2 border-blue-400   bg-blue-400/5",
-  PLAYOUT:   "border-l-2 border-orange-400 bg-orange-400/5",
-  RELEGATED: "border-l-2 border-red-500    bg-red-500/5",
-};
-const TAG_DOT = {
-  PROMOTED:  "bg-green-500",
-  PLAYOFF:   "bg-blue-400",
-  PLAYOUT:   "bg-orange-400",
-  RELEGATED: "bg-red-500",
+  PROMOTED:  "border-l-2 border-l-green-500  bg-green-500/5",
+  PLAYOFF:   "border-l-2 border-l-blue-400   bg-blue-400/5",
+  PLAYOUT:   "border-l-2 border-l-orange-400 bg-orange-400/5",
+  RELEGATED: "border-l-2 border-l-red-500    bg-red-500/5",
 };
 const TAG_LABEL = {
   PROMOTED:  "Promossa",
@@ -58,7 +52,6 @@ function StandingsRow({ team, idx, isExpanded }) {
     <tr className={`transition-colors hover:brightness-110 ${TAG_ROW[tag] ?? "border-l-2 border-transparent hover:bg-blue-500/5"}`}>
       <td className="px-3 py-2.5 text-sm text-slate-500">
         <span className="flex items-center gap-1.5">
-          {tag && <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${TAG_DOT[tag]}`} title={TAG_LABEL[tag]} />}
           {idx + 1}
         </span>
       </td>

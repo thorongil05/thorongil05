@@ -27,7 +27,7 @@ export async function saveMatchday({
     awayTeamId: m.awayTeam.id,
     homeGoals: null,
     awayGoals: null,
-    matchDate: new Date().toISOString(),
+    matchDate: null,
     editionId: selectedEdition.id,
     phaseId: selectedPhaseId,
     groupId: selectedGroupId,

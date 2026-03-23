@@ -13,6 +13,8 @@ export function useMatchContextMenu() {
     setMenu({ match, x: e.clientX, y: e.clientY });
   };
 
+  const openMenu = (match, x, y) => setMenu({ match, x, y });
+
   const getLongPressProps = (match) => ({
     onContextMenu: (e) => { e.preventDefault(); setMenu({ match, x: e.clientX, y: e.clientY }); },
     onTouchStart: (e) => {
@@ -23,5 +25,5 @@ export function useMatchContextMenu() {
     onTouchMove: () => clearTimeout(timerRef.current),
   });
 
-  return { menu, closeMenu, onContextMenu, getLongPressProps };
+  return { menu, closeMenu, onContextMenu, getLongPressProps, openMenu };
 }
