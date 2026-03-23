@@ -148,17 +148,49 @@ async function findMatches(args = {}) {
   return domainMatches;
 }
 
-async function findRounds(editionId) {
-  logger.info({ editionId }, "Retrieving rounds");
-  const query = `
-    SELECT round
-    FROM matches
-    WHERE edition_id = $1
-    GROUP BY round
-    ORDER BY LENGTH(round), round
+async function findRounds(editionId, phaseId, groupId) {
+  logger.info({ editionId, phaseId, groupId }, "Retrieving rounds");
+  const values = [editionId];
+  const filters = ["edition_id = $1"];
+  if (phaseId) { values.push(phaseId); filters.push(`phase_id = $${values.length}`); }
+  if (groupId) { values.push(groupId); filters.push(`group_id = $${values.length}`); }
+  const where = filters.join(" AND ");
+
+  const roundsQuery = `
+    SELECT round FROM matches WHERE ${where} AND round IS NOT NULL
+    GROUP BY round ORDER BY LENGTH(round), round
   `;
-  const { rows } = await pool.query(query, [editionId]);
-  return rows.map((r) => r.round).filter((r) => r);
+  const currentRoundQuery = `
+    WITH in_progress AS (
+      SELECT round FROM matches WHERE ${where} AND status = 'IN_PROGRESS' LIMIT 1
+    ),
+    first_scheduled AS (
+      SELECT round FROM matches WHERE ${where} AND status = 'SCHEDULED'
+      ORDER BY LENGTH(round), round LIMIT 1
+    ),
+    last_round AS (
+      SELECT round FROM matches WHERE ${where} AND round IS NOT NULL
+      ORDER BY LENGTH(round) DESC, round DESC LIMIT 1
+    )
+    SELECT round FROM in_progress
+    UNION ALL
+    SELECT round FROM first_scheduled WHERE NOT EXISTS (SELECT 1 FROM in_progress)
+    UNION ALL
+    SELECT round FROM last_round
+      WHERE NOT EXISTS (SELECT 1 FROM in_progress)
+      AND NOT EXISTS (SELECT 1 FROM first_scheduled)
+    LIMIT 1
+  `;
+
+  const [roundsResult, currentResult] = await Promise.all([
+    pool.query(roundsQuery, values),
+    pool.query(currentRoundQuery, values),
+  ]);
+
+  return {
+    rounds: roundsResult.rows.map((r) => r.round),
+    currentRound: currentResult.rows[0]?.round ?? null,
+  };
 }
 
 async function update(id, match) {

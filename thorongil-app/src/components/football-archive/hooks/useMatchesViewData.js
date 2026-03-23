@@ -53,13 +53,9 @@ export function useMatchesViewData({
     if (selectedGroupId) urlSearchParams.append("groupId", selectedGroupId);
 
     apiGet(`/api/matches/rounds?${urlSearchParams}`)
-      .then((data) => {
-        setRounds(data);
-        let nextRound = "All";
-        if (data && data.length > 0) {
-          nextRound = data[data.length - 1];
-        }
-        setSelectedRound(nextRound);
+      .then(({ rounds, currentRound }) => {
+        setRounds(rounds);
+        setSelectedRound(currentRound ?? "All");
       })
       .catch((err) => console.error("Error fetching rounds:", err));
   }, [selectedEdition, selectedPhaseId, selectedGroupId]);
