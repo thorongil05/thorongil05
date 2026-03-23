@@ -245,6 +245,32 @@ async function getProgress(editionId, groupId) {
   return { inserted: Number(rows[0].inserted), completed: Number(rows[0].completed) };
 }
 
+async function getStats(editionId, phaseId, groupId) {
+  const values = [editionId];
+  const filters = ["m.edition_id = $1", "m.status IN ('COMPLETED','FORFEITED')", "m.home_goals IS NOT NULL", "m.away_goals IS NOT NULL"];
+  if (phaseId) { values.push(phaseId); filters.push(`m.phase_id = $${values.length}`); }
+  if (groupId) { values.push(groupId); filters.push(`m.group_id = $${values.length}`); }
+  const where = filters.join(" AND ");
+  const query = `
+    WITH tg AS (
+      SELECT t.id AS tid, t.name AS tname,
+        SUM(CASE WHEN m.home_team_id = t.id THEN m.home_goals ELSE m.away_goals END) AS scored,
+        SUM(CASE WHEN m.home_team_id = t.id THEN m.away_goals ELSE m.home_goals END) AS conceded
+      FROM matches m
+      JOIN teams t ON t.id = m.home_team_id OR t.id = m.away_team_id
+      WHERE ${where}
+      GROUP BY t.id, t.name
+    )
+    SELECT
+      (SELECT json_build_object('teamId',tid,'teamName',tname,'value',scored::int) FROM tg ORDER BY scored DESC, tname LIMIT 1) AS "bestAttack",
+      (SELECT json_build_object('teamId',tid,'teamName',tname,'value',conceded::int) FROM tg ORDER BY conceded ASC, tname LIMIT 1) AS "bestDefense",
+      (SELECT json_build_object('teamId',tid,'teamName',tname,'value',scored::int) FROM tg ORDER BY scored ASC, tname LIMIT 1) AS "worstAttack",
+      (SELECT json_build_object('teamId',tid,'teamName',tname,'value',conceded::int) FROM tg ORDER BY conceded DESC, tname LIMIT 1) AS "worstDefense"
+  `;
+  const { rows } = await pool.query(query, values);
+  return rows[0];
+}
+
 async function deleteMatch(id) {
   const query = "DELETE FROM matches WHERE id = $1 RETURNING *;";
   const { rows } = await pool.query(query, [id]);
@@ -259,5 +285,6 @@ module.exports = {
   update: update,
   findRounds: findRounds,
   getProgress: getProgress,
+  getStats: getStats,
   deleteMatch: deleteMatch,
 };
