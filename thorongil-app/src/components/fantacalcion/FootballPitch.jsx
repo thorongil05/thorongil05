@@ -5,8 +5,6 @@ const FORMATION_MAP = {
   '4-3-3': [1, 4, 3, 3],
   '3-5-2': [1, 3, 5, 2],
   '3-4-3': [1, 3, 4, 3],
-  '4-2-3-1': [1, 4, 2, 3, 1],
-  '4-3-1-2': [1, 4, 3, 1, 2],
 };
 
 function getRoleForLine(lineIndex, totalLines) {
@@ -35,7 +33,7 @@ export default function FootballPitch({ formation, deployed, onSlotClick }) {
 
   return (
     <div
-      className="relative w-full max-w-[320px] sm:max-w-sm bg-green-800 border-2 border-white rounded-xl flex flex-col justify-between p-3 sm:p-4"
+      className="relative w-full max-w-[260px] sm:max-w-sm bg-green-800 border-2 border-white rounded-xl flex flex-col justify-between p-3 sm:p-4"
       style={{ aspectRatio: '0.75', backgroundImage: 'linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '100% 10%' }}
     >
       <div className="absolute top-0 left-[20%] right-[20%] h-[15%] border-2 border-white/30 border-t-0" />
@@ -45,7 +43,7 @@ export default function FootballPitch({ formation, deployed, onSlotClick }) {
       {lines.map((pCount, lineIdx) => {
         const role = getRoleForLine(lineIdx, lines.length);
         return (
-          <div key={lineIdx} className="flex justify-center gap-2 sm:gap-4 z-10">
+          <div key={lineIdx} className="flex justify-center gap-1 sm:gap-4 z-10">
             {Array.from({ length: pCount }).map(() => {
               const slotId = `starter-${slotCounter++}`;
               return <PlayerSlot key={slotId} slotId={slotId} player={deployed[slotId]} role={role} onClick={onSlotClick} />;
