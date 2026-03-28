@@ -33,7 +33,7 @@ export default function FootballPitch({ formation, deployed, onSlotClick }) {
 
   return (
     <div
-      className="relative w-full max-w-[260px] sm:max-w-sm bg-green-800 border-2 border-white rounded-xl flex flex-col justify-between p-3 sm:p-4"
+      className="relative w-full max-w-[320px] sm:max-w-sm mx-auto bg-green-800 border-2 border-white rounded-xl flex flex-col justify-between p-3 sm:p-4"
       style={{ aspectRatio: '0.75', backgroundImage: 'linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '100% 10%' }}
     >
       <div className="absolute top-0 left-[20%] right-[20%] h-[15%] border-2 border-white/30 border-t-0" />

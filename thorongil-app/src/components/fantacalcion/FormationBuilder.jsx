@@ -32,9 +32,7 @@ export default function FormationBuilder() {
                   key={slotId}
                   onClick={() => handleSlotClick(slotId, role)}
                   className={`w-10 h-10 sm:w-14 sm:h-14 rounded-lg border flex flex-col items-center justify-center transition-all ${
-                    player
-                      ? 'bg-blue-600 border-blue-500 text-white'
-                      : 'bg-slate-800 border-slate-700 border-dashed text-slate-400 hover:border-blue-500'
+                    player ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-800 border-slate-700 border-dashed text-slate-400 hover:border-blue-500'
                   }`}
                 >
                   <span className="font-bold text-[9px] sm:text-xs">{player ? player.name.substring(0, 6) : role}</span>
@@ -46,7 +44,6 @@ export default function FormationBuilder() {
           <p className="text-slate-500 text-xs text-center mt-1 hidden sm:block">Clicca per aggiungere (2 DIF, 2 CEN, 3 ATT)</p>
         </div>
       </div>
-
       <PlayerSelectionModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
