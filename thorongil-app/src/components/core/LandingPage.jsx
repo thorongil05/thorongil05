@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import { UserRoles } from "../../constants/roles";
+import { version } from "../../../package.json";
 
 const ROLE_CHIP = {
   [UserRoles.ADMIN]:  { label: "Admin",  cls: "bg-red-500/20 text-red-400 border-red-500/30" },
@@ -60,7 +61,10 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col">
       <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
-        <span className="text-white font-bold text-lg tracking-tight">Thorongil</span>
+        <div className="flex items-baseline gap-2">
+          <span className="text-white font-bold text-lg tracking-tight">Thorongil</span>
+          <span className="text-slate-500 text-xs">v{version}</span>
+        </div>
         <div className="flex items-center gap-3">
           {isAdmin && <LangSwitcher />}
           {user && (
