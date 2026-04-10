@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { useFantacalcion } from './context/FantacalcionContext';
 import StatusFooter from './StatusFooter';
 
-const FORMATIONS = ['4-4-2', '4-3-3', '3-5-2', '3-4-3', '4-2-3-1', '4-3-1-2'];
+const FORMATIONS = ['4-4-2', '4-3-3', '3-5-2', '3-4-3'];
 
 const NAV_ITEMS = [
   { key: 'formation', label: 'Formazione', icon: '⚽' },

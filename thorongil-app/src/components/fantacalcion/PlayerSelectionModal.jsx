@@ -67,7 +67,7 @@ export default function PlayerSelectionModal({ open, onClose, slotId, requiredRo
       else deployPlayer(slotId, { id: `gk-${selectedTeam}`, name: `${selectedTeam} (Blocco)`, role: 'POR', team_name: selectedTeam });
     } else {
       if (!selectedPlayerId) removeDeployedSlot(slotId);
-      else { const player = players.find(p => p.id === selectedPlayerId); if (player) deployPlayer(slotId, player); }
+      else { const player = players.find(p => p.id === Number(selectedPlayerId)); if (player) deployPlayer(slotId, player); }
     }
     onClose();
   };

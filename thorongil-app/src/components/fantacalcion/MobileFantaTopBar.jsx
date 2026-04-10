@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { useFantacalcion } from './context/FantacalcionContext';
 
-const FORMATIONS = ['4-4-2', '4-3-3', '3-5-2', '3-4-3', '4-2-3-1', '4-3-1-2'];
+const FORMATIONS = ['4-4-2', '4-3-3', '3-5-2', '3-4-3'];
 
 export default function MobileFantaTopBar({ activeTab }) {
   const { formationStr, setFormationStr } = useFantacalcion();
