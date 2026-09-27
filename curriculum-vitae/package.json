@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "latex:build": "node latex/build.cjs",
     "latex:export": "node latex/export.cjs",
-    "latex:export:flat": "node latex/export.cjs --flat"
+    "latex:export:small": "node latex/export.cjs --dpi=150"
   },
   "dependencies": {
     "react": "^18.3.1",

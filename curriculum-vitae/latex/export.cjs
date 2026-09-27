@@ -3,8 +3,14 @@
  * Generates LaTeX sections from data.json, then compiles to PDF via Docker.
  * Prerequisites: Docker running with internet access (pulls texlive/texlive on first run).
  *
- * Usage: node export.cjs
- * Output: latex/output/Antonio_Acquavia_CV_v<major>.<minor>.<patch>.pdf
+ * Usage: node export.cjs [--dpi=<n>]
+ * Output: latex/output/Antonio_Acquavia_CV_v<major>.<minor>.<patch>.pdf       (full quality)
+ *         latex/output/Antonio_Acquavia_CV_v<major>.<minor>.<patch>_flat.pdf  (always; compressed, for size-limited uploads)
+ *
+ * The _flat PDF is produced with Ghostscript: active content (JavaScript) is removed,
+ * images are downsampled to --dpi (default 300, use e.g. --dpi=150 for an even smaller
+ * file) and re-encoded as JPEG; text, fonts and links are preserved.
+ * The old --flat flag is still accepted but no longer needed.
  *
  * Version is tracked in latex/version.json.
  * Patch is auto-incremented on each successful build.
@@ -87,39 +93,58 @@ if (result.status !== 0) {
 }
 
 // ---------------------------------------------------------------------------
-// 7. Optionally flatten PDF with Ghostscript (--flat flag)
+// 7. Post-process with Ghostscript: flattened + compressed copy (always)
 // ---------------------------------------------------------------------------
-const flat = process.argv.includes('--flat');
+const dpiArg = process.argv.find(a => a.startsWith('--dpi='));
+const dpi = dpiArg ? parseInt(dpiArg.split('=')[1], 10) : 300;
+if (!Number.isInteger(dpi) || dpi <= 0) {
+  console.error(`\n✗ Invalid --dpi value: ${dpiArg}`);
+  process.exit(1);
+}
+
 const pdfPath     = path.join(OUT_DIR, `${PDF_NAME}.pdf`);
 const flatPdfName = `${PDF_NAME}_flat`;
 const flatPdfPath = path.join(OUT_DIR, `${flatPdfName}.pdf`);
 
-if (flat) {
-  console.log('\n→ Flattening PDF (removing active content)...');
+/** Runs Ghostscript (pdfwrite) inside the TeX Live container on a file in OUT_DIR. */
+function runGs(outName, extraArgs, label) {
   const gsCmd = [
     'gs',
-    '-dBATCH', '-dNOPAUSE', '-dNOSAFER',
-    '-dCompatibilityLevel=1.4',
-    '-dNOJAVASCRIPT',
-    '-dFastWebView=false',
+    '-dBATCH', '-dNOPAUSE', '-dNOSAFER', '-dQUIET',
     '-sDEVICE=pdfwrite',
-    `-sOutputFile=/output/${flatPdfName}.pdf`,
+    ...extraArgs,
+    `-sOutputFile=/output/${outName}.pdf`,
     `/output/${PDF_NAME}.pdf`,
   ].join(' ');
 
-  const flatArgs = [
+  const result = spawnSync('docker', [
     'run', '--rm',
     '-v', `${outMount}:/output`,
     image,
     'bash', '-c', gsCmd,
-  ];
+  ], { stdio: 'inherit' });
 
-  const flatResult = spawnSync('docker', flatArgs, { stdio: 'inherit' });
-  if (flatResult.status !== 0) {
-    console.error('\n✗ Flattening failed.');
+  if (result.status !== 0) {
+    console.error(`\n✗ ${label} failed.`);
     process.exit(1);
   }
 }
+
+console.log(`\n→ Creating flat compressed PDF (images at ${dpi} dpi)...`);
+runGs(flatPdfName, [
+  '-dCompatibilityLevel=1.5',
+  '-dNOJAVASCRIPT',
+  '-dPDFSETTINGS=/ebook',
+  '-dDetectDuplicateImages=true',
+  '-dEmbedAllFonts=true', '-dSubsetFonts=true',
+  '-dDownsampleColorImages=true', '-dColorImageDownsampleType=/Bicubic',
+  `-dColorImageResolution=${dpi}`, '-dColorImageDownsampleThreshold=1.0',
+  '-dDownsampleGrayImages=true', '-dGrayImageDownsampleType=/Bicubic',
+  `-dGrayImageResolution=${dpi}`, '-dGrayImageDownsampleThreshold=1.0',
+  '-dAutoFilterColorImages=false', '-dColorImageFilter=/DCTEncode',
+  '-dAutoFilterGrayImages=false', '-dGrayImageFilter=/DCTEncode',
+  '-dJPEGQ=80',
+], 'Compression');
 
 // ---------------------------------------------------------------------------
 // 8. Persist bumped version and log the build
@@ -129,11 +154,11 @@ if (fs.existsSync(pdfPath)) {
 
   const datetime = new Date().toISOString().replace('T', ' ').slice(0, 19);
   const logPath = path.join(OUT_DIR, 'builds.log');
-  const flatNote = flat ? `  +flat` : '';
-  fs.appendFileSync(logPath, `${datetime}  ${versionStr}${flatNote}  →  ${PDF_NAME}.pdf\n`);
+  fs.appendFileSync(logPath, `${datetime}  ${versionStr}  +flat@${dpi}dpi  →  ${PDF_NAME}.pdf\n`);
 
-  console.log(`\n✓ PDF generated: ${pdfPath}`);
-  if (flat) console.log(`✓ Flat PDF:      ${flatPdfPath}`);
+  const size = (p) => `${(fs.statSync(p).size / 1024).toFixed(0)} KB`;
+  console.log(`\n✓ PDF generated: ${pdfPath}  (${size(pdfPath)})`);
+  console.log(`✓ Flat PDF:      ${flatPdfPath}  (${size(flatPdfPath)})`);
   console.log(`  Version: ${versionStr}  |  ${datetime}`);
 } else {
   console.error('\n✗ PDF not found after compilation.');
