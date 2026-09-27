@@ -134,11 +134,14 @@ ${skillEntries}
 `);
 
 // ---------------------------------------------------------------------------
-// section_languages.tex  (programming skill bars + soft skills)
+// section_languages.tex  (programming languages as flat list + soft skills)
 // ---------------------------------------------------------------------------
+// skills.programming_levels is intentionally NOT rendered in the PDF (it is
+// still used by the React site): an explicit low level on non-core languages
+// can hurt more than simply listing the language.
 
-const progLevels = Object.entries(data.skills.programming_levels)
-  .map(([lang, level]) => `\t\t\\skill{${esc(lang)}}{${level}}`)
+const progList = data.skills.programming
+  .map(lang => `\t\t\\item ${esc(lang)}`)
   .join('\n');
 
 const softSkills = data.skills.soft_skills
@@ -149,9 +152,10 @@ write('section_languages.tex',
 `\\\\[2px]
 \\twocolumnsection{
 \t\\sectionTitle{Programming Languages}{\\faCode}
-\t\\begin{skills}
-${progLevels}
-\t\\end{skills}
+\t\\vspace{1em}
+\t\\begin{itemize}
+${progList}
+\t\\end{itemize}
 }{
 \t\\sectionTitle{Soft skills}{\\faPlus}
 \t\\vspace{1em}

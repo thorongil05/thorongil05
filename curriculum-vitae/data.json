@@ -29,7 +29,7 @@
             "degree": "Professional Engineer License",
             "institution": "Università di Pisa",
             "period": "2023",
-            "highlights": "Section A — Information Engineer"
+            "highlights": "Section A — Information Engineer (Italian professional engineering licensure, required for regulated engineering roles in Italy)"
         }
     ],
     "experience": [
@@ -39,6 +39,8 @@
             "period": "March 2023 - Present",
             "description": "Part of an international team developing Core Banking software products. Started by owning a critical backend component built with Quarkus, responsible for core business logic. Progressively took ownership of end-to-end feature development, growing from lower-impact deliverables to leading the early-stage development of a new product. Gained hands-on experience in software product thinking, going beyond requirements to understand customer needs.",
             "tasks": [
+                "Technical referent for two production products spanning multiple components, with backend systems managing databases of millions of rows and processing thousands of events daily.",
+                "Sustained a near-zero incident rate on owned systems; acted as fastest responder when issues originated in upstream systems, given deeper system knowledge.",
                 "Owned and maintained a critical Quarkus backend component containing core business logic.",
                 "Led end-to-end feature development with increasing scope and business impact.",
                 "Contributed to the early-stage development of a new product, from design to implementation.",
@@ -59,6 +61,7 @@
             "period": "June 2022 - March 2023",
             "description": "Set up a Data Platform from scratch for a customer approaching the data world for the first time. Built end-to-end ETL pipelines retrieving data from external APIs, landing it on Azure Data Lake, processing and refining it with Databricks, and exposing the output through Power BI dashboards.",
             "tasks": [
+                "Built and deployed to production a daily pipeline ingesting Excel files and transforming them into Parquet tables following a bronze/silver/gold (medallion) architecture.",
                 "Designed and implemented ETL pipelines ingesting data from external APIs into Azure Data Lake.",
                 "Processed and refined raw data using Databricks and PySpark across multiple lake layers.",
                 "Built Power BI dashboards consuming refined data from the lake for business reporting.",
