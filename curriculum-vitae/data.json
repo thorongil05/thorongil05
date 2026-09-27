@@ -235,5 +235,35 @@
             "category": "Books",
             "detail": "Historical novels, thriller, fantasy, historical essays, manga"
         }
-    ]
+    ],
+    "cv_pdf": {
+        "_comment": "PDF-only settings used by latex/build.cjs (ignored by the React site).",
+        "programming_core": [
+            "Java",
+            "Python"
+        ],
+        "data_skills": [
+            "Databricks",
+            "PySpark",
+            "Power BI"
+        ],
+        "highlight_tasks": {
+            "ION GROUP": 2,
+            "REPLY S.P.A.": 1
+        },
+        "at_a_glance": [
+            "4+ years in software & data engineering",
+            "Backend owner in Core Banking products",
+            "Peer-reviewed publication (ACM DocEng'23)",
+            "M.Sc. AI & Data Engineering, 108/110",
+            "Licensed Engineer (Italy, Section A)"
+        ],
+        "spoken_languages": [],
+        "company_display": {
+            "ION GROUP": "ION Group",
+            "REPLY S.P.A.": "Reply S.p.A.",
+            "UNIVERSITY OF GLASGOW": "University of Glasgow"
+        },
+        "gdpr": "I authorize the processing of personal data contained in my CV pursuant to Reg. (EU) 2016/679 (GDPR)."
+    }
 }
