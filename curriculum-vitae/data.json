@@ -9,7 +9,7 @@
             "github": "https://github.com/thorongil05",
             "portfolio": "https://thorongil05.github.io/thorongil05/"
         },
-        "summary": "Software Engineer with a background in Artificial Intelligence and Data Engineering. Experienced across the full spectrum of software development: from owning critical backend components and leading end-to-end feature delivery, to building data platforms and conducting research in Information Retrieval. Passionate about understanding customer needs beyond the stated requirement, and about writing software that solves real problems."
+        "summary": "Software Engineer combining production backend ownership with a background in Data Engineering and Information Retrieval. Technical referent for Core Banking products built with Java, Quarkus, Kafka and PostgreSQL; previously built end-to-end data platforms on Azure and Databricks. M.Sc. in Artificial Intelligence and Data Engineering, with peer-reviewed research on neural dense retrieval (ACM DocEng'23). Focused on understanding customer needs beyond the stated requirement, and on writing software that solves real problems."
     },
     "education": [
         {
@@ -40,7 +40,7 @@
             "description": "Part of an international team developing Core Banking software products. Started by owning a critical backend component built with Quarkus, responsible for core business logic. Progressively took ownership of end-to-end feature development, growing from lower-impact deliverables to leading the early-stage development of a new product. Gained hands-on experience in software product thinking, going beyond requirements to understand customer needs.",
             "tasks": [
                 "Technical referent for two production products spanning multiple components, with backend systems managing databases of millions of rows and processing thousands of events daily.",
-                "Sustained a near-zero incident rate on owned systems; acted as fastest responder when issues originated in upstream systems, given deeper system knowledge.",
+                "Worked closely with the team to diagnose and resolve production incidents promptly, bringing the incident rate on owned systems down to near zero within a few months.",
                 "Owned and maintained a critical Quarkus backend component containing core business logic.",
                 "Led end-to-end feature development with increasing scope and business impact.",
                 "Contributed to the early-stage development of a new product, from design to implementation.",
@@ -50,8 +50,9 @@
             "tech_stack": [
                 "Java",
                 "Quarkus",
-                "Jira",
-                "Confluence",
+                "Kafka",
+                "PostgreSQL",
+                "Jenkins",
                 "git"
             ]
         },
@@ -122,19 +123,13 @@
             "Python",
             "Java",
             "TypeScript",
-            "C#",
-            "C++",
-            "C",
-            "JavaScript"
+            "C++"
         ],
         "programming_levels": {
             "Python": 5,
             "Java": 4,
             "TypeScript": 3,
-            "C#": 2,
-            "C++": 2,
-            "C": 2,
-            "JavaScript": 2
+            "C++": 2
         },
         "frameworks": [
             "React",
@@ -152,7 +147,6 @@
             "MongoDB"
         ],
         "soft_skills": [
-            "Passion",
             "Problem Solving",
             "Adaptability",
             "Collaboration",
