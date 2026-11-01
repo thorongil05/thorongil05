@@ -13,6 +13,8 @@ This is a monorepo with three independent applications:
 
 Each application has its own `package.json` and must be run independently from its own directory.
 
+**Football Archive** moved to its own repository, `thorongil05/football-archive` (Nov 2026). Thorongil only links to it: `FOOTBALL_ARCHIVE_URL` in `thorongil-app/src/constants/externalLinks.js` (overridable with `VITE_FOOTBALL_ARCHIVE_URL`), and old `/football-archive/*` paths are redirected by `FootballArchiveRedirect`. Its tables were dropped by migration `1793552650828_drop-football-archive-tables`.
+
 ## Commands
 
 ### Frontend (`thorongil-app/`)
@@ -25,9 +27,9 @@ npm run preview   # Preview production build locally
 
 ### Backend (`thorongil-api/`)
 ```bash
-npm run dev           # Lint + start with nodemon + .env (port 5000)
+npm run dev           # Lint + start with node --watch + .env (port 5000)
 npm start             # Lint + start server
-npm test              # Run tests with Node.js native test runner
+npm test              # Run tests with Node.js native test runner (no tests at the moment)
 npm run lint          # ESLint
 npm run migrate:up    # Apply pending migrations
 npm run migrate:down  # Rollback last migration
@@ -46,9 +48,10 @@ docker compose up -d   # Start PostgreSQL container
 
 - `src/server.js` — Bootstrap: runs pending migrations on startup, configures graceful shutdown
 - `src/app.js` — Express setup, CORS, middleware registration, route mounting
-- `src/features/` — Core logic: `*_dao.js` files for DB access, `standings_service.js` for calculated standings
+- `src/features/` — Core logic: `*_dao.js` files for DB access
 - `src/routes/` — Express routers grouped by domain; aggregated in `routes/index.js`
 - `src/middleware/auth.middleware.js` — JWT verification + role-based authorization
+- `/api/user-activity` — read-only history: the activity tracking was fed only by Football Archive and no longer receives data
 - `migrations/` — node-pg-migrate schema files; run automatically on server start
 
 Environment variables required: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `PORT`, `JWT_SECRET`.
@@ -61,19 +64,19 @@ Environment variables required: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_
 - `src/App.jsx` — Route definitions with `ProtectedRoute` (authenticated) and `AdminRoute` (admin-only) guards
 - `src/context/AuthContext.jsx` — Global auth state; provides `useAuth()` hook
 - `src/utils/api.js` — Centralized fetch wrapper; reads `VITE_SERVER_URL` from env
-- `src/components/football-archive/` — Competition/edition/phase/match management with mobile+desktop layout variants
 - `src/components/fantacalcion/` — Fantasy football feature with `FantacalcionContext` managing team state
+- `src/utils/openLink.js` — Opens absolute URLs (other apps) outside the SPA, relative paths via react-router
 - `src/locales/` — Translation files (`en/`, `it/`); Italian is the fallback language
 
 Frontend `.env`: `VITE_SERVER_URL=http://localhost:5000`
 
-## ESLint Rules (enforced in CI)
+## ESLint Rules
 
 Both packages use ESLint 9 flat config with `sonarjs` plugin. Key limits:
-- **Backend**: max complexity 10, max cognitive complexity 15, max lines per file 50, max params 4
-- **Frontend**: max complexity 20, max cognitive complexity 25, max lines per file 80, max params 5
+- **Backend**: max complexity 10, max cognitive complexity 15, max lines per function 50 (warning), max params 4 (warning)
+- **Frontend**: max complexity 20, max cognitive complexity 25, max lines per function 80 (warning), max params 5 (warning)
 
-Lint runs automatically before `dev` and `start` in both packages — fix lint errors before running.
+Lint runs automatically before `dev` and `start` in both packages (there is no lint CI) — fix lint errors before running.
 
 ## Database Migrations
 
@@ -81,4 +84,4 @@ Migrations live in `thorongil-api/migrations/` and use `node-pg-migrate`. The se
 
 ## Versioning
 
-Both frontend and backend share the same version number (currently v0.0.61), bumped together via the `bump-patch.yaml` GitHub workflow on merges to `main`.
+Both frontend and backend share the same version number, bumped together (patch) by the `bump-patch.yaml` GitHub workflow on every push to `develop`; `merge-to-main.yaml` (manual, `workflow_dispatch`) merges `develop` into `main` for deployment. Feature branches go through PRs to `develop`.
