@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://thorongil05.github.io/thorongil05/sitemap.xml

@@ -25,6 +25,8 @@ import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useAuth } from "../../context/AuthContext";
 import { UserRoles } from "../../constants/roles";
+import { FOOTBALL_ARCHIVE_URL } from "../../constants/externalLinks";
+import { openLink } from "../../utils/openLink";
 
 const ROLE_CHIP = {
   [UserRoles.ADMIN]:  { label: "Admin",  color: "error" },
@@ -48,7 +50,7 @@ const navigation = [
     id: "item-1",
     name: "Football Archive",
     i18nKey: "nav.football_archive",
-    href: "/football-archive",
+    href: FOOTBALL_ARCHIVE_URL,
   },
   {
     id: "item-2",
@@ -85,7 +87,7 @@ export default function Navbar() {
   });
 
   const handleNavClick = (href) => {
-    navigate(href);
+    openLink(navigate, href);
     if (mobileOpen) setMobileOpen(false);
   };
 
