@@ -1,9 +1,9 @@
 name: Bump Patch Version
 
 on:
+  # Push only: on pull_request the checkout is the PR merge ref, which cannot
+  # be pushed to ("deny updating a hidden ref"). The bump runs after the merge.
   push:
-    branches: [ develop ]
-  pull_request:
     branches: [ develop ]
 
 jobs:
