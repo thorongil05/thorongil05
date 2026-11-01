@@ -12,8 +12,7 @@ import { useAuth } from "./context/AuthContext";
 import AdminDashboardView from "./components/admin/AdminDashboardView";
 import LandingPage from "./components/core/LandingPage";
 import FantacalcionLayout from "./components/fantacalcion/FantacalcionLayout";
-import CompetitionManagementPage from "./components/football-archive/competitions/CompetitionManagementPage";
-import FootballArchiveLayout from "./components/football-archive/FootballArchiveLayout";
+import FootballArchiveRedirect from "./components/core/FootballArchiveRedirect";
 import { UserRoles } from "./constants/roles";
 
 const ProtectedRoute = ({ children }) => {
@@ -35,22 +34,7 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginView></LoginView>}></Route>
       <Route path="/register" element={<RegisterView></RegisterView>}></Route>
-      <Route
-        path="/football-archive"
-        element={
-          <ProtectedRoute>
-            <FootballArchiveLayout />
-          </ProtectedRoute>
-        }
-      ></Route>
-      <Route
-        path="/football-archive/competition/add"
-        element={<ProtectedRoute><CompetitionManagementPage /></ProtectedRoute>}
-      ></Route>
-      <Route
-        path="/football-archive/competition/edit/:id"
-        element={<ProtectedRoute><CompetitionManagementPage /></ProtectedRoute>}
-      ></Route>
+      <Route path="/football-archive/*" element={<FootballArchiveRedirect />}></Route>
       <Route path="/" element={<LandingPage />}></Route>
       <Route path="/" element={<Main></Main>}>
         <Route path="/instruments" element={<Home></Home>}></Route>

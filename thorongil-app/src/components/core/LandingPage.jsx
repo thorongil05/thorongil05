@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import { UserRoles } from "../../constants/roles";
 import { version } from "../../../package.json";
+import { FOOTBALL_ARCHIVE_URL } from "../../constants/externalLinks";
+import { openLink } from "../../utils/openLink";
 
 const ROLE_CHIP = {
   [UserRoles.ADMIN]:  { label: "Admin",  cls: "bg-red-500/20 text-red-400 border-red-500/30" },
@@ -12,7 +14,7 @@ const ROLE_CHIP = {
 };
 
 const MODULES = [
-  { icon: "⚽", title: "Football Archive", description: "Campionati, edizioni, fasi, gironi, partite e classifiche.", href: "/football-archive" },
+  { icon: "⚽", title: "Football Archive", description: "Campionati, edizioni, fasi, gironi, partite e classifiche.", href: FOOTBALL_ARCHIVE_URL },
   { icon: "🏆", title: "Fantacalcion", description: "Gestisci le tue squadre e segui il campionato fantasy.", href: "/fantacalcion" },
 ];
 const ADMIN_MODULE = { icon: "🔧", title: "Admin", description: "Gestione utenti e configurazione della piattaforma.", href: "/admin" };
@@ -85,7 +87,7 @@ export default function LandingPage() {
           <p className="text-slate-400 mt-2">Seleziona un modulo per iniziare.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {modules.map((m) => <ModuleCard key={m.href} {...m} onClick={() => navigate(m.href)} />)}
+          {modules.map((m) => <ModuleCard key={m.href} {...m} onClick={() => openLink(navigate, m.href)} />)}
         </div>
       </main>
     </div>
